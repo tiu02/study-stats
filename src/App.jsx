@@ -1,34 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
+    <div className="landing">
+      <header className="hero">
+        <h1 className="app-name">StudyStats</h1>
+        <p className="tagline">Plan sessions, track deadlines, study smarter</p>
+        <p className="description">
+          StudyStats enables students and scholars to boost productivity and
+          study habits. Users can track study sessions, manage deadlines, use a
+          Pomodoro timer, and view weekly progress summarizing total hours
+          studied, sessions completed, and due dates.
         </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+        <button className="cta-button">Start Studying</button>
+      </header>
+
+      <section className="features">
+        <div className="feature-card">
+          <h3>Track Sessions</h3>
+          <p>Log every study session and watch your consistency grow.</p>
+        </div>
+        <div className="feature-card">
+          <h3>Manage Deadlines</h3>
+          <p>Stay on top of assignments with organized due-date tracking.</p>
+        </div>
+        <div className="feature-card">
+          <h3>Pomodoro Timer</h3>
+          <p>Stay focused with built-in timed study intervals.</p>
+        </div>
+        <div className="feature-card">
+          <h3>Weekly Progress</h3>
+          <p>Review hours studied, sessions completed, and upcoming dates.</p>
+        </div>
+      </section>
+
+      <footer className="footer">
+        <p>&copy; 2026 StudyStats. Built for focused learners.</p>
+      </footer>
+    </div>
   )
 }
 
