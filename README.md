@@ -1,16 +1,28 @@
-# React + Vite
+# StudyStats
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project description
+StudyStats enables students and scholars to boost productivity and study habits. Users can track study sessions, manage deadlines, use a Pomodoro timer, and view weekly progress summarizing total hours studied, sessions completed, and due dates.
 
-Currently, two official plugins are available:
+--
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Planned Features:
+- Study Session Tracker: Create, edit, delete study sessions with subject, duration, and notes. All sessions stored in Firestore per user.
+- Pomodoro timer: Timer to set work vs break. Ex: 50 min work/10 min break. Timer has automatic session logging to Firestore when a cycle of work/break is completed, tracked daily. 
+- Assignment Deadline Tracker: Add due dates for assignments, with to-do list to mark as completed when done, color-coded by urgency.
+- Weekly Summary Dashboard: Home page showing total hours studied weekly, sessions completed, upcoming assignments due this week, and overdue count. 
+- User Authentication: Sign up, log in, and log out using Firebase Auth. Unauthenticated users are redirected to login. Session persists on refresh.
+- Cloud Database: Replaces localStorage using Firestore. Each user sees only their own account and data.
 
-## React Compiler
+--
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
+- Frontend Framework: React 18 + Vite
+- Routing: React Router v6
+- Authentication: Firebase Auth (Email/Password)
+- Database: Firebase Firestore
+- Date Utilities: date-fns
+- Styling: CSS Modules
+- Deployment: Netlify (connected to Github)
+- AI Dev Tool: Claude Code (VSCode Extension)
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+--
