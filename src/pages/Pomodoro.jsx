@@ -1,3 +1,9 @@
+import './Stub.css'
+
 export default function Pomodoro() {
-  return <h1>Pomodoro</h1>
+  return (
+    <div className="stub-page">
+      <h1>Pomodoro</h1>
+    </div>
+  )
 }

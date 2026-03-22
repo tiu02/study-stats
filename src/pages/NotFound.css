@@ -1,16 +1,22 @@
 .not-found-page {
-  min-height: calc(100vh - 3.5rem);
+  min-height: calc(100vh - 4rem);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   background-color: #EEF2FF;
-  padding: 1.5rem 1rem;
+  padding: 4rem 2rem 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .not-found-page {
+    padding: 3rem 2rem 1.5rem;
+  }
 }
 
 .not-found-container {
   text-align: center;
   background: #ffffff;
-  padding: 3.5rem 4rem;
+  padding: 3rem 4rem;
   border-radius: 16px;
   border: 1px solid #c7d2fe;
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
@@ -26,17 +32,17 @@
 }
 
 .not-found-heading {
-  font-size: 4rem;
+  font-size: 3rem;
   font-weight: 700;
   color: #6366F1;
-  margin: 0 0 0.75rem;
+  margin: 0 0 1.25rem;
   line-height: 1;
 }
 
 .not-found-message {
   font-size: 1.1rem;
   color: #4b5563;
-  margin: 0 0 2rem;
+  margin: 0 0 3rem;
   line-height: 1.5;
 }
 

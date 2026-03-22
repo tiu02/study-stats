@@ -1,3 +1,9 @@
+import './Stub.css'
+
 export default function Sessions() {
-  return <h1>Sessions</h1>
+  return (
+    <div className="stub-page">
+      <h1>Sessions</h1>
+    </div>
+  )
 }

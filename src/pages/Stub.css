@@ -1,0 +1,14 @@
+.stub-page {
+  min-height: calc(100vh - 4rem);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background-color: #EEF2FF;
+  padding: 2rem 2rem 1.5rem;
+}
+
+.stub-page h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #6366F1;
+}

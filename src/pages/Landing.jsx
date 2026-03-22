@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { DashboardIcon, SessionsIcon, AssignmentsIcon, PomodoroIcon } from '../components/Icons'
 
 export default function Landing() {
   const { currentUser } = useAuth()
@@ -29,23 +30,19 @@ export default function Landing() {
 
       <section className="features" aria-label="App features">
         <div className="feature-card" onClick={() => navigate('/dashboard')} onKeyDown={(e) => e.key === 'Enter' && navigate('/dashboard')} role="link" tabIndex={0}>
-          <span className="feature-icon" aria-hidden="true">&#128202;</span>
-          <h3>Weekly Progress</h3>
+          <h3><span className="feature-icon" aria-hidden="true"><DashboardIcon size={22} /></span> Weekly Progress</h3>
           <p>Review hours studied, sessions completed, and upcoming dates.</p>
         </div>
         <div className="feature-card" onClick={() => navigate('/sessions')} onKeyDown={(e) => e.key === 'Enter' && navigate('/sessions')} role="link" tabIndex={0}>
-          <span className="feature-icon" aria-hidden="true">&#128214;</span>
-          <h3>Track Sessions</h3>
+          <h3><span className="feature-icon" aria-hidden="true"><SessionsIcon size={22} /></span> Track Sessions</h3>
           <p>Log every study session and watch your consistency grow.</p>
         </div>
         <div className="feature-card" onClick={() => navigate('/assignments')} onKeyDown={(e) => e.key === 'Enter' && navigate('/assignments')} role="link" tabIndex={0}>
-          <span className="feature-icon" aria-hidden="true">&#128203;</span>
-          <h3>Manage Deadlines</h3>
+          <h3><span className="feature-icon" aria-hidden="true"><AssignmentsIcon size={22} /></span> Manage Deadlines</h3>
           <p>Stay on top of assignments with organized due-date tracking.</p>
         </div>
         <div className="feature-card" onClick={() => navigate('/pomodoro')} onKeyDown={(e) => e.key === 'Enter' && navigate('/pomodoro')} role="link" tabIndex={0}>
-          <span className="feature-icon" aria-hidden="true">&#9202;</span>
-          <h3>Pomodoro Timer</h3>
+          <h3><span className="feature-icon" aria-hidden="true"><PomodoroIcon size={22} /></span> Pomodoro Timer</h3>
           <p>Stay focused with built-in timed study intervals.</p>
         </div>
       </section>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { DashboardIcon, SessionsIcon, AssignmentsIcon, PomodoroIcon, ProfileIcon } from './Icons'
 import './Navbar.css'
 
 const protectedPaths = ['/dashboard', '/sessions', '/assignments', '/pomodoro']
@@ -24,38 +25,42 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="navbar" aria-label="Main navigation">
+    <nav className={`navbar ${!currentUser ? 'navbar-logged-out' : ''}`} aria-label="Main navigation">
       <div className="navbar-top">
         <Link to="/" className="navbar-logo" onClick={handleNavClick}>StudyStats</Link>
 
-        <button
-          className="navbar-toggle"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-expanded={menuOpen}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-        >
-          <span className={`hamburger ${menuOpen ? 'open' : ''}`}>
-            <span></span>
-            <span></span>
-            <span></span>
-          </span>
-        </button>
+        {currentUser && (
+          <button
+            className="navbar-toggle"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          >
+            <span className={`hamburger ${menuOpen ? 'open' : ''}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+        )}
       </div>
 
       <div className={`navbar-menu ${menuOpen ? 'navbar-menu-open' : ''}`}>
         {currentUser ? (
           <>
             <div className="navbar-links">
-              <NavLink to="/dashboard" onClick={handleNavClick}>Dashboard</NavLink>
-              <NavLink to="/sessions" onClick={handleNavClick}>Sessions</NavLink>
-              <NavLink to="/assignments" onClick={handleNavClick}>Assignments</NavLink>
-              <NavLink to="/pomodoro" onClick={handleNavClick}>Pomodoro</NavLink>
+              <NavLink to="/dashboard" onClick={handleNavClick}><DashboardIcon /> Dashboard</NavLink>
+              <NavLink to="/sessions" onClick={handleNavClick}><SessionsIcon /> Sessions</NavLink>
+              <NavLink to="/assignments" onClick={handleNavClick}><AssignmentsIcon /> Assignments</NavLink>
+              <NavLink to="/pomodoro" onClick={handleNavClick}><PomodoroIcon /> Pomodoro</NavLink>
             </div>
             <div className="navbar-right">
-              <span className="navbar-email">{currentUser.email}</span>
               <button className="navbar-logout" onClick={handleLogout}>
                 Log Out
               </button>
+              <span className="navbar-profile" title={currentUser.email} aria-label={currentUser.email}>
+                <ProfileIcon />
+              </span>
             </div>
           </>
         ) : (

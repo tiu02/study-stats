@@ -1,21 +1,26 @@
-/* Navbar layout */
+/* Navbar layout — single row, sticky */
 .navbar {
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   background-color: #ffffff;
   border-bottom: 1px solid #c7d2fe;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  padding: 0 1.5rem;
+  padding: 0 2rem;
+  height: 4rem;
 }
 
+/* Logo + hamburger container */
 .navbar-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  height: 3.5rem;
 }
 
 /* Logo */
 .navbar-logo {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: #6366F1;
   text-decoration: none;
@@ -72,7 +77,7 @@
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* Menu container — horizontal on desktop */
+/* Menu container — inline with logo on desktop */
 .navbar-menu {
   display: flex;
   align-items: center;
@@ -82,14 +87,24 @@
   margin-left: 2rem;
 }
 
-/* Nav links (logged in) */
+/* When logged out, push auth links to the right */
+.navbar-logged-out .navbar-menu {
+  justify-content: flex-end;
+}
+
+/* Nav links (logged in) — centered on desktop */
 .navbar-links {
   display: flex;
+  flex: 1;
+  justify-content: center;
   gap: 1.25rem;
 }
 
 .navbar-links a {
-  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1rem;
   font-weight: 500;
   color: #4b5563;
   text-decoration: none;
@@ -113,6 +128,11 @@
   outline-offset: 2px;
 }
 
+/* Hide icons on desktop nav links */
+.navbar-links a svg {
+  display: none;
+}
+
 /* Right side */
 .navbar-right {
   display: flex;
@@ -120,13 +140,17 @@
   gap: 0.75rem;
 }
 
-.navbar-email {
-  font-size: 0.85rem;
-  color: #6b7280;
-  max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* Profile icon */
+.navbar-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: #EEF2FF;
+  color: #6366F1;
+  cursor: default;
 }
 
 /* Logout button */
@@ -178,6 +202,18 @@
 
 /* Mobile responsive */
 @media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 0 2rem;
+  }
+
+  .navbar-top {
+    justify-content: space-between;
+    width: 100%;
+    height: 4rem;
+  }
+
   .navbar-toggle {
     display: flex;
   }
@@ -185,9 +221,10 @@
   .navbar-menu {
     display: none;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.75rem;
     margin-left: 0;
+    width: 100%;
     padding: 0.75rem 0 1rem;
     border-top: 1px solid #e5e7eb;
   }
@@ -200,11 +237,20 @@
     flex-direction: column;
     gap: 0.5rem;
     width: 100%;
+    align-items: center;
+  }
+
+  /* Show icons on mobile nav links */
+  .navbar-links a svg {
+    display: inline;
   }
 
   .navbar-links a {
+    justify-content: flex-start;
+    width: 8rem;
     padding: 0.5rem 0;
     border-bottom: none;
+    font-size: 1.05rem;
   }
 
   .navbar-links a.active {
@@ -217,9 +263,31 @@
     width: 100%;
     padding-top: 0.5rem;
     border-top: 1px solid #e5e7eb;
+    justify-content: center;
   }
 
-  .navbar-email {
-    max-width: none;
+  /* When logged out on mobile, keep auth links in the navbar row */
+  .navbar-logged-out {
+    flex-wrap: nowrap;
+  }
+
+  .navbar-logged-out .navbar-top {
+    width: auto;
+  }
+
+  .navbar-logged-out .navbar-menu {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-top: none;
+    padding: 0;
+    width: auto;
+    margin-left: auto;
+  }
+
+  .navbar-logged-out .navbar-right {
+    width: auto;
+    padding-top: 0;
+    border-top: none;
   }
 }
