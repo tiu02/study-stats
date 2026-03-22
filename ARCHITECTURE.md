@@ -13,17 +13,19 @@
 - `src/main.jsx` — Entry point. Wraps app in `BrowserRouter` > `AuthProvider`.
 - `src/App.jsx` — React Router routes: `/` (public), `/login`, `/signup`, `/dashboard`, `/sessions`, `/pomodoro`, `/assignments` (protected), `*` (404). Renders Navbar above all routes.
 - `src/App.css` — Landing page styles (indigo color scheme, feature cards with icons, responsive grid).
-- `src/index.css` — Global base styles and resets.
+- `src/index.css` — Global base styles and resets (light theme, clean reset — Vite boilerplate removed).
 - `src/firebase.js` — Initializes Firebase App, Auth, and Firestore. Exports: `app`, `auth`, `db`. Config values read from `VITE_`-prefixed env vars in `.env.local`.
 - `src/context/AuthContext.jsx` — Auth provider using `onAuthStateChanged`. Exports `useAuth()` hook providing: `currentUser`, `loading`, `login()`, `signup()`, `logout()`.
-- `src/components/Navbar.jsx` — Navigation bar with logo, conditional nav links (logged in: Dashboard, Sessions, Assignments, Pomodoro + email + Logout; logged out: Log In, Sign Up). Hamburger menu on mobile.
-- `src/components/Navbar.css` — Navbar styles with hamburger toggle, animated open/close icon, mobile-responsive dropdown menu.
+- `src/components/Icons.jsx` — Shared SVG outline icon components (DashboardIcon, SessionsIcon, AssignmentsIcon, PomodoroIcon, ProfileIcon). Used by Navbar and Landing.
+- `src/components/Navbar.jsx` — Sticky navigation bar with logo, centered nav links with outline icons (logged in: Dashboard, Sessions, Assignments, Pomodoro + Logout + profile icon; logged out: Log In, Sign Up). Hamburger menu on mobile, no hamburger when logged out.
+- `src/components/Navbar.css` — Navbar styles: sticky positioning, hamburger toggle with animated open/close icon, centered desktop links, mobile dropdown with aligned icons, logged-out single-row layout.
 - `src/components/PrivateRoute.jsx` — Wrapper component that redirects to `/login` if not authenticated. Shows loading spinner while auth state is resolving.
-- `src/pages/Landing.jsx` — Public landing/home page. Shows "Get Started" button (→ /signup) when logged out, "Start Studying" button (→ /sessions) when logged in. Feature cards with icons link to respective pages.
-- `src/pages/Dashboard.jsx` — Stub page, renders heading only.
-- `src/pages/Sessions.jsx` — Stub page, renders heading only.
-- `src/pages/Pomodoro.jsx` — Stub page, renders heading only.
-- `src/pages/Assignments.jsx` — Stub page, renders heading only.
+- `src/pages/Landing.jsx` — Public landing/home page. Shows "Get Started" button (→ /signup) when logged out, "Start Studying" button (→ /sessions) when logged in. Feature cards with SVG outline icons link to respective pages.
+- `src/pages/Dashboard.jsx` — Stub page with styled layout.
+- `src/pages/Sessions.jsx` — Stub page with styled layout.
+- `src/pages/Pomodoro.jsx` — Stub page with styled layout.
+- `src/pages/Assignments.jsx` — Stub page with styled layout.
+- `src/pages/Stub.css` — Shared styles for stub pages (indigo heading, consistent page layout).
 - `src/pages/NotFound.jsx` — 404 error page with warning icon, heading, message, and styled "Back to Home" button.
 - `src/pages/NotFound.css` — 404 page styles.
 - `src/pages/Login.jsx` — Email/password login form with inline field validation, Firebase error handling, user-not-found prompt with signup link, ARIA attributes for accessibility.
