@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Navigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import './Auth.css'
 
@@ -8,8 +8,12 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  const { login, currentUser } = useAuth()
   const navigate = useNavigate()
+
+  if (currentUser) {
+    return <Navigate to="/" />
+  }
 
   function getErrorMessage(code) {
     switch (code) {
@@ -23,6 +27,8 @@ export default function Login() {
         return 'Please enter a valid email address.'
       case 'auth/too-many-requests':
         return 'Too many failed attempts. Please try again later.'
+      case 'auth/network-request-failed':
+        return 'Network error. Check your connection and try again.'
       default:
         return 'Failed to log in. Please try again.'
     }
@@ -54,6 +60,7 @@ export default function Login() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
             required
           />
         </label>
@@ -63,6 +70,7 @@ export default function Login() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
             required
           />
         </label>

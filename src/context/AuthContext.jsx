@@ -39,6 +39,10 @@ export function AuthProvider({ children }) {
 
   const value = { currentUser, loading, signup, login, logout }
 
+  if (loading) {
+    return <div className="loading-spinner">Loading...</div>
+  }
+
   return (
     <AuthContext.Provider value={value}>
       {children}

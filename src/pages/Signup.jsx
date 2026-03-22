@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Navigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import './Auth.css'
 
@@ -9,8 +9,12 @@ export default function Signup() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signup } = useAuth()
+  const { signup, currentUser } = useAuth()
   const navigate = useNavigate()
+
+  if (currentUser) {
+    return <Navigate to="/" />
+  }
 
   function getErrorMessage(code) {
     switch (code) {
@@ -20,6 +24,8 @@ export default function Signup() {
         return 'Please enter a valid email address.'
       case 'auth/weak-password':
         return 'Password must be at least 6 characters.'
+      case 'auth/network-request-failed':
+        return 'Network error. Check your connection and try again.'
       default:
         return 'Failed to create account. Please try again.'
     }
@@ -56,6 +62,7 @@ export default function Signup() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
             required
           />
         </label>
@@ -65,6 +72,7 @@ export default function Signup() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
             required
           />
         </label>
@@ -74,6 +82,7 @@ export default function Signup() {
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            autoComplete="new-password"
             required
           />
         </label>
