@@ -1,0 +1,113 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #EEF2FF;
+  padding: 1rem;
+}
+
+.auth-form {
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 12px;
+  border: 1px solid #c7d2fe;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+}
+
+.auth-form h2 {
+  margin: 0 0 1.5rem;
+  font-size: 1.5rem;
+  color: #6366F1;
+  text-align: center;
+}
+
+.auth-form label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.auth-form input {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  background: #fafafe;
+  color: #1f2937;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: #6366F1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.auth-form button {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #6366F1;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.auth-form button:hover:not(:disabled) {
+  background-color: #4f46e5;
+}
+
+.auth-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-error {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.auth-switch {
+  text-align: center;
+  margin-top: 1.25rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.auth-switch a {
+  color: #6366F1;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
+.loading-spinner {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #6366F1;
+  background-color: #EEF2FF;
+}
