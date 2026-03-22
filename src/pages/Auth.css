@@ -1,10 +1,10 @@
 .auth-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 3.5rem);
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #EEF2FF;
-  padding: 1rem;
+  padding: 1.5rem 1rem;
 }
 
 .auth-form {
@@ -47,8 +47,18 @@
   transition: border-color 0.2s;
 }
 
+.auth-form input:-webkit-autofill,
+.auth-form input:-webkit-autofill:hover,
+.auth-form input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #fafafe inset;
+  -webkit-text-fill-color: #1f2937;
+  border: 1px solid #c7d2fe;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 .auth-form input:focus {
-  outline: none;
+  outline: 2px solid #6366F1;
+  outline-offset: 1px;
   border-color: #6366F1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }

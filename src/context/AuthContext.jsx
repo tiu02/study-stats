@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
   const value = { currentUser, loading, signup, login, logout }
 
   if (loading) {
-    return <div className="loading-spinner">Loading...</div>
+    return <div className="loading-spinner" role="status" aria-live="polite">Loading...</div>
   }
 
   return (

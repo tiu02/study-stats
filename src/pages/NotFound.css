@@ -1,0 +1,70 @@
+.not-found-page {
+  min-height: calc(100vh - 3.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #EEF2FF;
+  padding: 1.5rem 1rem;
+}
+
+.not-found-container {
+  text-align: center;
+  background: #ffffff;
+  padding: 3.5rem 4rem;
+  border-radius: 16px;
+  border: 1px solid #c7d2fe;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+  max-width: 520px;
+  width: 100%;
+}
+
+.not-found-icon {
+  display: block;
+  font-size: 4rem;
+  margin-bottom: 0.5rem;
+  color: #6366F1;
+}
+
+.not-found-heading {
+  font-size: 4rem;
+  font-weight: 700;
+  color: #6366F1;
+  margin: 0 0 0.75rem;
+  line-height: 1;
+}
+
+.not-found-message {
+  font-size: 1.1rem;
+  color: #4b5563;
+  margin: 0 0 2rem;
+  line-height: 1.5;
+}
+
+.not-found-button {
+  display: inline-block;
+  padding: 0.85rem 2.25rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #6366F1;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  min-height: 48px;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.not-found-button:hover {
+  background-color: #4f46e5;
+  transform: translateY(-1px);
+}
+
+.not-found-button:active {
+  transform: translateY(0);
+}
+
+.not-found-button:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}

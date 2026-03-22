@@ -1,14 +1,9 @@
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Landing() {
-  const { currentUser, logout } = useAuth()
+  const { currentUser } = useAuth()
   const navigate = useNavigate()
-
-  async function handleLogout() {
-    await logout()
-    navigate('/')
-  }
 
   return (
     <div className="landing">
@@ -22,49 +17,36 @@ export default function Landing() {
           studied, sessions completed, and due dates.
         </p>
         {currentUser ? (
-          <>
-            <p style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '1rem' }}>
-              Signed in as {currentUser.email}
-            </p>
-            <button className="cta-button" style={{ marginRight: '0.75rem' }}>
-              Start Studying
-            </button>
-            <button
-              className="cta-button"
-              onClick={handleLogout}
-              style={{ backgroundColor: '#e5e7eb', color: '#374151' }}
-            >
-              Log Out
-            </button>
-          </>
+          <button className="cta-button" onClick={() => navigate('/sessions')}>
+            Start Studying
+          </button>
         ) : (
-          <>
-            <Link to="/login" className="cta-button" style={{ marginRight: '0.75rem', textDecoration: 'none', display: 'inline-block' }}>
-              Log In
-            </Link>
-            <Link to="/signup" className="cta-button" style={{ backgroundColor: '#e5e7eb', color: '#374151', textDecoration: 'none', display: 'inline-block' }}>
-              Sign Up
-            </Link>
-          </>
+          <button className="cta-button" onClick={() => navigate('/signup')}>
+            Get Started
+          </button>
         )}
       </header>
 
-      <section className="features">
-        <div className="feature-card">
+      <section className="features" aria-label="App features">
+        <div className="feature-card" onClick={() => navigate('/dashboard')} onKeyDown={(e) => e.key === 'Enter' && navigate('/dashboard')} role="link" tabIndex={0}>
+          <span className="feature-icon" aria-hidden="true">&#128202;</span>
+          <h3>Weekly Progress</h3>
+          <p>Review hours studied, sessions completed, and upcoming dates.</p>
+        </div>
+        <div className="feature-card" onClick={() => navigate('/sessions')} onKeyDown={(e) => e.key === 'Enter' && navigate('/sessions')} role="link" tabIndex={0}>
+          <span className="feature-icon" aria-hidden="true">&#128214;</span>
           <h3>Track Sessions</h3>
           <p>Log every study session and watch your consistency grow.</p>
         </div>
-        <div className="feature-card">
+        <div className="feature-card" onClick={() => navigate('/assignments')} onKeyDown={(e) => e.key === 'Enter' && navigate('/assignments')} role="link" tabIndex={0}>
+          <span className="feature-icon" aria-hidden="true">&#128203;</span>
           <h3>Manage Deadlines</h3>
           <p>Stay on top of assignments with organized due-date tracking.</p>
         </div>
-        <div className="feature-card">
+        <div className="feature-card" onClick={() => navigate('/pomodoro')} onKeyDown={(e) => e.key === 'Enter' && navigate('/pomodoro')} role="link" tabIndex={0}>
+          <span className="feature-icon" aria-hidden="true">&#9202;</span>
           <h3>Pomodoro Timer</h3>
           <p>Stay focused with built-in timed study intervals.</p>
-        </div>
-        <div className="feature-card">
-          <h3>Weekly Progress</h3>
-          <p>Review hours studied, sessions completed, and upcoming dates.</p>
         </div>
       </section>
 

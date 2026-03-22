@@ -1,6 +1,6 @@
 /* Landing page layout */
 .landing {
-  min-height: 100vh;
+  min-height: calc(100vh - 3.5rem);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,7 +12,7 @@
 /* Hero section */
 .hero {
   text-align: center;
-  padding: 5rem 2rem 3rem;
+  padding: 2.5rem 2rem 2rem;
   max-width: 680px;
 }
 
@@ -25,7 +25,8 @@
 
 .tagline {
   font-size: 1.25rem;
-  color: #6b7280;
+  font-weight: 600;
+  color: #4b5563;
   margin-bottom: 1.5rem;
 }
 
@@ -58,14 +59,20 @@
   transform: translateY(0);
 }
 
+.cta-button:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
 /* Feature cards */
 .features {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  padding: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  padding: 1rem 2rem 2rem;
   max-width: 900px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .feature-card {
@@ -74,11 +81,24 @@
   border-radius: 10px;
   padding: 1.5rem;
   text-align: center;
+  cursor: pointer;
   transition: box-shadow 0.2s ease;
 }
 
 .feature-card:hover {
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.feature-card:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.feature-icon {
+  display: block;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .feature-card h3 {
@@ -96,7 +116,36 @@
 /* Footer */
 .footer {
   margin-top: auto;
-  padding: 2rem;
+  padding: 1.5rem 2rem;
   font-size: 0.85rem;
-  color: #A5B4FC;
+  color: #7c83db;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .hero {
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+
+  .app-name {
+    font-size: 2.25rem;
+  }
+
+  .tagline {
+    font-size: 1.1rem;
+  }
+
+  .description {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+    padding: 0.75rem 1.25rem 1.5rem;
+  }
+
+  .footer {
+    padding: 1rem 1.25rem;
+  }
 }

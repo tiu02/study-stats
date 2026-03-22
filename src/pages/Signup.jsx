@@ -80,6 +80,7 @@ export default function Signup() {
     try {
       await signup(email, password)
       navigate('/')
+      return
     } catch (err) {
       setError(getErrorMessage(err.code))
     }
@@ -94,7 +95,7 @@ export default function Signup() {
     <div className="auth-page">
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <h2>Sign Up</h2>
-        {error && <p className="auth-error">{error}</p>}
+        {error && <p className="auth-error" role="alert">{error}</p>}
         <label>
           Email
           <input
@@ -103,9 +104,11 @@ export default function Signup() {
             onChange={(e) => setEmail(e.target.value)}
             onBlur={() => handleBlur('email')}
             autoComplete="email"
+            aria-describedby={emailError ? 'signup-email-error' : undefined}
+            aria-invalid={emailError ? true : undefined}
           />
         </label>
-        {emailError && <p className="field-error">{emailError}</p>}
+        {emailError && <p className="field-error" id="signup-email-error">{emailError}</p>}
         <label>
           Password
           <input
@@ -114,10 +117,11 @@ export default function Signup() {
             onChange={(e) => setPassword(e.target.value)}
             onFocus={() => setTouched((prev) => ({ ...prev, password: true }))}
             autoComplete="new-password"
+            aria-describedby={touched.password && !allRulesPassed ? 'signup-password-hint' : undefined}
           />
         </label>
         {touched.password && !allRulesPassed && (
-          <p className="password-hint">
+          <p className="password-hint" id="signup-password-hint">
             {passwordRules.find((rule) => !rule.test(password)).label}
           </p>
         )}
@@ -129,9 +133,11 @@ export default function Signup() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             onBlur={() => handleBlur('confirmPassword')}
             autoComplete="new-password"
+            aria-describedby={confirmError ? 'signup-confirm-error' : undefined}
+            aria-invalid={confirmError ? true : undefined}
           />
         </label>
-        {confirmError && <p className="field-error">{confirmError}</p>}
+        {confirmError && <p className="field-error" id="signup-confirm-error">{confirmError}</p>}
         <button type="submit" disabled={loading}>
           {loading ? 'Creating account...' : 'Sign Up'}
         </button>

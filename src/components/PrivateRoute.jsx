@@ -5,7 +5,7 @@ export default function PrivateRoute({ children }) {
   const { currentUser, loading } = useAuth()
 
   if (loading) {
-    return <div className="loading-spinner">Loading...</div>
+    return <div className="loading-spinner" role="status" aria-live="polite">Loading...</div>
   }
 
   return currentUser ? children : <Navigate to="/login" />

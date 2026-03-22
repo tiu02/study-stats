@@ -73,6 +73,7 @@ export default function Login() {
     try {
       await login(email, password)
       navigate('/')
+      return
     } catch (err) {
       setErrorCode(err.code)
       setError(getErrorMessage(err.code))
@@ -89,7 +90,7 @@ export default function Login() {
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <h2>Log In</h2>
         {error && (
-          <div className="auth-error">
+          <div className="auth-error" role="alert">
             <p>{error}</p>
             {errorCode === 'auth/user-not-found' && (
               <p>
@@ -106,9 +107,11 @@ export default function Login() {
             onChange={(e) => setEmail(e.target.value)}
             onBlur={() => handleBlur('email')}
             autoComplete="email"
+            aria-describedby={emailError ? 'login-email-error' : undefined}
+            aria-invalid={emailError ? true : undefined}
           />
         </label>
-        {emailError && <p className="field-error">{emailError}</p>}
+        {emailError && <p className="field-error" id="login-email-error">{emailError}</p>}
         <label>
           Password
           <input
@@ -117,9 +120,11 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
             onBlur={() => handleBlur('password')}
             autoComplete="current-password"
+            aria-describedby={passwordError ? 'login-password-error' : undefined}
+            aria-invalid={passwordError ? true : undefined}
           />
         </label>
-        {passwordError && <p className="field-error">{passwordError}</p>}
+        {passwordError && <p className="field-error" id="login-password-error">{passwordError}</p>}
         <button type="submit" disabled={loading}>
           {loading ? 'Logging in...' : 'Log In'}
         </button>
