@@ -11,13 +11,15 @@ const passwordRules = [
   { test: (pw) => pw.length >= 8 && pw.length <= 100, label: '8–100 characters' },
 ]
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 export default function Signup() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [passwordTouched, setPasswordTouched] = useState(false)
+  const [touched, setTouched] = useState({})
   const { signup, currentUser } = useAuth()
   const navigate = useNavigate()
 
@@ -27,14 +29,34 @@ export default function Signup() {
 
   const allRulesPassed = passwordRules.every((rule) => rule.test(password))
 
+  function getFieldError(field) {
+    if (!touched[field]) return null
+    switch (field) {
+      case 'email':
+        if (!email) return 'Email is required.'
+        if (!emailRegex.test(email)) return 'Please use correct format (example@email.com).'
+        return null
+      case 'confirmPassword':
+        if (!confirmPassword) return 'Please confirm your password.'
+        if (confirmPassword !== password) return 'Passwords do not match.'
+        return null
+      default:
+        return null
+    }
+  }
+
+  function handleBlur(field) {
+    setTouched((prev) => ({ ...prev, [field]: true }))
+  }
+
   function getErrorMessage(code) {
     switch (code) {
       case 'auth/email-already-in-use':
         return 'An account with this email already exists.'
       case 'auth/invalid-email':
-        return 'Please enter a valid email address.'
+        return 'Please use correct format (example@email.com).'
       case 'auth/weak-password':
-        return 'Password does not meet the requirements below.'
+        return 'Password does not meet the requirements.'
       case 'auth/network-request-failed':
         return 'Network error. Check your connection and try again.'
       default:
@@ -46,13 +68,12 @@ export default function Signup() {
     e.preventDefault()
     setError('')
 
-    if (!allRulesPassed) {
-      return setError('Password does not meet the requirements below.')
-    }
+    const allTouched = { email: true, password: true, confirmPassword: true }
+    setTouched(allTouched)
 
-    if (password !== confirmPassword) {
-      return setError('Passwords do not match.')
-    }
+    if (!email || !emailRegex.test(email)) return
+    if (!allRulesPassed) return
+    if (!confirmPassword || confirmPassword !== password) return
 
     setLoading(true)
 
@@ -66,9 +87,12 @@ export default function Signup() {
     setLoading(false)
   }
 
+  const emailError = getFieldError('email')
+  const confirmError = getFieldError('confirmPassword')
+
   return (
     <div className="auth-page">
-      <form className="auth-form" onSubmit={handleSubmit}>
+      <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <h2>Sign Up</h2>
         {error && <p className="auth-error">{error}</p>}
         <label>
@@ -77,22 +101,22 @@ export default function Signup() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onBlur={() => handleBlur('email')}
             autoComplete="email"
-            required
           />
         </label>
+        {emailError && <p className="field-error">{emailError}</p>}
         <label>
           Password
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onFocus={() => setPasswordTouched(true)}
+            onFocus={() => setTouched((prev) => ({ ...prev, password: true }))}
             autoComplete="new-password"
-            required
           />
         </label>
-        {passwordTouched && !allRulesPassed && (
+        {touched.password && !allRulesPassed && (
           <p className="password-hint">
             {passwordRules.find((rule) => !rule.test(password)).label}
           </p>
@@ -103,10 +127,11 @@ export default function Signup() {
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            onBlur={() => handleBlur('confirmPassword')}
             autoComplete="new-password"
-            required
           />
         </label>
+        {confirmError && <p className="field-error">{confirmError}</p>}
         <button type="submit" disabled={loading}>
           {loading ? 'Creating account...' : 'Sign Up'}
         </button>

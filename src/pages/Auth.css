@@ -36,8 +36,9 @@
   display: block;
   width: 100%;
   margin-top: 0.35rem;
-  padding: 0.65rem 0.75rem;
+  padding: 0.75rem;
   font-size: 0.95rem;
+  min-height: 44px;
   border: 1px solid #c7d2fe;
   border-radius: 8px;
   background: #fafafe;
@@ -55,8 +56,9 @@
 .auth-form button {
   width: 100%;
   margin-top: 0.5rem;
-  padding: 0.75rem;
+  padding: 0.85rem;
   font-size: 1rem;
+  min-height: 48px;
   font-weight: 600;
   color: #ffffff;
   background-color: #6366F1;
@@ -85,17 +87,41 @@
   margin-bottom: 1rem;
 }
 
+.auth-error p {
+  margin: 0;
+}
+
+.auth-error p + p {
+  margin-top: 0.35rem;
+}
+
+.auth-error a {
+  color: #6366F1;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-error a:hover {
+  text-decoration: underline;
+}
+
+.field-error {
+  margin: -0.5rem 0 0.75rem;
+  font-size: 0.8rem;
+  color: #dc2626;
+}
+
 .password-hint {
   margin: -0.5rem 0 0.75rem;
   font-size: 0.8rem;
-  color: #6366F1;
+  color: #dc2626;
 }
 
 .auth-switch {
   text-align: center;
   margin-top: 1.25rem;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #4b5563;
 }
 
 .auth-switch a {
@@ -106,6 +132,10 @@
 
 .auth-switch a:hover {
   text-decoration: underline;
+}
+
+.auth-form ::selection {
+  background-color: #cbfffc;
 }
 
 .loading-spinner {
