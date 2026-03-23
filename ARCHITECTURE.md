@@ -19,12 +19,15 @@
 - `src/components/Icons.jsx` — Shared SVG outline icon components (DashboardIcon, SessionsIcon, AssignmentsIcon, PomodoroIcon, ProfileIcon). Used by Navbar and Landing.
 - `src/components/Navbar.jsx` — Sticky navigation bar with logo, centered nav links with outline icons (logged in: Dashboard, Sessions, Assignments, Pomodoro + Logout + profile icon; logged out: Log In, Sign Up). Hamburger menu on mobile, no hamburger when logged out.
 - `src/components/Navbar.css` — Navbar styles: sticky positioning, hamburger toggle with animated open/close icon, centered desktop links, mobile dropdown with aligned icons, logged-out single-row layout.
+- `src/components/SessionForm.jsx` — Reusable session form for add/edit. Fields: subject (text with datalist autocomplete), color (8-swatch preset picker), duration (hours + minutes side-by-side inputs), date (date picker), status (select: complete/in-progress/incomplete), notes (optional textarea). Inline validation with length limits, soft warning for >24h durations, hard cap at 2 weeks. Accepts `initialData` prop for edit mode, `subjects` prop for autocomplete suggestions.
+- `src/components/SessionForm.css` — Session form styles: color swatch picker with selected ring, duration h/m field layout with unit labels, select styling, field errors and duration warning.
 - `src/components/PrivateRoute.jsx` — Wrapper component that redirects to `/login` with return-path state if not authenticated. Shows loading spinner while auth state is resolving.
 - `src/pages/Landing.jsx` — Public landing/home page. Shows "Get Started" button (→ /signup) when logged out, "Start Studying" button (→ /sessions) when logged in. Feature cards with SVG outline icons link to respective pages.
 - `src/pages/Dashboard.jsx` — Stub page with styled layout.
-- `src/pages/Sessions.jsx` — Stub page with styled layout.
+- `src/pages/Sessions.jsx` — Full study session tracker page. Displays session cards with color-coded left border and status badges. Inline add/edit forms with subject autocomplete. Delete with confirmation. Loading spinner, error banner, and empty state. Computes unique subjects via `useMemo` for autocomplete datalist.
 - `src/pages/Pomodoro.jsx` — Stub page with styled layout.
 - `src/pages/Assignments.jsx` — Stub page with styled layout.
+- `src/pages/Sessions.css` — Sessions page styles: color-coded left border on cards, status badge pills (green/amber/red), card meta row, session list layout, add/edit/delete button styles, empty state, error banner, delete confirmation.
 - `src/pages/Stub.css` — Shared styles for stub pages (indigo heading, consistent page layout).
 - `src/pages/NotFound.jsx` — 404 error page with warning icon, heading, message, and styled "Back to Home" button.
 - `src/pages/NotFound.css` — 404 page styles.
@@ -37,9 +40,9 @@
 - `src/components/Navbar.test.jsx` — Render and behavior tests for Navbar (logged-out state, logged-in state, logo, hamburger toggle, logout with error handling).
 - `src/services/firestore.test.js` — Unit tests for Firestore service (24 tests). Verifies correct subcollection paths, document field mapping, sort orders, empty results, CRUD operations.
 - `src/hooks/useFirestore.test.jsx` — Unit tests for Firestore hooks (25 tests). Verifies return shapes, loading/error state, null uid handling, mutation error capture, uid change refetch.
-- `src/services/firestore.js` — Firestore CRUD functions for sessions, assignments, and pomodoro. All paths scoped to `users/{uid}/{collection}`. Exports: `addSession()`, `getSessions()`, `updateSession()`, `deleteSession()`, `addAssignment()`, `getAssignments()`, `updateAssignment()`, `deleteAssignment()`, `logPomodoroSession()`, `getPomodoroLogs()`.
-- `src/hooks/useFirestore.js` — Custom React hooks wrapping the Firestore service. Exports: `useSessions(uid)`, `useAssignments(uid)`, `usePomodoro(uid)`. Each returns data array, `loading`, `error`, mutation functions, and `refresh()`.
-- `firestore.rules` — Firestore security rules. Denies all access by default, then allows read/write on `users/{userId}/**` only when `request.auth.uid == userId`.
+- `src/services/firestore.js` — Firestore CRUD functions for sessions, assignments, and pomodoro. All paths scoped to `users/{uid}/{collection}`. `addSession` stores subject, duration, notes, date, color, and status with defaults. `updateSession` filters through a field whitelist before writing. Exports: `addSession()`, `getSessions()`, `updateSession()`, `deleteSession()`, `addAssignment()`, `getAssignments()`, `updateAssignment()`, `deleteAssignment()`, `logPomodoroSession()`, `getPomodoroLogs()`.
+- `src/hooks/useFirestore.js` — Custom React hooks wrapping the Firestore service. Exports: `useSessions(uid)`, `useAssignments(uid)`, `usePomodoro(uid)`. Each returns data array, `loading`, `error`, mutation functions, and `refresh()`. Mutations return `true`/`false` for success/failure. Errors mapped to user-friendly messages via `friendlyError()` helper.
+- `firestore.rules` — Firestore security rules. Denies all access by default. Per-collection rules under `users/{userId}` enforce `isOwner()` auth check, `hasAll`+`hasOnly` for required/allowed fields, type validation, size limits, enum validation for session status, and `createdAt == request.time` for server timestamp integrity. Pomodoro docs are immutable (update denied).
 - `public/_redirects` — Netlify SPA redirect rule. Sends all routes to `index.html` so React Router handles client-side routing and 404s.
 - `vite.config.js` — Vite config with Vitest test configuration (jsdom environment, globals).
 
@@ -48,7 +51,7 @@
 ```
 src/
   assets/        — Static assets (images, SVGs)
-  components/    — Reusable UI components (Navbar, PrivateRoute)
+  components/    — Reusable UI components (Navbar, PrivateRoute, SessionForm)
   context/       — React context providers (AuthContext)
   hooks/         — Custom React hooks
   pages/         — Route-level page components + page styles
@@ -67,6 +70,6 @@ All user data lives in subcollections under `users/{uid}`:
 
 | Collection | Path | Fields |
 |---|---|---|
-| sessions | `users/{uid}/sessions/{id}` | `subject` (string), `duration` (number, minutes), `notes` (string), `date` (timestamp), `createdAt` (server timestamp) |
+| sessions | `users/{uid}/sessions/{id}` | `subject` (string), `duration` (number, minutes), `notes` (string), `date` (timestamp), `color` (string, hex), `status` (string: `complete` \| `in-progress` \| `incomplete`), `createdAt` (server timestamp) |
 | assignments | `users/{uid}/assignments/{id}` | `title` (string), `subject` (string), `dueDate` (timestamp), `completed` (boolean), `createdAt` (server timestamp) |
 | pomodoro | `users/{uid}/pomodoro/{id}` | `workMinutes` (number), `breakMinutes` (number), `completedAt` (server timestamp) |
