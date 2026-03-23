@@ -31,10 +31,15 @@
 - `src/pages/Login.jsx` — Email/password login form with inline field validation, Firebase error handling, invalid-credential prompt with signup link, return-path redirect after login, ARIA attributes for accessibility.
 - `src/pages/Signup.jsx` — Registration form with password confirmation, inline field validation, live password requirements hint, ARIA attributes for accessibility.
 - `src/pages/Auth.css` — Shared styles for Login and Signup pages, field errors, password hints, loading spinner, autofill contrast fix.
-- `src/test/setup.js` — Test setup file, imports jest-dom matchers.
-- `src/components/PrivateRoute.test.jsx` — Unit tests for PrivateRoute (loading, authenticated, unauthenticated).
+- `src/test/setup.js` — Test setup file. Imports jest-dom matchers and globally mocks Firebase SDK (firebase/app, firebase/auth, firebase/firestore) to prevent heavy module loading in test workers.
+- `src/components/PrivateRoute.test.jsx` — Unit tests for PrivateRoute (loading, authenticated, unauthenticated redirect). Mocks React Router v7 Navigate to avoid jsdom OOM.
 - `src/pages/Login.test.jsx` — Render and behavior tests for Login (inputs, button, errors, invalid-credential with signup link).
 - `src/components/Navbar.test.jsx` — Render and behavior tests for Navbar (logged-out state, logged-in state, logo, hamburger toggle, logout with error handling).
+- `src/services/firestore.test.js` — Unit tests for Firestore service (24 tests). Verifies correct subcollection paths, document field mapping, sort orders, empty results, CRUD operations.
+- `src/hooks/useFirestore.test.jsx` — Unit tests for Firestore hooks (25 tests). Verifies return shapes, loading/error state, null uid handling, mutation error capture, uid change refetch.
+- `src/services/firestore.js` — Firestore CRUD functions for sessions, assignments, and pomodoro. All paths scoped to `users/{uid}/{collection}`. Exports: `addSession()`, `getSessions()`, `updateSession()`, `deleteSession()`, `addAssignment()`, `getAssignments()`, `updateAssignment()`, `deleteAssignment()`, `logPomodoroSession()`, `getPomodoroLogs()`.
+- `src/hooks/useFirestore.js` — Custom React hooks wrapping the Firestore service. Exports: `useSessions(uid)`, `useAssignments(uid)`, `usePomodoro(uid)`. Each returns data array, `loading`, `error`, mutation functions, and `refresh()`.
+- `firestore.rules` — Firestore security rules. Denies all access by default, then allows read/write on `users/{userId}/**` only when `request.auth.uid == userId`.
 - `public/_redirects` — Netlify SPA redirect rule. Sends all routes to `index.html` so React Router handles client-side routing and 404s.
 - `vite.config.js` — Vite config with Vitest test configuration (jsdom environment, globals).
 
@@ -58,4 +63,10 @@ src/
 
 ## Data Model
 
-- (Firestore collections not yet created — database needs to be set up in Firebase Console)
+All user data lives in subcollections under `users/{uid}`:
+
+| Collection | Path | Fields |
+|---|---|---|
+| sessions | `users/{uid}/sessions/{id}` | `subject` (string), `duration` (number, minutes), `notes` (string), `date` (timestamp), `createdAt` (server timestamp) |
+| assignments | `users/{uid}/assignments/{id}` | `title` (string), `subject` (string), `dueDate` (timestamp), `completed` (boolean), `createdAt` (server timestamp) |
+| pomodoro | `users/{uid}/pomodoro/{id}` | `workMinutes` (number), `breakMinutes` (number), `completedAt` (server timestamp) |
