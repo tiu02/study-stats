@@ -1,7 +1,15 @@
-# StudyStats — Claude Code Transcript
+# StudyStats — Claude Code Transcript (Sessions 1 & 2 - Phase 1)
 
+**Date:** 2026-03-20
 **Project:** StudyStats (Vite + React Study Planner)
-**Exported:** 2026-03-20
+**Phase:** 1 — Project Structure & Firebase Setup
+**Tool:** Claude Code (VSCode Extension)
+
+---
+
+## Session Summary
+
+Created the StudyStats landing page with hero section, feature cards, and indigo color scheme in App.jsx and App.css. Diagnosed and fixed a right-side blank screen issue caused by Vite boilerplate CSS.
 
 ---
 

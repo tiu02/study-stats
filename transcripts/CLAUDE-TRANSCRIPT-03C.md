@@ -1,15 +1,24 @@
-# Claude Code Transcript — Session 03C
+# StudyStats — Claude Code Transcript (Session 4C — Phase 3 Debugging)
 
 **Date:** 2026-03-22
-**Project:** StudyStats (React + Vite + Firebase Auth + Firestore)
-**Phase:** Phase 3 Debugging & Hardening
-**Tools:** Claude Code (VS Code Extension), Vitest, React Testing Library
+**Project:** StudyStats (Vite + React Study Planner)
+**Phase:** 3 — Navbar Shell & Stub Routes — Debugging & Hardening
+**Tool:** Claude Code (VSCode Extension)
 
 ---
 
+## Session Summary
+
+Fixed Firebase API key error on Netlify (missing environment variables), created Netlify SPA redirect for custom 404 page, fixed dead code in Login.jsx, added logout error handling with try/catch, implemented return-path redirect after login, and wrote 16 Navbar unit tests bringing the total to 24.
+
+---
+
+## Session 4C — Mar 22, 2026
+
 ## Task 1: Fix Firebase `auth/invalid-api-key` Error on Netlify
 
-**User:**
+### User
+
 Read PROJECT-STATUS.md, ARCHITECTURE.md, and README.md to understand the current state of this project before making any suggestions or changes.
 My Study Planner: React + Vite + Firebase Auth + Firestore, deployed to Netlify.
 This error occurred after Firestore auth setup and deployment to Netlify. It works locally but not on Netlify. How do I fix this issue?
@@ -26,8 +35,9 @@ index-Bg1JA-5b.js:11 Uncaught FirebaseError: Firebase: Error (auth/invalid-api-k
     at index-Bg1JA-5b.js:20:9191
 ```
 
-**Claude:**
-Read `PROJECT-STATUS.md`, `ARCHITECTURE.md`, `README.md`, `src/firebase.js`, and checked for `.env.local` and `netlify.toml`.
+### Assistant
+
+> Tool calls: **Read** `PROJECT-STATUS.md`, **Read** `ARCHITECTURE.md`, **Read** `README.md`, **Read** `src/firebase.js`
 
 Found that `src/firebase.js` reads config from `import.meta.env.VITE_*` variables:
 
@@ -61,9 +71,12 @@ No code changes needed — the issue was entirely a Netlify configuration gap.
 
 ---
 
-**User:** Do I enable secret value when importing env variable to Netlify?
+### User
 
-**Claude:**
+Do I enable secret value when importing env variable to Netlify?
+
+### Assistant
+
 No. These are not secrets — Firebase web API keys are designed to be public (they're embedded in your client-side JS bundle and visible to anyone inspecting your site).
 
 Just paste them as regular environment variables. The "secret" option in Netlify makes values unavailable at build time, which would break your setup since Vite needs to inline them during the build.
@@ -72,9 +85,14 @@ Just paste them as regular environment variables. The "secret" option in Netlify
 
 ## Task 2: Fix Custom 404 Page Not Showing on Netlify
 
-**User:** The custom 404 page on Netlify doesn't show up. Find the issue and suggest fixes.
+### User
 
-**Claude:**
+The custom 404 page on Netlify doesn't show up. Find the issue and suggest fixes.
+
+### Assistant
+
+> Tool calls: **Glob** `public/_redirects`
+
 Checked for `public/_redirects` — file did not exist.
 
 Diagnosed: Netlify handles routing at the server level. When someone hits a URL like `/random-page`, Netlify looks for that file on disk, doesn't find it, and shows its own default 404 instead of serving the app. React Router never gets a chance to render the `NotFound` component.
@@ -88,9 +106,14 @@ This tells Netlify: "For any URL, serve `index.html` with a 200 status, and let 
 
 ---
 
-**User:** Yes, apply fix.
+### User
 
-**Claude:**
+Yes, apply fix.
+
+### Assistant
+
+> Tool calls: **Write** `public/_redirects`
+
 Created `public/_redirects`:
 ```
 /*    /index.html   200
@@ -98,12 +121,15 @@ Created `public/_redirects`:
 
 ---
 
-**User:** Review the code you just wrote. Check for:
+### User
+
+Review the code you just wrote. Check for:
 - Bugs or logic errors
 - Edge cases we're not handling
 - Anything that could break
 
-**Claude:**
+### Assistant
+
 The `_redirects` file is correct — it's a single rule, and it's the standard SPA redirect for Netlify.
 
 One thing to consider: the `200` status code means Netlify returns `index.html` with a 200 OK for every URL, even truly missing ones. This is fine for users (they see your custom 404 page via React Router), but search engines will index those 404 pages as valid content since they see a 200 response.
@@ -114,13 +140,16 @@ This is a minor SEO concern and unlikely to matter for a student project app. No
 
 ## Task 3: Code Review — Navigation, Landing Page, and Authentication
 
-**User:** Review the code you just wrote for navigation, landing page, and authentication. Check for:
+### User
+
+Review the code you just wrote for navigation, landing page, and authentication. Check for:
 - Bugs or logic errors
 - Edge cases we're not handling
 - Anything that could break
 
-**Claude:**
-Read and reviewed: `Navbar.jsx`, `Landing.jsx`, `Login.jsx`, `Signup.jsx`, `AuthContext.jsx`, `PrivateRoute.jsx`.
+### Assistant
+
+> Tool calls: **Read** `Navbar.jsx`, **Read** `Landing.jsx`, **Read** `Login.jsx`, **Read** `Signup.jsx`, **Read** `AuthContext.jsx`, **Read** `PrivateRoute.jsx`
 
 ### Findings:
 
@@ -139,9 +168,14 @@ Items 2 and 3 are minor and won't break anything. Item 1 is the most notable —
 
 ## Task 4: Fix Login Bug and Logout Edge Case
 
-**User:** Yes, fix the login bug and the edge cases for logout.
+### User
 
-**Claude:**
+Yes, fix the login bug and the edge cases for logout.
+
+### Assistant
+
+> Tool calls: **Edit** `Login.jsx`, **Edit** `Navbar.jsx`
+
 Applied fixes to two files:
 
 **Login.jsx — removed dead error codes, updated signup link trigger:**
@@ -196,7 +230,8 @@ async function handleLogout() {
 
 ## Task 5: Generate Navbar Tests
 
-**User:**
+### User
+
 Generate render tests for Navbar.jsx using React Testing Library.
 Test 1 — logged-out state:
 - Login link is visible
@@ -213,7 +248,10 @@ Use userEvent for any click interactions.
 
 Add more tests if necessary to test navigation.
 
-**Claude:**
+### Assistant
+
+> Tool calls: **Write** `src/components/Navbar.test.jsx`
+
 Created `src/components/Navbar.test.jsx` with 16 tests across 5 describe blocks:
 
 ```jsx
@@ -275,15 +313,22 @@ function renderNavbar(route = '/') {
 - Does not navigate after logout on a protected path (PrivateRoute handles redirect)
 - Shows an alert when logout fails (tests the try/catch fix)
 
+> Tool calls: **Bash** `npx vitest run`
+
 All 16 tests passed.
 
 ---
 
 ## Task 6: Fix Return-Path Redirect Edge Case
 
-**User:** Can you fix this edge case? Edge case — Feature cards send logged-out users to login with no return path (Landing.jsx:32-47)
+### User
 
-**Claude:**
+Can you fix this edge case? Edge case — Feature cards send logged-out users to login with no return path (Landing.jsx:32-47)
+
+### Assistant
+
+> Tool calls: **Edit** `PrivateRoute.jsx`, **Edit** `Login.jsx`, **Edit** `Login.test.jsx`
+
 Applied fixes to three files:
 
 **PrivateRoute.jsx — pass intended destination via route state:**
@@ -331,20 +376,26 @@ mockLogin.mockRejectedValue({ code: 'auth/invalid-credential' })
 expect(screen.getByText(/incorrect email or password/i)).toBeInTheDocument()
 ```
 
+> Tool calls: **Bash** `npx vitest run`
+
 All 21 tests passed (16 Navbar + 5 Login).
 
 ---
 
 ## Task 7: Update Documentation
 
-**User:**
+### User
+
 Update PROJECT-STATUS.md and ARCHITECTURE.md to reflect what we built this session.
 ARCHITECTURE.md --- update only if new files or dependencies were added:
 Next Steps to write:
 Start Phase 4: Firestore Data Layer
 Go to Firebase Console > Firestore > Create database (test mode)
 
-**Claude:**
+### Assistant
+
+> Tool calls: **Edit** `PROJECT-STATUS.md`, **Edit** `ARCHITECTURE.md`
+
 Updated both files:
 
 **PROJECT-STATUS.md:**

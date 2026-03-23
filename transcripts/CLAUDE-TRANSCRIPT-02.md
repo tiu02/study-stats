@@ -1,7 +1,15 @@
-# StudyStats — Claude Code Transcript (Session 3)
+# StudyStats — Claude Code Transcript (Session 3 - Phase 2)
 
-**Project:** StudyStats (Vite + React Study Planner)  
-**Exported:** 2026-03-22
+**Date:** 2026-03-22
+**Project:** StudyStats (Vite + React Study Planner)
+**Phase:** 2 — Login & Signup Authentication
+**Tool:** Claude Code (VSCode Extension)
+
+---
+
+## Session Summary
+
+Set up the project folder structure (components/, context/, hooks/, utils/, pages/) and installed Firebase, React Router, and date-fns. Created firebase.js config, AuthContext with login/signup/logout, PrivateRoute, Login and Signup pages with validation, and 8 unit tests.
 
 ---
 
