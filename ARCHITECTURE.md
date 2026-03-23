@@ -19,7 +19,7 @@
 - `src/components/Icons.jsx` — Shared SVG outline icon components (DashboardIcon, SessionsIcon, AssignmentsIcon, PomodoroIcon, ProfileIcon). Used by Navbar and Landing.
 - `src/components/Navbar.jsx` — Sticky navigation bar with logo, centered nav links with outline icons (logged in: Dashboard, Sessions, Assignments, Pomodoro + Logout + profile icon; logged out: Log In, Sign Up). Hamburger menu on mobile, no hamburger when logged out.
 - `src/components/Navbar.css` — Navbar styles: sticky positioning, hamburger toggle with animated open/close icon, centered desktop links, mobile dropdown with aligned icons, logged-out single-row layout.
-- `src/components/PrivateRoute.jsx` — Wrapper component that redirects to `/login` if not authenticated. Shows loading spinner while auth state is resolving.
+- `src/components/PrivateRoute.jsx` — Wrapper component that redirects to `/login` with return-path state if not authenticated. Shows loading spinner while auth state is resolving.
 - `src/pages/Landing.jsx` — Public landing/home page. Shows "Get Started" button (→ /signup) when logged out, "Start Studying" button (→ /sessions) when logged in. Feature cards with SVG outline icons link to respective pages.
 - `src/pages/Dashboard.jsx` — Stub page with styled layout.
 - `src/pages/Sessions.jsx` — Stub page with styled layout.
@@ -28,12 +28,14 @@
 - `src/pages/Stub.css` — Shared styles for stub pages (indigo heading, consistent page layout).
 - `src/pages/NotFound.jsx` — 404 error page with warning icon, heading, message, and styled "Back to Home" button.
 - `src/pages/NotFound.css` — 404 page styles.
-- `src/pages/Login.jsx` — Email/password login form with inline field validation, Firebase error handling, user-not-found prompt with signup link, ARIA attributes for accessibility.
+- `src/pages/Login.jsx` — Email/password login form with inline field validation, Firebase error handling, invalid-credential prompt with signup link, return-path redirect after login, ARIA attributes for accessibility.
 - `src/pages/Signup.jsx` — Registration form with password confirmation, inline field validation, live password requirements hint, ARIA attributes for accessibility.
 - `src/pages/Auth.css` — Shared styles for Login and Signup pages, field errors, password hints, loading spinner, autofill contrast fix.
 - `src/test/setup.js` — Test setup file, imports jest-dom matchers.
 - `src/components/PrivateRoute.test.jsx` — Unit tests for PrivateRoute (loading, authenticated, unauthenticated).
-- `src/pages/Login.test.jsx` — Render and behavior tests for Login (inputs, button, errors, user-not-found).
+- `src/pages/Login.test.jsx` — Render and behavior tests for Login (inputs, button, errors, invalid-credential with signup link).
+- `src/components/Navbar.test.jsx` — Render and behavior tests for Navbar (logged-out state, logged-in state, logo, hamburger toggle, logout with error handling).
+- `public/_redirects` — Netlify SPA redirect rule. Sends all routes to `index.html` so React Router handles client-side routing and 404s.
 - `vite.config.js` — Vite config with Vitest test configuration (jsdom environment, globals).
 
 ## Folder Structure
