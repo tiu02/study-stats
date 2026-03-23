@@ -43,7 +43,7 @@ export default function Login() {
   function getErrorMessage(code) {
     switch (code) {
       case 'auth/invalid-credential':
-        return 'Incorrect email or password. If you don\u2019t have an account, sign up instead.'
+        return 'Incorrect email or password.'
       case 'auth/invalid-email':
         return 'Please enter a valid email address (example@email.com).'
       case 'auth/too-many-requests':
