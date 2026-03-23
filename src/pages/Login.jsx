@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Navigate, Link } from 'react-router-dom'
+import { useNavigate, Navigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import './Auth.css'
 
@@ -14,6 +14,8 @@ export default function Login() {
   const [touched, setTouched] = useState({})
   const { login, currentUser } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const redirectTo = location.state?.from || '/'
 
   if (currentUser) {
     return <Navigate to="/" />
@@ -41,11 +43,7 @@ export default function Login() {
   function getErrorMessage(code) {
     switch (code) {
       case 'auth/invalid-credential':
-        return 'Incorrect email or password.'
-      case 'auth/user-not-found':
-        return 'No account found with this email.'
-      case 'auth/wrong-password':
-        return 'Incorrect password.'
+        return 'Incorrect email or password. If you don\u2019t have an account, sign up instead.'
       case 'auth/invalid-email':
         return 'Please enter a valid email address (example@email.com).'
       case 'auth/too-many-requests':
@@ -72,7 +70,7 @@ export default function Login() {
 
     try {
       await login(email, password)
-      navigate('/')
+      navigate(redirectTo)
       return
     } catch (err) {
       setErrorCode(err.code)
@@ -92,7 +90,7 @@ export default function Login() {
         {error && (
           <div className="auth-error" role="alert">
             <p>{error}</p>
-            {errorCode === 'auth/user-not-found' && (
+            {errorCode === 'auth/invalid-credential' && (
               <p>
                 Need an account? <Link to="/signup">Sign up here</Link>
               </p>

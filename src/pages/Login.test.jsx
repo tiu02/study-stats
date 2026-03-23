@@ -67,9 +67,9 @@ describe('Login', () => {
     expect(screen.queryByText(/failed/i)).not.toBeInTheDocument()
   })
 
-  it('shows user-not-found error with signup link for unregistered email', async () => {
+  it('shows invalid-credential error with signup link for wrong credentials', async () => {
     const user = userEvent.setup()
-    mockLogin.mockRejectedValue({ code: 'auth/user-not-found' })
+    mockLogin.mockRejectedValue({ code: 'auth/invalid-credential' })
 
     renderLogin()
 
@@ -78,7 +78,7 @@ describe('Login', () => {
     await user.click(screen.getByRole('button', { name: /log in/i }))
 
     await waitFor(() => {
-      expect(screen.getByText('No account found with this email.')).toBeInTheDocument()
+      expect(screen.getByText(/incorrect email or password/i)).toBeInTheDocument()
       expect(screen.getByText(/sign up here/i)).toBeInTheDocument()
     })
 

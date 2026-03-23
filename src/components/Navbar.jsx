@@ -14,9 +14,13 @@ export default function Navbar() {
 
   async function handleLogout() {
     setMenuOpen(false)
-    await logout()
-    if (!protectedPaths.includes(location.pathname)) {
-      navigate('/')
+    try {
+      await logout()
+      if (!protectedPaths.includes(location.pathname)) {
+        navigate('/')
+      }
+    } catch {
+      alert('Logout failed. Please check your connection and try again.')
     }
   }
 
