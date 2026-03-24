@@ -23,12 +23,14 @@ function userDoc(uid, collectionName, docId) {
 
 // --------------- Sessions ---------------
 
-export async function addSession(uid, { subject, duration, notes, date }) {
+export async function addSession(uid, { subject, duration, notes, date, color, status }) {
   return addDoc(userCollection(uid, 'sessions'), {
     subject,
     duration,
     notes: notes || '',
     date,
+    color: color || '#6366F1',
+    status: status || 'complete',
     createdAt: serverTimestamp(),
   })
 }
@@ -39,8 +41,13 @@ export async function getSessions(uid) {
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
 }
 
+const SESSION_FIELDS = ['subject', 'duration', 'notes', 'date', 'color', 'status']
+
 export async function updateSession(uid, sessionId, updates) {
-  return updateDoc(userDoc(uid, 'sessions', sessionId), updates)
+  const filtered = Object.fromEntries(
+    Object.entries(updates).filter(([k]) => SESSION_FIELDS.includes(k))
+  )
+  return updateDoc(userDoc(uid, 'sessions', sessionId), filtered)
 }
 
 export async function deleteSession(uid, sessionId) {

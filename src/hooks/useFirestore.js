@@ -12,6 +12,17 @@ import {
   logPomodoroSession,
 } from '../services/firestore'
 
+// --------------- Helpers ---------------
+
+function friendlyError(err) {
+  const code = err.code || ''
+  if (code === 'permission-denied') return 'You do not have permission to perform this action.'
+  if (code === 'not-found') return 'The requested item was not found.'
+  if (code === 'unavailable') return 'Service is temporarily unavailable. Please try again.'
+  if (code === 'unauthenticated') return 'You must be logged in to perform this action.'
+  return 'Something went wrong. Please try again.'
+}
+
 // --------------- useSessions ---------------
 
 export function useSessions(uid) {
@@ -29,7 +40,7 @@ export function useSessions(uid) {
       setSessions(await getSessions(uid))
       setError(null)
     } catch (err) {
-      setError(err.message)
+      setError(friendlyError(err))
     } finally {
       setLoading(false)
     }
@@ -41,8 +52,10 @@ export function useSessions(uid) {
     try {
       await addSession(uid, data)
       await reload()
+      return true
     } catch (err) {
-      setError(err.message)
+      setError(friendlyError(err))
+      return false
     }
   }
 
@@ -50,8 +63,10 @@ export function useSessions(uid) {
     try {
       await updateSession(uid, id, updates)
       await reload()
+      return true
     } catch (err) {
-      setError(err.message)
+      setError(friendlyError(err))
+      return false
     }
   }
 
@@ -59,8 +74,10 @@ export function useSessions(uid) {
     try {
       await deleteSession(uid, id)
       await reload()
+      return true
     } catch (err) {
-      setError(err.message)
+      setError(friendlyError(err))
+      return false
     }
   }
 
@@ -84,7 +101,7 @@ export function useAssignments(uid) {
       setAssignments(await getAssignments(uid))
       setError(null)
     } catch (err) {
-      setError(err.message)
+      setError(friendlyError(err))
     } finally {
       setLoading(false)
     }
@@ -97,7 +114,7 @@ export function useAssignments(uid) {
       await addAssignment(uid, data)
       await reload()
     } catch (err) {
-      setError(err.message)
+      setError(friendlyError(err))
     }
   }
 
@@ -106,7 +123,7 @@ export function useAssignments(uid) {
       await updateAssignment(uid, id, updates)
       await reload()
     } catch (err) {
-      setError(err.message)
+      setError(friendlyError(err))
     }
   }
 
@@ -115,7 +132,7 @@ export function useAssignments(uid) {
       await deleteAssignment(uid, id)
       await reload()
     } catch (err) {
-      setError(err.message)
+      setError(friendlyError(err))
     }
   }
 
@@ -139,7 +156,7 @@ export function usePomodoro(uid) {
       setLogs(await getPomodoroLogs(uid))
       setError(null)
     } catch (err) {
-      setError(err.message)
+      setError(friendlyError(err))
     } finally {
       setLoading(false)
     }
@@ -152,7 +169,7 @@ export function usePomodoro(uid) {
       await logPomodoroSession(uid, data)
       await reload()
     } catch (err) {
-      setError(err.message)
+      setError(friendlyError(err))
     }
   }
 

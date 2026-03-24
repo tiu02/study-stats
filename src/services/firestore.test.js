@@ -97,7 +97,7 @@ describe('Firestore service', () => {
 
   describe('addSession', () => {
     it('writes correct fields with serverTimestamp', async () => {
-      const data = { subject: 'Math', duration: 45, notes: 'Chapter 3', date: new Date('2026-03-23') }
+      const data = { subject: 'Math', duration: 45, notes: 'Chapter 3', date: new Date('2026-03-23'), color: '#3B82F6', status: 'in-progress' }
       await addSession(uid, data)
 
       expect(mockAddDoc).toHaveBeenCalledWith('COLLECTION_REF', {
@@ -105,15 +105,19 @@ describe('Firestore service', () => {
         duration: 45,
         notes: 'Chapter 3',
         date: data.date,
+        color: '#3B82F6',
+        status: 'in-progress',
         createdAt: 'SERVER_TIMESTAMP',
       })
     })
 
-    it('defaults notes to empty string when not provided', async () => {
+    it('defaults notes, color, and status when not provided', async () => {
       await addSession(uid, { subject: 'Bio', duration: 30, notes: undefined, date: new Date() })
 
       expect(mockAddDoc).toHaveBeenCalledWith('COLLECTION_REF', expect.objectContaining({
         notes: '',
+        color: '#6366F1',
+        status: 'complete',
       }))
     })
   })

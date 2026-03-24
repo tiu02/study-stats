@@ -9,8 +9,80 @@ service cloud.firestore {
     }
 
     // Per-user data: only the authenticated owner can read/write
-    match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    match /users/{userId} {
+
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      // Sessions
+      match /sessions/{sessionId} {
+        allow read, delete: if isOwner();
+        allow create: if isOwner()
+          && request.resource.data.keys().hasAll(['subject', 'duration', 'notes', 'date', 'color', 'status', 'createdAt'])
+          && request.resource.data.keys().hasOnly(['subject', 'duration', 'notes', 'date', 'color', 'status', 'createdAt'])
+          && request.resource.data.subject is string
+          && request.resource.data.subject.size() >= 1
+          && request.resource.data.subject.size() <= 150
+          && request.resource.data.duration is number
+          && request.resource.data.duration > 0
+          && request.resource.data.duration <= 20160
+          && request.resource.data.notes is string
+          && request.resource.data.notes.size() <= 2000
+          && request.resource.data.date is timestamp
+          && request.resource.data.color is string
+          && request.resource.data.color.size() <= 20
+          && request.resource.data.status is string
+          && request.resource.data.status in ['in-progress', 'complete', 'incomplete']
+          && request.resource.data.createdAt == request.time;
+        allow update: if isOwner()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['subject', 'duration', 'notes', 'date', 'color', 'status'])
+          && request.resource.data.subject is string
+          && request.resource.data.subject.size() >= 1
+          && request.resource.data.subject.size() <= 150
+          && request.resource.data.duration is number
+          && request.resource.data.duration > 0
+          && request.resource.data.duration <= 20160
+          && request.resource.data.notes is string
+          && request.resource.data.notes.size() <= 2000
+          && request.resource.data.date is timestamp
+          && request.resource.data.color is string
+          && request.resource.data.color.size() <= 20
+          && request.resource.data.status is string
+          && request.resource.data.status in ['in-progress', 'complete', 'incomplete'];
+      }
+
+      // Assignments
+      match /assignments/{assignmentId} {
+        allow read, delete: if isOwner();
+        allow create: if isOwner()
+          && request.resource.data.keys().hasAll(['title', 'subject', 'dueDate', 'completed', 'createdAt'])
+          && request.resource.data.keys().hasOnly(['title', 'subject', 'dueDate', 'completed', 'createdAt'])
+          && request.resource.data.title is string
+          && request.resource.data.title.size() >= 1
+          && request.resource.data.title.size() <= 200
+          && request.resource.data.subject is string
+          && request.resource.data.subject.size() <= 200
+          && request.resource.data.dueDate is timestamp
+          && request.resource.data.completed is bool
+          && request.resource.data.createdAt == request.time;
+        allow update: if isOwner()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'subject', 'dueDate', 'completed']);
+      }
+
+      // Pomodoro
+      match /pomodoro/{logId} {
+        allow read, delete: if isOwner();
+        allow create: if isOwner()
+          && request.resource.data.keys().hasAll(['workMinutes', 'breakMinutes', 'completedAt'])
+          && request.resource.data.keys().hasOnly(['workMinutes', 'breakMinutes', 'completedAt'])
+          && request.resource.data.workMinutes is number
+          && request.resource.data.workMinutes > 0
+          && request.resource.data.breakMinutes is number
+          && request.resource.data.breakMinutes >= 0
+          && request.resource.data.completedAt == request.time;
+        allow update: if false;
+      }
     }
   }
 }

@@ -35,8 +35,6 @@ Let me also look at the current routes and landing page to understand what we're
 
 Good, I've got the full picture. Here's the Phase 3 plan:
 
----
-
 ## Phase 3: Navbar Shell + Stub Routes
 
 ### What we're building
@@ -85,9 +83,9 @@ A persistent navigation bar and four new placeholder pages, all behind authentic
 2. **Navbar placement** — rendered inside `App.jsx` above `<Routes>`, conditionally shown based on `currentUser` from `useAuth()`.
 3. **No Firestore yet** — stub pages are static text only. Database work is a separate phase.
 
----
-
 Want me to start coding this, or do you want to adjust anything first?
+
+---
 
 ### User
 
@@ -123,8 +121,6 @@ I've read everything. Let me save some context for future sessions, then give yo
 
 Good, I've reviewed everything. Here's what I gathered and the refined Phase 3 plan:
 
----
-
 ## Context from transcript and README
 
 **Phase 2 accomplished:**
@@ -144,8 +140,6 @@ Good, I've reviewed everything. Here's what I gathered and the refined Phase 3 p
 3. Assignment Deadline Tracker (due dates, to-do list, color-coded urgency)
 4. Weekly Summary Dashboard (total hours, sessions, upcoming/overdue)
 5. Search & Filter Sessions (by subject, date range, completion status)
-
----
 
 ## Refined Phase 3 Plan: Navbar Shell + Stub Routes
 
@@ -196,9 +190,9 @@ Good, I've reviewed everything. Here's what I gathered and the refined Phase 3 p
 - No Firestore database creation (separate step you do in Firebase Console)
 - No tests yet for the new components (can add after implementation if you want)
 
----
-
 Ready to code when you give the go-ahead, or let me know if you want to adjust anything.
+
+---
 
 ### User
 
@@ -251,6 +245,8 @@ Good, I have the full picture. Starting implementation.
 > Tool calls: **TodoWrite**
 
 > Tool calls: **Edit** `Landing.jsx`
+
+---
 
 ### User
 

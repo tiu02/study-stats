@@ -91,12 +91,14 @@ describe('useSessions', () => {
   })
 
   it('sets error when fetch fails', async () => {
-    mockGetSessions.mockRejectedValue(new Error('Permission denied'))
+    const err = new Error('Permission denied')
+    err.code = 'permission-denied'
+    mockGetSessions.mockRejectedValue(err)
     const { result } = renderHook(() => useSessions(uid))
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.error).toBe('Permission denied')
+    expect(result.current.error).toBe('You do not have permission to perform this action.')
     expect(result.current.sessions).toEqual([])
   })
 
@@ -144,14 +146,16 @@ describe('useSessions', () => {
 
   it('sets error when a mutation fails', async () => {
     mockGetSessions.mockResolvedValue([])
-    mockAddSession.mockRejectedValue(new Error('Network error'))
+    const err = new Error('Network error')
+    err.code = 'unavailable'
+    mockAddSession.mockRejectedValue(err)
     const { result } = renderHook(() => useSessions(uid))
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
     await act(() => result.current.add({ subject: 'Math', duration: 30, date: new Date() }))
 
-    expect(result.current.error).toBe('Network error')
+    expect(result.current.error).toBe('Service is temporarily unavailable. Please try again.')
   })
 
   it('refetches when uid changes', async () => {
@@ -223,12 +227,14 @@ describe('useAssignments', () => {
   })
 
   it('sets error when fetch fails', async () => {
-    mockGetAssignments.mockRejectedValue(new Error('Firestore unavailable'))
+    const err = new Error('Firestore unavailable')
+    err.code = 'unavailable'
+    mockGetAssignments.mockRejectedValue(err)
     const { result } = renderHook(() => useAssignments(uid))
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.error).toBe('Firestore unavailable')
+    expect(result.current.error).toBe('Service is temporarily unavailable. Please try again.')
   })
 
   it('add calls addAssignment and refetches', async () => {
@@ -247,14 +253,16 @@ describe('useAssignments', () => {
 
   it('sets error when a mutation fails', async () => {
     mockGetAssignments.mockResolvedValue([])
-    mockDeleteAssignment.mockRejectedValue(new Error('Not found'))
+    const err = new Error('Not found')
+    err.code = 'not-found'
+    mockDeleteAssignment.mockRejectedValue(err)
     const { result } = renderHook(() => useAssignments(uid))
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
     await act(() => result.current.remove('nonexistent-id'))
 
-    expect(result.current.error).toBe('Not found')
+    expect(result.current.error).toBe('The requested item was not found.')
   })
 })
 
@@ -313,7 +321,7 @@ describe('usePomodoro', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.error).toBe('Timeout')
+    expect(result.current.error).toBe('Something went wrong. Please try again.')
   })
 
   it('logSession calls logPomodoroSession and refetches', async () => {
@@ -339,6 +347,6 @@ describe('usePomodoro', () => {
 
     await act(() => result.current.logSession({ workMinutes: 25, breakMinutes: 5 }))
 
-    expect(result.current.error).toBe('Write failed')
+    expect(result.current.error).toBe('Something went wrong. Please try again.')
   })
 })
