@@ -7,9 +7,10 @@
   padding: 2rem 2rem 1.5rem;
 }
 
+/* Header row — heading + add button */
 .sessions-header {
   width: 100%;
-  max-width: 520px;
+  max-width: 640px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -23,8 +24,13 @@
   margin: 0;
 }
 
+/* Add button */
 .btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.6rem 1.25rem;
+  min-height: 44px;
   font-size: 0.95rem;
   font-weight: 600;
   color: #ffffff;
@@ -39,6 +45,15 @@
   background-color: #4f46e5;
 }
 
+.btn-add:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+.btn-add-icon {
+  font-size: 20px;
+}
+
 /* Error banner */
 .sessions-error {
   background-color: #fef2f2;
@@ -49,7 +64,7 @@
   font-size: 0.875rem;
   margin-bottom: 1rem;
   width: 100%;
-  max-width: 520px;
+  max-width: 640px;
   box-sizing: border-box;
 }
 
@@ -68,30 +83,48 @@
   color: #4b5563;
 }
 
-/* Session card list */
+/* ===== Session card list ===== */
 .sessions-list {
   width: 100%;
-  max-width: 520px;
+  max-width: 640px;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  margin-top: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
+/* ===== Session card ===== */
 .session-card {
   background: #ffffff;
   border: 1px solid #c7d2fe;
   border-left: 4px solid #6366F1;
   border-radius: 10px;
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.25rem;
   box-shadow: 0 1px 4px rgba(99, 102, 241, 0.08);
+  transition: box-shadow 0.2s, transform 0.2s;
 }
 
+.session-card:hover {
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Row 1: title group + action icons */
 .session-card-top {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Groups subject + badge together so badge stays near title */
+.session-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .session-card-subject {
@@ -99,26 +132,10 @@
   font-weight: 700;
   color: #1f2937;
   margin: 0;
-}
-
-.session-card-duration {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #6366F1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.session-card-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-}
-
-.session-card-date {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin: 0;
 }
 
 /* Status badges */
@@ -129,6 +146,7 @@
   padding: 0.15rem 0.5rem;
   border-radius: 9999px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .status-complete {
@@ -146,89 +164,285 @@
   color: #991b1b;
 }
 
+/* Icon buttons — edit/delete */
+.session-card-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+  color: #6b7280;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.btn-icon .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.btn-icon:hover {
+  background-color: #EEF2FF;
+  color: #6366F1;
+}
+
+.btn-icon-delete:hover {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.btn-icon:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 1px;
+}
+
+.btn-icon-delete:focus-visible {
+  outline-color: #dc2626;
+}
+
+/* Row 2: date + duration */
+.session-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.session-card-date {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.session-card-meta-sep {
+  font-size: 1.2rem;
+  color: #9ca3af;
+  line-height: 1;
+}
+
+.session-card-duration {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6366F1;
+  white-space: nowrap;
+}
+
+/* Row 3: notes with 2-line clamp */
+.session-card-notes-wrapper {
+  margin-top: 0.5rem;
+}
+
 .session-card-notes {
   font-size: 0.9rem;
   color: #4b5563;
-  margin-top: 0.5rem;
   line-height: 1.5;
+  margin: 0;
+  word-break: break-word;
 }
 
-.session-card-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
+.session-card-notes.clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.session-card-actions button {
-  padding: 0.4rem 0.85rem;
-  font-size: 0.85rem;
+.btn-show-more {
+  background: none;
+  border: none;
+  padding: 0.5rem 0;
+  min-height: 44px;
+  margin-top: 0;
+  font-size: 0.8rem;
   font-weight: 600;
-  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  display: block;
+  margin-left: auto;
+}
+
+.btn-show-more:hover {
+  text-decoration: underline;
+}
+
+.btn-show-more:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 1px;
+}
+
+/* ===== Modal overlay ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 1.5rem;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  border-radius: 12px;
+  outline: none;
+}
+
+/* Remove inner form border/shadow when inside modal — the modal IS the card */
+.modal-content .session-form {
+  border: none;
+  box-shadow: none;
+  max-width: none;
+  border-radius: 12px;
+}
+
+/* Delete modal */
+.delete-modal {
+  background: #ffffff;
+  padding: 2.5rem 2rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.delete-modal-icon {
+  font-size: 40px;
+  color: #dc2626;
+  margin-bottom: 0.75rem;
+}
+
+.delete-modal h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem;
+  word-break: break-word;
+}
+
+.delete-modal p {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0 0 2rem;
+}
+
+.delete-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.delete-modal-actions button {
+  padding: 0.65rem 1.5rem;
+  font-size: 0.95rem;
+  min-height: 44px;
+  font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.btn-edit {
-  color: #6366F1;
-  background-color: #EEF2FF;
-  border: 1px solid #c7d2fe;
+.delete-modal-actions .btn-secondary {
+  color: #374151;
+  background-color: #e5e7eb;
+  border: 1px solid #d1d5db;
 }
 
-.btn-edit:hover {
-  background-color: #e0e7ff;
+.delete-modal-actions .btn-secondary:hover {
+  background-color: #d1d5db;
 }
 
-.btn-delete {
-  color: #dc2626;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
+.delete-modal-actions .btn-secondary:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
 }
 
-.btn-delete:hover {
-  background-color: #fee2e2;
-}
-
-/* Delete confirmation */
-.delete-confirm {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-  font-size: 0.85rem;
-  color: #4b5563;
-}
-
-.delete-confirm button {
-  padding: 0.35rem 0.75rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.btn-confirm-delete {
+.delete-modal-actions .btn-confirm-delete {
   color: #ffffff;
   background-color: #dc2626;
   border: none;
 }
 
-.btn-confirm-delete:hover {
+.delete-modal-actions .btn-confirm-delete:hover {
   background-color: #b91c1c;
 }
 
-.btn-confirm-cancel {
-  color: #4b5563;
-  background-color: #f3f4f6;
-  border: 1px solid #d1d5db;
+.delete-modal-actions .btn-confirm-delete:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
 }
 
-.btn-confirm-cancel:hover {
-  background-color: #e5e7eb;
+.delete-modal-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-/* Form spacing when open */
-.sessions-form-wrapper {
-  width: 100%;
-  max-width: 520px;
-  margin-bottom: 1rem;
+.delete-modal-error {
+  font-size: 0.8rem;
+  color: #dc2626;
+  margin: -0.75rem 0 1rem;
+}
+
+/* Loading spinner */
+.spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid #c7d2fe;
+  border-top-color: #6366F1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 640px) {
+  .sessions-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .sessions-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .session-card {
+    padding: 0.85rem 1rem;
+  }
+
+  .session-card-subject {
+    font-size: 1rem;
+  }
+
+  .session-card-actions {
+    gap: 0.35rem;
+  }
+
+  .modal-overlay {
+    padding: 1rem;
+    align-items: flex-start;
+    padding-top: 3rem;
+  }
+
+  .modal-overlay.modal-overlay-centered {
+    align-items: center;
+    padding-top: 1rem;
+  }
+
+  .modal-content {
+    max-height: calc(100vh - 4rem);
+  }
 }

@@ -1,8 +1,8 @@
-# StudyStats — Claude Code Transcript (Session 4 — Phase 3 Build)
+# StudyStats — Claude Code Transcript (Session 3A — Phase 3)
 
 **Date:** 2026-03-22
 **Project:** StudyStats (Vite + React Study Planner)
-**Phase:** 3 — Navbar Shell & Stub Routes - Security & Accessibility Fixes
+**Phase:** 3 — Navbar Shell & Stub Routes (Security & Accessibility Fixes)
 **Tool:** Claude Code (VSCode Extension)
 
 ---
@@ -13,7 +13,7 @@ Built the Navbar shell with conditional logged-in/logged-out states, created 4 s
 
 ---
 
-## Session 4 — Mar 22, 2026
+## Session 3A — Mar 22, 2026
 
 ### User
 
@@ -196,62 +196,6 @@ Ready to code when you give the go-ahead, or let me know if you want to adjust a
 
 ### User
 
-I'm building a Study Planner React app with React + Vite + Firebase Auth.
-Auth is working: AuthContext provides currentUser, PrivateRoute redirects unauthenticated users.
-Task: Build the navigation shell and stub page components.
-1. Wire the landing page Get Started button to navigate to /signup if logged out. If logged in, plan for where user should be redirected to landing or to dashboard.
- Import useNavigate from react-router-dom in the landing page component.
- Add onClick={() => navigate('/signup')} to the Get Started button for logged out users.
-2. Create stub page components — each just renders a heading for now:
- src/pages/Dashboard.jsx --- renders <h1>Dashboard</h1>
- src/pages/Sessions.jsx --- renders <h1>Sessions</h1>
- src/pages/Pomodoro.jsx --- renders <h1>Pomodoro</h1>
- src/pages/Assignments.jsx --- renders <h1>Assignments</h1>
-3. Create src/components/Navbar.jsx with:
- - Logo/app name on the left linking to /
- - Nav links: Dashboard, Sessions, Assignments, Pomodoro (only when logged in)
- - Right side: logged-in user email + Logout button (only when logged in)
- - When logged out: show Login and Sign Up links only and landing page
-4. Update App.jsx with all routes:
- / : Landing page (public — visible to everyone, logged in or out)
- /dashboard : Dashboard (protected by PrivateRoute)
- /sessions: Sessions (protected)
- /pomodoro: Pomodoro (protected)
- /assignments: Assignments (protected)
- /login: Login
- /signup: Signup
-
-IMPORTANT: Do NOT use PrivateRoute on the / route. Do NOT redirect logged-out users away from /. 
-The landing page is public. Only /dashboard, /sessions, /pomodoro, and /assignments require login.
-
-### Assistant
-
-> Tool calls: **ToolSearch**
-
-> Tool calls: **TodoWrite**
-
-Let me read the files I need to modify first.
-
-> Tool calls: **Read** `App.jsx`
-
-> Tool calls: **Read** `Landing.jsx`
-
-> Tool calls: **Read** `App.css`
-
-> Tool calls: **Read** `PrivateRoute.jsx`
-
-Good, I have the full picture. Starting implementation.
-
-> Tool calls: **TodoWrite**
-
-> Tool calls: **Edit** `Landing.jsx`
-
----
-
-### User
-
-[Request interrupted by user for tool use]
-
 Read PROJECT-STATUS.md, ARCHITECTURE.md, and README.md to understand the current state of this project. 
 
 I'm building a Study Planner React app with React + Vite + Firebase Auth.
@@ -319,6 +263,8 @@ One question before I start: for the logged-in landing page, you currently have 
 - **"Log Out"** button stays as-is (but the Navbar will also have Logout, so this becomes redundant — want me to keep it or remove it from the landing page since the Navbar will handle logout?)
 
 Let me know if you want any adjustments, or I'll proceed as described.
+
+---
 
 ### User
 
@@ -401,6 +347,8 @@ Build passes, all 8 tests pass. Here's what was done:
 - **Logged in:** Logo → `/`, links to Dashboard/Sessions/Assignments/Pomodoro, active link highlighted with indigo underline, user email + Log Out on right
 - **Logged out:** Logo → `/`, Log In + Sign Up on right
 
+---
+
 ### User
 
 Each card on landing page should click to their respective page.
@@ -419,6 +367,8 @@ Done. Each feature card now navigates to its page:
 - **Weekly Progress** → `/dashboard`
 
 If the user isn't logged in, `PrivateRoute` will redirect them to `/login` first.
+
+---
 
 ### User
 
@@ -446,6 +396,8 @@ On the navigation question — the current setup is actually the right approach 
 
 No changes needed on the navigation strategy — it's solid as-is.
 
+---
+
 ### User
 
 Is the log in on landing page redundant since it's also in the nav bar? There is already a get started button on landing page. Also why do the input field turn gray on autocomplete? It has low contrast.
@@ -472,6 +424,8 @@ Done. Two fixes:
 
 - **Landing page** — removed redundant Log In link, cleaned up unused `Link` import
 - **Auth.css** — overrode Chrome's `:-webkit-autofill` style so autofilled inputs keep the white (`#fafafe`) background and dark text (`#1f2937`) instead of turning gray
+
+---
 
 ### User
 
@@ -515,6 +469,8 @@ This is minor since the user ends up on `/` regardless, but the cleaner fix is t
 
 **No other issues found.** The routing, auth gating, and conditional rendering are all wired correctly.
 
+---
+
 ### User
 
 Apply the cleaner fix for navbar.jsx. Do not change anything else.
@@ -524,6 +480,8 @@ Apply the cleaner fix for navbar.jsx. Do not change anything else.
 > Tool calls: **Edit** `Navbar.jsx`
 
 Now if the user logs out from a protected page, `PrivateRoute` handles the redirect to `/login` on its own. If they're on a public page (like `/`), Navbar navigates to `/`. No competing navigations.
+
+---
 
 ### User
 
@@ -606,6 +564,8 @@ setLoading(false)  // only runs on error
 
 No injection risks, no data exposure, no insecure storage. Want me to fix #2, #3, and #4?
 
+---
+
 ### User
 
 Leave Issue 1 alone for now. Fix Issues 2-4.
@@ -630,6 +590,8 @@ Build passes, 8 tests pass. Here's what was fixed:
 - **[Signup.jsx:83](src/pages/Signup.jsx#L83)** — same fix
 - **[NotFound.jsx](src/pages/NotFound.jsx)** — new 404 page showing "Page not found" with a link back to home, reusing existing auth-page styles
 - **[App.jsx:26](src/App.jsx#L26)** — added `<Route path="*">` catch-all pointing to NotFound
+
+---
 
 ### User
 
@@ -697,6 +659,8 @@ Reference WCAG 2.1 AA guidelines where applicable.
 | Low | 4 | ARIA labels (#2, #3), loading spinner (#11), 404 heading (#12), password hint color (#8) |
 
 Want me to fix all of these?
+
+---
 
 ### User
 
@@ -788,6 +752,8 @@ Build passes, 8 tests pass. Here's everything that was fixed:
 | 11 | Added `role="status"` and `aria-live="polite"` to loading spinners | [AuthContext.jsx](src/context/AuthContext.jsx), [PrivateRoute.jsx](src/components/PrivateRoute.jsx) |
 | 12 | Redesigned 404 page: larger container, 4rem warning icon, 4rem heading, descriptive message, styled indigo button with focus/hover states | [NotFound.jsx](src/pages/NotFound.jsx), [NotFound.css](src/pages/NotFound.css) |
 
+---
+
 ### User
 
 Review the code you just wrote. Is there a better way to layout the landing, navbar and 404 page for a cleaner, more readable design?
@@ -848,6 +814,8 @@ Now the 404 page — same treatment.
 
 > Tool calls: **Edit** `NotFound.css`
 
+---
+
 ### User
 
 [Request interrupted by user]
@@ -883,6 +851,8 @@ Both files updated.
 - Updated Login.jsx/Signup.jsx descriptions (ARIA attributes)
 - Updated Auth.css description (autofill contrast fix)
 - Updated folder structure (Navbar in components)
+
+---
 
 ### User
 

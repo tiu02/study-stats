@@ -1,4 +1,4 @@
-# StudyStats — Claude Code Transcript (Sessions 1 & 2 - Phase 1)
+# StudyStats — Claude Code Transcript (Sessions 1 - Phase 1)
 
 **Date:** 2026-03-20
 **Project:** StudyStats (Vite + React Study Planner)
@@ -111,8 +111,6 @@ Exported both sessions to `CLAUDE-TRANSCRIPT.md` in the project root.
 
 ---
 
-## Session 2 — Mar 10, 2026, 7:09 AM
-
 ### User
 
 The right half of screen is blank. Figure out why, dont change code. Identify if code changes to fix this issue will be simple and Custom landing page at the URL, again, no code
@@ -155,10 +153,10 @@ Help me export my Claude Code transcripts from this project to a file named CLAU
 
 ### Assistant
 
-> Tool calls: **Agent** (Explore) — Found 2 session JSONL files in `~/.claude/projects/`
+> Tool calls: **Agent** (Explore) — Found 1 session JSONL files in `~/.claude/projects/`
 
-> Tool calls: **Bash** parsed JSONL structure, **Bash** ran Node.js script to extract and format all sessions
+> Tool calls: **Bash** parsed JSONL structure, **Bash** ran Node.js script to extract and format session
 
-Exported all 2 sessions to `CLAUDE-TRANSCRIPT-01.md` in the project root.
+Exported session to `CLAUDE-TRANSCRIPT-01.md` in the project root.
 
 ---

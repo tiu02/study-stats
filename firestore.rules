@@ -23,7 +23,7 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly(['subject', 'duration', 'notes', 'date', 'color', 'status', 'createdAt'])
           && request.resource.data.subject is string
           && request.resource.data.subject.size() >= 1
-          && request.resource.data.subject.size() <= 150
+          && request.resource.data.subject.size() <= 75
           && request.resource.data.duration is number
           && request.resource.data.duration > 0
           && request.resource.data.duration <= 20160
@@ -39,7 +39,7 @@ service cloud.firestore {
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['subject', 'duration', 'notes', 'date', 'color', 'status'])
           && request.resource.data.subject is string
           && request.resource.data.subject.size() >= 1
-          && request.resource.data.subject.size() <= 150
+          && request.resource.data.subject.size() <= 75
           && request.resource.data.duration is number
           && request.resource.data.duration > 0
           && request.resource.data.duration <= 20160

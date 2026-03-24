@@ -1,8 +1,8 @@
-# StudyStats — Claude Code Transcript (Session 4B — Phase 3 CSS & Styling)
+# StudyStats — Claude Code Transcript (Session 3B — Phase 3)
 
 **Date:** 2026-03-22
 **Project:** StudyStats (Vite + React Study Planner)
-**Phase:** 3 — Navbar Shell & Stub Routes - CSS Styling, Responsive Layout, Icon System
+**Phase:** 3 — Navbar Shell & Stub Routes (CSS Styling, Responsive Layout, Icon System)
 **Tool:** Claude Code (VSCode Extension)
 
 ---
@@ -13,7 +13,7 @@ Completed Phase 3 CSS polish — removed Vite boilerplate from index.css, create
 
 ---
 
-## Session 4B — Mar 22, 2026
+## Session 3B — Mar 22, 2026
 
 ### User
 
@@ -42,8 +42,6 @@ Let me also read the Login, Signup, App.jsx, and test files to complete my revie
 
 I've read everything. Here's my assessment of what needs to be done across all three areas:
 
----
-
 ## Phase 3 Completion Plan
 
 ### 1. CSS Styling Issues
@@ -70,9 +68,9 @@ Currently: 8 tests (3 PrivateRoute, 5 Login). New tests to add:
 | **Landing** | Renders app name; shows "Get Started" when logged out; shows "Start Studying" when logged in; feature cards render |
 | **NotFound** | Renders 404 heading; renders Back to Home button |
 
----
-
 Want me to proceed with all three areas, or adjust anything first?
+
+---
 
 ### User
 
@@ -94,6 +92,8 @@ Build passes, all 8 tests pass. Here's what was fixed:
 | 4 | **Styled stub pages** — all four wrap content in a `.stub-page` div with the `#EEF2FF` background, centered layout, and indigo `<h1>` matching the rest of the app. Shared styles in one file. | [Dashboard.jsx](src/pages/Dashboard.jsx), [Sessions.jsx](src/pages/Sessions.jsx), [Pomodoro.jsx](src/pages/Pomodoro.jsx), [Assignments.jsx](src/pages/Assignments.jsx), [Stub.css](src/pages/Stub.css) |
 
 CSS bundle size dropped from 8.82 KB to 8.50 KB with the boilerplate removed. Ready for unit testing when you are.
+
+---
 
 ### User
 
@@ -126,6 +126,8 @@ Build passes, all 8 tests pass. Here's what was fixed:
 
 Check the app in the browser and let me know if any spacing still needs adjusting.
 
+---
+
 ### User
 
 Fix styling other mobile pages. 
@@ -138,7 +140,6 @@ Fix styling other mobile pages.
 - Update icons from landing page cards to match simple icons from nav.
 - Change email display when logged in, into a profile user icon. Move it to right of log out button.
 - Login and sign up buttons shouldn't move from right side of nav bar when logged out.
--
 
 ### Assistant
 
@@ -166,6 +167,8 @@ Build passes, all 8 tests pass. Here's everything that changed:
 
 Check the app in the browser and let me know if anything needs adjusting.
 
+---
+
 ### User
 
 - On mobile nav, icons should be aligned from one line to next.
@@ -185,6 +188,8 @@ Build passes. Two fixes applied:
 
 - **Desktop nav links centered** — `.navbar-links` now has `flex: 1; justify-content: center` so links sit in the center of the navbar between the logo and the profile/logout section.
 - **Mobile icon alignment** — Each link has a fixed `width: 11rem` with `justify-content: flex-start`, so all icons line up vertically on the left edge while the link block stays centered in the dropdown.
+
+---
 
 ### User
 
@@ -212,6 +217,8 @@ Both files updated.
 - Updated Navbar description (sticky, centered links, profile icon, no hamburger when logged out)
 - Updated Landing description (SVG outline icons)
 - Updated stub page descriptions and `index.css` description
+
+---
 
 ### User
 

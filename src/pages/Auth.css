@@ -11,6 +11,11 @@
   .auth-page {
     padding: 4rem 2rem 1.5rem;
   }
+
+  /* Prevent iOS zoom on focus (requires >= 16px) */
+  .auth-form input {
+    font-size: 16px;
+  }
 }
 
 .auth-form {
@@ -88,9 +93,19 @@
   background-color: #4f46e5;
 }
 
+.auth-form button:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
 .auth-form button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.auth-form button:disabled:focus-visible {
+  outline: 2px solid #9ca3af;
+  outline-offset: 2px;
 }
 
 .auth-error {

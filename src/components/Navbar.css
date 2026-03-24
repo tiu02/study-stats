@@ -162,6 +162,7 @@
   border: none;
   border-radius: 6px;
   padding: 0.4rem 0.85rem;
+  min-height: 44px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }

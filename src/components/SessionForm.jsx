@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
 import './SessionForm.css'
 
@@ -6,11 +6,11 @@ const today = () => format(new Date(), 'yyyy-MM-dd')
 
 const COLOR_PRESETS = [
   { value: '#6366F1', label: 'Indigo' },
-  { value: '#3B82F6', label: 'Blue' },
+  { value: '#0EA5E9', label: 'Blue' },
   { value: '#10B981', label: 'Green' },
   { value: '#F59E0B', label: 'Amber' },
   { value: '#EF4444', label: 'Red' },
-  { value: '#8B5CF6', label: 'Purple' },
+  { value: '#7C3AED', label: 'Purple' },
   { value: '#EC4899', label: 'Pink' },
   { value: '#6B7280', label: 'Gray' },
 ]
@@ -28,8 +28,72 @@ function toDateString(value) {
   return String(value)
 }
 
-export default function SessionForm({ onSubmit, onCancel, initialData, subjects }) {
+function formatMinutes(mins) {
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  if (h === 0) return `${m}m`
+  if (m === 0) return `${h}h`
+  return `${h}h ${m}m`
+}
+
+/* Duration warning modal — matches delete modal pattern */
+function DurationWarningModal({ open, onCancel, onConfirm, duration, formId }) {
+  const contentRef = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    const el = contentRef.current
+    if (el) el.focus()
+
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') { onCancel(); return }
+      if (e.key === 'Tab' && el) {
+        const focusable = el.querySelectorAll('button')
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault(); last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault(); first.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open, onCancel])
+
+  if (!open) return null
+
+  return (
+    <div className="duration-warning-overlay" onClick={(e) => { if (e.target === e.currentTarget) onCancel() }}>
+      <div
+        className="duration-warning-modal"
+        ref={contentRef}
+        role="alertdialog"
+        aria-label="Duration warning"
+        aria-describedby={`${formId}-dur-warn-desc`}
+        aria-modal="true"
+        tabIndex={-1}
+      >
+        <span className="material-symbols-outlined warning-icon" aria-hidden="true">warning</span>
+        <h2>Duration Over 24 Hours</h2>
+        <p id={`${formId}-dur-warn-desc`}>
+          You entered {formatMinutes(duration)}. Are you sure this is correct?
+        </p>
+        <div className="duration-warning-actions">
+          <button type="button" className="btn-cancel" onClick={onCancel}>Cancel</button>
+          <button type="button" className="btn-confirm" onClick={onConfirm}>Yes, Continue</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function SessionForm({ onSubmit, onCancel, initialData, subjects, formId, formError }) {
   const editing = Boolean(initialData)
+  const id = formId || (editing ? 'edit' : 'add')
 
   const initHours = initialData?.duration ? Math.floor(initialData.duration / 60) : ''
   const initMinutes = initialData?.duration ? initialData.duration % 60 : ''
@@ -43,6 +107,8 @@ export default function SessionForm({ onSubmit, onCancel, initialData, subjects 
   const [status, setStatus] = useState(initialData?.status || 'complete')
   const [errors, setErrors] = useState({})
   const [durationConfirmed, setDurationConfirmed] = useState(false)
+  const [showDurationWarning, setShowDurationWarning] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   function getTotalMinutes() {
     const h = Number(hours) || 0
@@ -52,17 +118,23 @@ export default function SessionForm({ onSubmit, onCancel, initialData, subjects 
 
   function resetDurationConfirmed() {
     setDurationConfirmed(false)
+    setShowDurationWarning(false)
   }
 
   function validate() {
     const next = {}
     if (!subject.trim()) next.subject = 'Subject is required.'
-    else if (subject.trim().length > 150) next.subject = 'Subject must be 150 characters or less.'
+    else if (subject.trim().length > 75) next.subject = 'Subject must be 75 characters or less.'
+
+    const m = Number(minutes) || 0
+    if (m > 59) {
+      next.duration = 'Minutes must be 0\u201359.'
+    }
 
     const total = getTotalMinutes()
-    if (total <= 0) {
+    if (!next.duration && total <= 0) {
       next.duration = 'Duration must be greater than 0.'
-    } else if (total > 20160) {
+    } else if (!next.duration && total > 20160) {
       next.duration = 'Duration cannot exceed 2 weeks (20,160 minutes).'
     }
 
@@ -72,142 +144,186 @@ export default function SessionForm({ onSubmit, onCancel, initialData, subjects 
     if (Object.keys(next).length > 0) return false
 
     if (total > 1440 && !durationConfirmed) {
-      setDurationConfirmed(true)
+      setShowDurationWarning(true)
       return false
     }
 
     return true
   }
 
-  function handleSubmit(e) {
-    e.preventDefault()
-    if (!validate()) return
+  async function doSubmit() {
+    setSubmitting(true)
+    try {
+      await onSubmit({
+        subject: subject.trim(),
+        duration: getTotalMinutes(),
+        notes: notes.trim(),
+        date: new Date(date + 'T00:00:00'),
+        color,
+        status,
+      })
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
-    onSubmit({
-      subject: subject.trim(),
-      duration: getTotalMinutes(),
-      notes: notes.trim(),
-      date: new Date(date + 'T00:00:00'),
-      color,
-      status,
-    })
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (!validate() || submitting) return
+    await doSubmit()
+  }
+
+  async function confirmDuration() {
+    setDurationConfirmed(true)
+    setShowDurationWarning(false)
+    await doSubmit()
   }
 
   return (
-    <form className="session-form" onSubmit={handleSubmit} aria-label={editing ? 'Edit session' : 'Add session'}>
-      <h2>{editing ? 'Edit Session' : 'Add Session'}</h2>
+    <>
+      <form
+        className="session-form"
+        onSubmit={handleSubmit}
+        noValidate
+        aria-label={editing ? 'Edit session' : 'Add session'}
+      >
+        <h2>{editing ? 'Edit Session' : 'Add Session'}</h2>
 
-      <label>
-        Subject
-        <input
-          type="text"
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          maxLength={150}
-          list="subject-suggestions"
-          aria-required="true"
-          autoComplete="off"
-        />
-        {subjects && subjects.length > 0 && (
-          <datalist id="subject-suggestions">
-            {subjects.map((s) => <option key={s} value={s} />)}
-          </datalist>
-        )}
-        {errors.subject && <p className="field-error" role="alert">{errors.subject}</p>}
-      </label>
-
-      <fieldset className="color-picker">
-        <legend>Color</legend>
-        <div className="color-swatches">
-          {COLOR_PRESETS.map((c) => (
-            <button
-              key={c.value}
-              type="button"
-              className={`color-swatch${color === c.value ? ' selected' : ''}`}
-              style={{ backgroundColor: c.value }}
-              onClick={() => setColor(c.value)}
-              aria-label={c.label}
-              title={c.label}
-            />
-          ))}
-        </div>
-      </fieldset>
-
-      <div className="session-form-row">
-        <label>
-          Duration
-          <div className="duration-inputs">
-            <div className="duration-field">
-              <input
-                type="number"
-                min="0"
-                value={hours}
-                onChange={(e) => { setHours(e.target.value); resetDurationConfirmed() }}
-                aria-label="Hours"
-              />
-              <span className="duration-unit">h</span>
-            </div>
-            <div className="duration-field">
-              <input
-                type="number"
-                min="0"
-                max="59"
-                value={minutes}
-                onChange={(e) => { setMinutes(e.target.value); resetDurationConfirmed() }}
-                aria-label="Minutes"
-              />
-              <span className="duration-unit">m</span>
-            </div>
-          </div>
-          {errors.duration && <p className="field-error" role="alert">{errors.duration}</p>}
-          {durationConfirmed && !errors.duration && (
-            <p className="duration-warning" role="alert">That&apos;s over 24 hours &mdash; are you sure?</p>
-          )}
-        </label>
-
-        <label>
-          Date
+        <label htmlFor={`${id}-subject`}>
+          Subject
           <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
+            id={`${id}-subject`}
+            type="text"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            maxLength={75}
+            list={`${id}-subject-suggestions`}
+            placeholder="e.g., Math, Biology"
             aria-required="true"
+            aria-describedby={errors.subject ? `${id}-subject-error` : undefined}
+            aria-invalid={errors.subject ? true : undefined}
+            autoComplete="off"
           />
-          {errors.date && <p className="field-error" role="alert">{errors.date}</p>}
+          {subjects && subjects.length > 0 && (
+            <datalist id={`${id}-subject-suggestions`}>
+              {subjects.map((s) => <option key={s} value={s} />)}
+            </datalist>
+          )}
+          {errors.subject && <p className="field-error" id={`${id}-subject-error`} role="alert">{errors.subject}</p>}
         </label>
-      </div>
 
-      <label>
-        Status
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          {STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
-      </label>
+        <fieldset className="color-picker">
+          <legend>Color</legend>
+          <div className="color-swatches">
+            {COLOR_PRESETS.map((c) => (
+              <button
+                key={c.value}
+                type="button"
+                className={`color-swatch${color === c.value ? ' selected' : ''}`}
+                style={{ backgroundColor: c.value }}
+                onClick={() => setColor(c.value)}
+                aria-label={c.label}
+                aria-pressed={color === c.value}
+                title={c.label}
+              />
+            ))}
+          </div>
+        </fieldset>
 
-      <label>
-        Notes (optional)
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          maxLength={2000}
-          rows={3}
-        />
-      </label>
+        <div className="session-form-row">
+          <label htmlFor={`${id}-hours`}>
+            Duration
+            <div className="duration-inputs">
+              <div className="duration-field">
+                <input
+                  id={`${id}-hours`}
+                  type="number"
+                  min="0"
+                  value={hours}
+                  onChange={(e) => { setHours(e.target.value); resetDurationConfirmed() }}
+                  aria-label="Hours"
+                  aria-describedby={errors.duration ? `${id}-duration-error` : undefined}
+                  aria-invalid={errors.duration ? true : undefined}
+                />
+                <span className="duration-unit">h</span>
+              </div>
+              <div className="duration-field">
+                <input
+                  id={`${id}-minutes`}
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={minutes}
+                  onChange={(e) => { setMinutes(e.target.value); resetDurationConfirmed() }}
+                  aria-label="Minutes"
+                />
+                <span className="duration-unit">m</span>
+              </div>
+            </div>
+            {errors.duration && <p className="field-error" id={`${id}-duration-error`} role="alert">{errors.duration}</p>}
+          </label>
 
-      <div className="session-form-actions">
-        <button type="submit" className="btn-primary">
-          {durationConfirmed && !errors.duration
-            ? (editing ? 'Yes, Save Changes' : 'Yes, Add Session')
-            : (editing ? 'Save Changes' : 'Add Session')}
-        </button>
-        {onCancel && (
-          <button type="button" className="btn-secondary" onClick={onCancel}>
-            Cancel
+          <label htmlFor={`${id}-date`}>
+            Date
+            <input
+              id={`${id}-date`}
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              aria-required="true"
+              aria-describedby={errors.date ? `${id}-date-error` : undefined}
+              aria-invalid={errors.date ? true : undefined}
+            />
+            {errors.date && <p className="field-error" id={`${id}-date-error`} role="alert">{errors.date}</p>}
+          </label>
+        </div>
+
+        <label htmlFor={`${id}-status`}>
+          Status
+          <select id={`${id}-status`} value={status} onChange={(e) => setStatus(e.target.value)}>
+            {STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </label>
+
+        <label htmlFor={`${id}-notes`}>
+          Notes (optional)
+          <textarea
+            id={`${id}-notes`}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            maxLength={2000}
+            rows={3}
+            aria-describedby={errors.notes ? `${id}-notes-error` : undefined}
+            aria-invalid={errors.notes ? true : undefined}
+          />
+          {errors.notes && <p className="field-error" id={`${id}-notes-error`} role="alert">{errors.notes}</p>}
+        </label>
+
+        {formError && <p className="form-error" role="alert">{formError}</p>}
+
+        <div className="session-form-actions">
+          {onCancel && (
+            <button type="button" className="btn-secondary" onClick={onCancel} disabled={submitting}>
+              Cancel
+            </button>
+          )}
+          <button type="submit" className="btn-primary" disabled={submitting}>
+            {submitting
+              ? (editing ? 'Saving\u2026' : 'Adding\u2026')
+              : (editing ? 'Save Changes' : 'Add Session')}
           </button>
-        )}
-      </div>
-    </form>
+        </div>
+      </form>
+
+      <DurationWarningModal
+        open={showDurationWarning}
+        onCancel={() => setShowDurationWarning(false)}
+        onConfirm={confirmDuration}
+        duration={getTotalMinutes()}
+        formId={id}
+      />
+    </>
   )
 }

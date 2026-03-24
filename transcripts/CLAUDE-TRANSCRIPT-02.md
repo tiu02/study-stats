@@ -1,4 +1,4 @@
-# StudyStats — Claude Code Transcript (Session 3 - Phase 2)
+# StudyStats — Claude Code Transcript (Session 2 - Phase 2)
 
 **Date:** 2026-03-22
 **Project:** StudyStats (Vite + React Study Planner)
@@ -13,7 +13,7 @@ Set up the project folder structure (components/, context/, hooks/, utils/, page
 
 ---
 
-## Session 3 — Mar 19, 2026
+## Session 2 — Mar 19, 2026
 
 ### User
 
@@ -755,6 +755,6 @@ Help me export my Claude Code transcripts from this project to a file named CLAU
 
 > Tool calls: **Agent** (Explore), **Bash** `cd "/Users/brian/Downloads/DIG 4503- AI/Week 7- Midterm Prop`
 
-The current session (`38b73ea5`) is 1.4MB — that's everything from this conversation. Sessions 1 and 2 (Mar 10) are already in CLAUDE-TRANSCRIPT-01.md. Let me parse and export.
+The current session (`38b73ea5`) is 1.4MB — that's everything from this conversation. Sessions 1 (Mar 10) is already in CLAUDE-TRANSCRIPT-01.md. Let me parse and export.
 
 ---
