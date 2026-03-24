@@ -15,11 +15,13 @@ import {
 // --------------- Helpers ---------------
 
 function friendlyError(err) {
+  console.error('[Firestore]', err)
   const code = err.code || ''
   if (code === 'permission-denied') return 'You do not have permission to perform this action.'
   if (code === 'not-found') return 'The requested item was not found.'
   if (code === 'unavailable') return 'Service is temporarily unavailable. Please try again.'
   if (code === 'unauthenticated') return 'You must be logged in to perform this action.'
+  if (code === 'failed-precondition') return 'A required database index is missing. Please contact support.'
   return 'Something went wrong. Please try again.'
 }
 
@@ -52,10 +54,11 @@ export function useSessions(uid) {
     try {
       await addSession(uid, data)
       await reload()
-      return true
+      return { ok: true }
     } catch (err) {
-      setError(friendlyError(err))
-      return false
+      const msg = friendlyError(err)
+      setError(msg)
+      return { ok: false, error: msg }
     }
   }
 
@@ -63,10 +66,11 @@ export function useSessions(uid) {
     try {
       await updateSession(uid, id, updates)
       await reload()
-      return true
+      return { ok: true }
     } catch (err) {
-      setError(friendlyError(err))
-      return false
+      const msg = friendlyError(err)
+      setError(msg)
+      return { ok: false, error: msg }
     }
   }
 
@@ -74,10 +78,11 @@ export function useSessions(uid) {
     try {
       await deleteSession(uid, id)
       await reload()
-      return true
+      return { ok: true }
     } catch (err) {
-      setError(friendlyError(err))
-      return false
+      const msg = friendlyError(err)
+      setError(msg)
+      return { ok: false, error: msg }
     }
   }
 
@@ -113,8 +118,11 @@ export function useAssignments(uid) {
     try {
       await addAssignment(uid, data)
       await reload()
+      return { ok: true }
     } catch (err) {
-      setError(friendlyError(err))
+      const msg = friendlyError(err)
+      setError(msg)
+      return { ok: false, error: msg }
     }
   }
 
@@ -122,8 +130,11 @@ export function useAssignments(uid) {
     try {
       await updateAssignment(uid, id, updates)
       await reload()
+      return { ok: true }
     } catch (err) {
-      setError(friendlyError(err))
+      const msg = friendlyError(err)
+      setError(msg)
+      return { ok: false, error: msg }
     }
   }
 
@@ -131,8 +142,11 @@ export function useAssignments(uid) {
     try {
       await deleteAssignment(uid, id)
       await reload()
+      return { ok: true }
     } catch (err) {
-      setError(friendlyError(err))
+      const msg = friendlyError(err)
+      setError(msg)
+      return { ok: false, error: msg }
     }
   }
 
@@ -168,8 +182,11 @@ export function usePomodoro(uid) {
     try {
       await logPomodoroSession(uid, data)
       await reload()
+      return { ok: true }
     } catch (err) {
-      setError(friendlyError(err))
+      const msg = friendlyError(err)
+      setError(msg)
+      return { ok: false, error: msg }
     }
   }
 

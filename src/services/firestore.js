@@ -36,7 +36,7 @@ export async function addSession(uid, { subject, duration, notes, date, color, s
 }
 
 export async function getSessions(uid) {
-  const q = query(userCollection(uid, 'sessions'), orderBy('date', 'desc'))
+  const q = query(userCollection(uid, 'sessions'), orderBy('date', 'desc'), orderBy('createdAt', 'desc'))
   const snapshot = await getDocs(q)
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
 }

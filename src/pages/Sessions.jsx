@@ -176,36 +176,36 @@ export default function Sessions() {
   }, [])
 
   async function handleAdd(data) {
-    const ok = await add(data)
-    if (ok) {
+    const result = await add(data)
+    if (result.ok) {
       setFormError(null)
       setShowAddModal(false)
       setTimeout(() => addBtnRef.current?.focus())
     } else {
-      setFormError(error || 'Something went wrong. Please try again.')
+      setFormError(result.error || 'Something went wrong. Please try again.')
     }
   }
 
   async function handleUpdate(data) {
-    const ok = await update(editingSession.id, data)
-    if (ok) {
+    const result = await update(editingSession.id, data)
+    if (result.ok) {
       setFormError(null)
       setEditingSession(null)
       setTimeout(() => editTriggerRef.current?.focus())
     } else {
-      setFormError(error || 'Something went wrong. Please try again.')
+      setFormError(result.error || 'Something went wrong. Please try again.')
     }
   }
 
   async function confirmDelete() {
     setDeleteSubmitting(true)
-    const ok = await remove(deletingSession.id)
+    const result = await remove(deletingSession.id)
     setDeleteSubmitting(false)
-    if (ok) {
+    if (result.ok) {
       setDeleteError(null)
       setDeletingSession(null)
     } else {
-      setDeleteError(error || 'Could not delete session. Please try again.')
+      setDeleteError(result.error || 'Could not delete session. Please try again.')
     }
   }
 
@@ -331,7 +331,7 @@ export default function Sessions() {
                 {/* Row 2: Date + duration */}
                 <div className="session-card-meta">
                   <span className="session-card-date">{formatDate(session.date)}</span>
-                  <span className="session-card-meta-sep" aria-hidden="true">&middot;</span>
+                  <span className="session-card-meta-sep" aria-hidden="true">&bull;</span>
                   <span className="session-card-duration">{formatDuration(session.duration)}</span>
                 </div>
 
