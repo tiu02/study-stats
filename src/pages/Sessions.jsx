@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext'
 import { useSessions } from '../hooks/useFirestore'
 import SessionForm from '../components/SessionForm'
 import Modal from '../components/Modal'
+import DateRangePicker from '../components/DateRangePicker'
+import CustomSelect from '../components/CustomSelect'
 import { formatDuration, formatDate, STATUS_LABELS } from '../utils/format'
 import './Sessions.css'
 
@@ -56,6 +58,39 @@ export default function Sessions() {
   const [deleteError, setDeleteError] = useState(null)
   const [deleteSubmitting, setDeleteSubmitting] = useState(false)
 
+  /* Search state */
+  const [searchInput, setSearchInput] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+
+  /* Sort state */
+  const [sortBy, setSortBy] = useState('newest')
+  const [sortOpen, setSortOpen] = useState(false)
+  const sortRef = useRef(null)
+
+  /* Filter state */
+  const [subjectFilter, setSubjectFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [dateFrom, setDateFrom] = useState(null) // Date object | null
+  const [dateTo, setDateTo] = useState(null)     // Date object | null
+  const [filterOpen, setFilterOpen] = useState(false)
+  const filterRef = useRef(null)
+
+  /* Close dropdowns on outside click */
+  useEffect(() => {
+    function handler(e) {
+      if (sortRef.current && !sortRef.current.contains(e.target)) setSortOpen(false)
+      if (filterRef.current && !filterRef.current.contains(e.target)) setFilterOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  /* Debounce search input → searchTerm (300ms) */
+  useEffect(() => {
+    const timer = setTimeout(() => setSearchTerm(searchInput), 300)
+    return () => clearTimeout(timer)
+  }, [searchInput])
+
   const addBtnRef = useRef(null)
   const editTriggerRef = useRef(null)
   const deleteTriggerRef = useRef(null)
@@ -65,6 +100,72 @@ export default function Sessions() {
     sessions.forEach((s) => { if (s.subject && s.color && !map[s.subject]) map[s.subject] = s.color })
     return map
   }, [sessions])
+
+  /* Unique subjects for dropdown */
+  const uniqueSubjects = useMemo(() => {
+    const set = new Set()
+    sessions.forEach((s) => { if (s.subject) set.add(s.subject) })
+    return [...set].sort((a, b) => a.localeCompare(b))
+  }, [sessions])
+
+  /* Check if any filter is active */
+  const filtersActive = subjectFilter || statusFilter || dateFrom || dateTo
+
+  /* Active filter count for badge */
+  const activeFilterCount = [subjectFilter, statusFilter, dateFrom, dateTo].filter(Boolean).length
+
+  /* Filtered + sorted sessions */
+  const filteredSessions = useMemo(() => {
+    let result = sessions.filter(session => {
+      if (searchTerm && !session.subject?.toLowerCase().includes(searchTerm.toLowerCase())) return false
+      if (subjectFilter && session.subject !== subjectFilter) return false
+      if (statusFilter && (session.status || 'complete') !== statusFilter) return false
+      const sessionDate = session.date?.toDate ? session.date.toDate() : new Date(session.date)
+      if (dateFrom) {
+        const from = new Date(dateFrom.getFullYear(), dateFrom.getMonth(), dateFrom.getDate())
+        if (sessionDate < from) return false
+      }
+      if (dateTo) {
+        const to = new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate(), 23, 59, 59)
+        if (sessionDate > to) return false
+      }
+      return true
+    })
+
+    // Sort
+    result = [...result]
+    if (sortBy === 'newest') {
+      result.sort((a, b) => {
+        const da = a.date?.toDate ? a.date.toDate() : new Date(a.date)
+        const db = b.date?.toDate ? b.date.toDate() : new Date(b.date)
+        return db - da
+      })
+    } else if (sortBy === 'oldest') {
+      result.sort((a, b) => {
+        const da = a.date?.toDate ? a.date.toDate() : new Date(a.date)
+        const db = b.date?.toDate ? b.date.toDate() : new Date(b.date)
+        return da - db
+      })
+    } else if (sortBy === 'subject') {
+      result.sort((a, b) => (a.subject || '').localeCompare(b.subject || ''))
+    }
+
+    return result
+  }, [sessions, searchTerm, subjectFilter, statusFilter, dateFrom, dateTo, sortBy])
+
+  const anyFilterOrSearch = searchTerm || filtersActive
+
+  function clearFilters() {
+    setSubjectFilter('')
+    setStatusFilter('')
+    setDateFrom(null)
+    setDateTo(null)
+  }
+
+  function handleDateRangeChange(start, end) {
+    setDateFrom(start)
+    setDateTo(end)
+  }
 
   const closeAdd = useCallback(() => {
     setShowAddModal(false)
@@ -139,7 +240,152 @@ export default function Sessions() {
 
       {error && <p className="sessions-error" role="alert">{error}</p>}
 
-      {/* Add modal (R15) */}
+      {/* Toolbar: search left, sort + filter right */}
+      {sessions.length > 0 && (
+        <div className="sessions-toolbar">
+          <div className="toolbar-search-wrap">
+            <span className="material-symbols-outlined toolbar-search-icon" aria-hidden="true">search</span>
+            <input
+              type="text"
+              className={`toolbar-search${searchInput ? ' toolbar-search-has-clear' : ''}`}
+              placeholder="Search by subject"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              aria-label="Search sessions by subject"
+              list="search-subjects"
+            />
+            {searchInput && (
+              <button
+                type="button"
+                className="toolbar-search-clear"
+                onClick={() => { setSearchInput(''); setSearchTerm('') }}
+                aria-label="Clear search"
+              >
+                <span className="material-symbols-outlined" aria-hidden="true">close</span>
+              </button>
+            )}
+          </div>
+          <datalist id="search-subjects">
+            {uniqueSubjects.map((s) => <option key={s} value={s} />)}
+          </datalist>
+
+          <div className="toolbar-actions">
+            {/* Sort button */}
+            <div className="toolbar-dropdown-wrap" ref={sortRef}>
+              <button
+                type="button"
+                className={`toolbar-icon-btn${sortBy !== 'newest' ? ' toolbar-icon-btn-active' : ''}`}
+                onClick={() => { setSortOpen(!sortOpen); setFilterOpen(false) }}
+                aria-label="Sort sessions"
+                aria-expanded={sortOpen}
+                title="Sort"
+              >
+                <span className="material-symbols-outlined toolbar-icon-symbol" aria-hidden="true">import_export</span>
+              </button>
+
+              {sortOpen && (
+                <div className="toolbar-dropdown toolbar-dropdown-sort" role="listbox" aria-label="Sort options">
+                  {[
+                    { value: 'newest', label: 'Newest first' },
+                    { value: 'oldest', label: 'Oldest first' },
+                    { value: 'subject', label: 'Subject A\u2013Z' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      role="option"
+                      aria-selected={sortBy === opt.value}
+                      className={`toolbar-dropdown-item${sortBy === opt.value ? ' toolbar-dropdown-item-active' : ''}`}
+                      onClick={() => { setSortBy(opt.value); setSortOpen(false) }}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Filter button */}
+            <div className="toolbar-dropdown-wrap" ref={filterRef}>
+              <button
+                type="button"
+                className={`toolbar-icon-btn${filtersActive ? ' toolbar-icon-btn-active' : ''}`}
+                onClick={() => { setFilterOpen(!filterOpen); setSortOpen(false) }}
+                aria-label="Filter sessions"
+                aria-expanded={filterOpen}
+                title="Filter"
+              >
+                <span className="material-symbols-outlined toolbar-icon-symbol" aria-hidden="true">filter_list</span>
+                {activeFilterCount > 0 && (
+                  <span className="toolbar-badge" aria-label={`${activeFilterCount} active filter${activeFilterCount > 1 ? 's' : ''}`}>
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+
+              {filterOpen && (
+                <div className="toolbar-dropdown toolbar-dropdown-filter" role="region" aria-label="Filter options">
+                  <div className="filter-field">
+                    <label className="filter-field-label" htmlFor="filter-subject">Subject</label>
+                    <CustomSelect
+                      id="filter-subject"
+                      value={subjectFilter}
+                      onChange={setSubjectFilter}
+                      isActive={!!subjectFilter}
+                      options={[
+                        { value: '', label: 'All Subjects' },
+                        ...uniqueSubjects.map((s) => ({ value: s, label: s })),
+                      ]}
+                    />
+                  </div>
+
+                  <div className="filter-field">
+                    <label className="filter-field-label" htmlFor="filter-status">Status</label>
+                    <CustomSelect
+                      id="filter-status"
+                      value={statusFilter}
+                      onChange={setStatusFilter}
+                      isActive={!!statusFilter}
+                      options={[
+                        { value: '', label: 'All Statuses' },
+                        { value: 'complete', label: 'Complete' },
+                        { value: 'in-progress', label: 'In Progress' },
+                        { value: 'incomplete', label: 'Incomplete' },
+                      ]}
+                    />
+                  </div>
+
+                  <div className="filter-field">
+                    <span className="filter-field-label">Date Range</span>
+                    <div className="filter-date-row">
+                      <DateRangePicker
+                        startDate={dateFrom}
+                        endDate={dateTo}
+                        onChange={handleDateRangeChange}
+                      />
+                      {filtersActive && (
+                        <button type="button" className="filter-clear-btn" onClick={clearFilters}>
+                          <span className="material-symbols-outlined filter-clear-icon" aria-hidden="true">restart_alt</span>
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Result count */}
+      {sessions.length > 0 && anyFilterOrSearch && (
+        <p className="filter-result-count" aria-live="polite">
+          Showing {filteredSessions.length} of {sessions.length} session{sessions.length !== 1 ? 's' : ''}
+        </p>
+      )}
+
+      {/* Add modal */}
       <Modal open={showAddModal} onClose={closeAdd} ariaLabel="Add session">
         <SessionForm
           onSubmit={handleAdd}
@@ -150,7 +396,7 @@ export default function Sessions() {
         />
       </Modal>
 
-      {/* Edit modal (R11) */}
+      {/* Edit modal */}
       <Modal open={!!editingSession} onClose={closeEdit} ariaLabel={`Edit: ${editingSession?.subject || 'session'}`}>
         {editingSession && (
           <SessionForm
@@ -164,7 +410,7 @@ export default function Sessions() {
         )}
       </Modal>
 
-      {/* Delete modal (R10, A3) */}
+      {/* Delete modal */}
       <Modal
         open={!!deletingSession}
         onClose={closeDelete}
@@ -194,9 +440,18 @@ export default function Sessions() {
           <p>No sessions yet</p>
           <p>Tap &ldquo;Add Session&rdquo; to log your first study session.</p>
         </div>
+      ) : filteredSessions.length === 0 ? (
+        <div className="sessions-empty sessions-empty-filtered">
+          <span className="material-symbols-outlined sessions-empty-icon" aria-hidden="true">filter_list_off</span>
+          <p><strong>No sessions match your filters</strong></p>
+          <p>Try adjusting your search or filters to find what you&rsquo;re looking for.</p>
+          <button type="button" className="btn-clear-inline" onClick={() => { setSearchInput(''); setSearchTerm(''); clearFilters() }}>
+            Clear all filters
+          </button>
+        </div>
       ) : (
         <ul className="sessions-list">
-          {sessions.map((session) => {
+          {filteredSessions.map((session) => {
             const color = session.color || '#6366F1'
             const statusKey = session.status || 'complete'
 
@@ -206,16 +461,17 @@ export default function Sessions() {
                 className="session-card"
                 style={{ borderLeftColor: color }}
               >
-                {/* Row 1: Class badge + status icon + actions */}
+                {/* Row 1: Status icon + subject (underlined) + actions */}
                 <div className="session-card-top">
                   <div className="session-card-title-group">
                     <span
-                      className="class-dot"
-                      style={{ backgroundColor: color }}
-                      aria-hidden="true"
-                      title={session.subject}
-                    />
-                    <h2 className="session-card-subject">{session.subject}</h2>
+                      role="img"
+                      aria-label={STATUS_LABELS[statusKey] || 'Complete'}
+                      className={`material-symbols-outlined status-icon status-icon-${statusKey}`}
+                    >
+                      {STATUS_ICONS[statusKey] || 'check_circle'}
+                    </span>
+                    <h2 className="session-card-subject" style={{ borderBottomColor: color }}>{session.subject}</h2>
                   </div>
                   <div className="session-card-actions">
                     <button
@@ -237,19 +493,11 @@ export default function Sessions() {
                   </div>
                 </div>
 
-                {/* Row 2: Date + duration + status + Pomodoro badge (if auto-logged) */}
+                {/* Row 2: Date · duration · Pomodoro */}
                 <div className="session-card-meta">
                   <span className="session-card-date">{formatDate(session.date)}</span>
                   <span className="session-card-meta-sep" aria-hidden="true">&bull;</span>
                   <span className="session-card-duration">{formatDuration(session.duration)}</span>
-                  <span className="session-card-meta-sep" aria-hidden="true">&bull;</span>
-                  <span
-                    role="img"
-                    aria-label={STATUS_LABELS[statusKey] || 'Complete'}
-                    className={`material-symbols-outlined status-icon status-icon-${statusKey}`}
-                  >
-                    {STATUS_ICONS[statusKey] || 'check_circle'}
-                  </span>
                   {session.assignmentId && (
                     <>
                       <span className="session-card-meta-sep" aria-hidden="true">&bull;</span>

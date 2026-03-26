@@ -26,7 +26,7 @@ service cloud.firestore {
           && request.resource.data.subject.size() <= 40
           && request.resource.data.duration is number
           && request.resource.data.duration > 0
-          && request.resource.data.duration <= 20160
+          && request.resource.data.duration <= 20160  // 14 days in minutes — upper bound safety cap
           && request.resource.data.notes is string
           && request.resource.data.notes.size() <= 2000
           && request.resource.data.date is timestamp
@@ -43,7 +43,7 @@ service cloud.firestore {
           && request.resource.data.subject.size() <= 40
           && request.resource.data.duration is number
           && request.resource.data.duration > 0
-          && request.resource.data.duration <= 20160
+          && request.resource.data.duration <= 20160  // 14 days in minutes — upper bound safety cap
           && request.resource.data.notes is string
           && request.resource.data.notes.size() <= 2000
           && request.resource.data.date is timestamp
@@ -64,6 +64,7 @@ service cloud.firestore {
           && request.resource.data.title.size() >= 1
           && request.resource.data.title.size() <= 200
           && request.resource.data.subject is string
+          && request.resource.data.subject.size() >= 1
           && request.resource.data.subject.size() <= 40
           && request.resource.data.dueDate is timestamp
           && request.resource.data.completed is bool
@@ -73,21 +74,19 @@ service cloud.firestore {
           && request.resource.data.totalMinutesLogged >= 0
           && request.resource.data.createdAt == request.time;
         allow update: if isOwner()
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged']);
-      }
-
-      // Pomodoro
-      match /pomodoro/{logId} {
-        allow read, delete: if isOwner();
-        allow create: if isOwner()
-          && request.resource.data.keys().hasAll(['workMinutes', 'breakMinutes', 'completedAt'])
-          && request.resource.data.keys().hasOnly(['workMinutes', 'breakMinutes', 'completedAt'])
-          && request.resource.data.workMinutes is number
-          && request.resource.data.workMinutes > 0
-          && request.resource.data.breakMinutes is number
-          && request.resource.data.breakMinutes >= 0
-          && request.resource.data.completedAt == request.time;
-        allow update: if false;
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged'])
+          && request.resource.data.title is string
+          && request.resource.data.title.size() >= 1
+          && request.resource.data.title.size() <= 200
+          && request.resource.data.subject is string
+          && request.resource.data.subject.size() >= 1
+          && request.resource.data.subject.size() <= 40
+          && request.resource.data.dueDate is timestamp
+          && request.resource.data.completed is bool
+          && request.resource.data.color is string
+          && request.resource.data.color.size() <= 20
+          && request.resource.data.totalMinutesLogged is number
+          && request.resource.data.totalMinutesLogged >= 0;
       }
     }
   }

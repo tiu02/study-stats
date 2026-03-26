@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
+import DatePicker from './DatePicker'
+import CustomSelect from './CustomSelect'
 import './SessionForm.css'
 
 const today = () => format(new Date(), 'yyyy-MM-dd')
@@ -191,23 +193,30 @@ export default function SessionForm({ onSubmit, onCancel, initialData, classMap,
 
         <label htmlFor={`${id}-subject`}>
           Subject
-          <input
-            id={`${id}-subject`}
-            type="text"
-            value={subject}
-            onChange={(e) => {
-              const val = e.target.value
-              setSubject(val)
-              if (classMap && classMap[val.trim()]) setColor(classMap[val.trim()])
-            }}
-            maxLength={40}
-            list={`${id}-subject-suggestions`}
-            placeholder="e.g., Math, Biology"
-            aria-required="true"
-            aria-describedby={errors.subject ? `${id}-subject-error` : undefined}
-            aria-invalid={errors.subject ? true : undefined}
-            autoComplete="off"
-          />
+          <div className="sf-field-wrap">
+            <input
+              id={`${id}-subject`}
+              type="text"
+              value={subject}
+              onChange={(e) => {
+                const val = e.target.value
+                setSubject(val)
+                if (classMap && classMap[val.trim()]) setColor(classMap[val.trim()])
+              }}
+              maxLength={40}
+              list={`${id}-subject-suggestions`}
+              placeholder="e.g., Math, Biology"
+              aria-required="true"
+              aria-describedby={errors.subject ? `${id}-subject-error` : undefined}
+              aria-invalid={errors.subject ? true : undefined}
+              autoComplete="off"
+            />
+            {subject && (
+              <button type="button" className="sf-field-clear" onClick={() => setSubject('')} aria-label="Clear subject">
+                <span className="material-symbols-outlined" aria-hidden="true">close</span>
+              </button>
+            )}
+          </div>
           {classMap && Object.keys(classMap).length > 0 && (
             <datalist id={`${id}-subject-suggestions`}>
               {Object.keys(classMap).sort().map((s) => <option key={s} value={s} />)}
@@ -238,7 +247,9 @@ export default function SessionForm({ onSubmit, onCancel, initialData, classMap,
                 onChange={(e) => setColor(e.target.value)}
                 aria-label="Custom color"
               />
-              <span className="color-custom-swatch" style={{ backgroundColor: color }} />
+              <span className="color-custom-swatch" style={{ backgroundColor: color }}>
+                <span className="material-symbols-outlined color-custom-icon" aria-hidden="true">colorize</span>
+              </span>
             </label>
           </div>
         </fieldset>
@@ -278,11 +289,11 @@ export default function SessionForm({ onSubmit, onCancel, initialData, classMap,
 
           <label htmlFor={`${id}-date`}>
             Date
-            <input
+            <DatePicker
               id={`${id}-date`}
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
+              value={date ? new Date(date + 'T00:00:00') : null}
+              onChange={(day) => setDate(day ? format(day, 'yyyy-MM-dd') : '')}
+              placeholder="Select date"
               aria-required="true"
               aria-describedby={errors.date ? `${id}-date-error` : undefined}
               aria-invalid={errors.date ? true : undefined}
@@ -293,24 +304,32 @@ export default function SessionForm({ onSubmit, onCancel, initialData, classMap,
 
         <label htmlFor={`${id}-status`}>
           Status
-          <select id={`${id}-status`} value={status} onChange={(e) => setStatus(e.target.value)}>
-            {STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
+          <CustomSelect
+            id={`${id}-status`}
+            value={status}
+            onChange={setStatus}
+            options={STATUS_OPTIONS}
+          />
         </label>
 
         <label htmlFor={`${id}-notes`}>
           Notes (optional)
-          <textarea
-            id={`${id}-notes`}
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            maxLength={2000}
-            rows={3}
-            aria-describedby={errors.notes ? `${id}-notes-error` : undefined}
-            aria-invalid={errors.notes ? true : undefined}
-          />
+          <div className="sf-field-wrap">
+            <textarea
+              id={`${id}-notes`}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              maxLength={2000}
+              rows={3}
+              aria-describedby={errors.notes ? `${id}-notes-error` : undefined}
+              aria-invalid={errors.notes ? true : undefined}
+            />
+            {notes && (
+              <button type="button" className="sf-field-clear sf-field-clear-textarea" onClick={() => setNotes('')} aria-label="Clear notes">
+                <span className="material-symbols-outlined" aria-hidden="true">close</span>
+              </button>
+            )}
+          </div>
           {errors.notes && <p className="field-error" id={`${id}-notes-error`} role="alert">{errors.notes}</p>}
         </label>
 

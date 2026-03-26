@@ -128,7 +128,9 @@ export default function AssignmentForm({ onSubmit, onCancel, initialData, classM
               onChange={(e) => setColor(e.target.value)}
               aria-label="Custom color"
             />
-            <span className="color-custom-swatch" style={{ backgroundColor: color }} />
+            <span className="color-custom-swatch" style={{ backgroundColor: color }}>
+              <span className="material-symbols-outlined color-custom-icon" aria-hidden="true">colorize</span>
+            </span>
           </label>
         </div>
       </fieldset>
