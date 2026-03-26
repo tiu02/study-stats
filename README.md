@@ -28,3 +28,6 @@ StudyStats enables students and scholars to boost productivity and study habits.
 - AI Dev Tool: Claude Code (VSCode Extension)
 
 --
+ ## Setup Instructions
+
+ ## Known 

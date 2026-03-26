@@ -1,0 +1,529 @@
+/* ── Dashboard Page ── */
+
+.dashboard-page {
+  min-height: calc(100vh - 4rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #EEF2FF;
+  padding: 2rem 1rem 3rem;
+}
+
+.dashboard-inner {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.dashboard-heading {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #6366F1;
+  margin: 0;
+}
+
+/* ── Stat Cards ── */
+
+.stat-cards-grid {
+  display: grid;
+  /* auto-fit: 5 cards in a row when space allows, gracefully wraps at narrow widths */
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 0.625rem;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid #c7d2fe;
+  border-radius: 12px;
+  padding: 0.875rem 0.625rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+  text-align: center;
+  font-family: inherit;
+  /* reset button defaults */
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.15);
+  transform: translateY(-2px);
+}
+
+.stat-card:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+.stat-card-icon {
+  font-size: 1.375rem;
+  color: #6366F1;
+  line-height: 1;
+}
+
+.stat-card-value {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.1;
+}
+
+.stat-card-label {
+  font-size: 0.65rem;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+}
+
+/* Overdue card: red accents when count > 0 */
+.stat-card-overdue .stat-card-icon { color: #dc2626; }
+.stat-card-overdue .stat-card-value { color: #dc2626; }
+
+/* Streak card: orange accents when streak > 0 */
+.stat-card-streak .stat-card-icon { color: #f97316; }
+.stat-card-streak .stat-card-value { color: #f97316; }
+
+/* ── Progress Bar ── */
+
+.progress-section {
+  background: #fff;
+  border: 1px solid #c7d2fe;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+
+.progress-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.progress-fraction {
+  font-size: 0.775rem;
+  color: #6b7280;
+}
+
+.progress-track {
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease, background-color 0.5s ease;
+  min-width: 2px; /* show a sliver even at very low percentages */
+}
+
+/* 100% complete message */
+.progress-complete-msg {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #059669;
+  margin: 0.5rem 0 0;
+  animation: progressCelebrate 0.5s ease;
+}
+
+/* CSS pseudo-element confetti particles */
+.progress-100::before,
+.progress-100::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: confettiFloat 1.5s ease 0.2s forwards;
+}
+
+.progress-100::before {
+  left: 25%;
+  background: #6366F1;
+}
+
+.progress-100::after {
+  right: 25%;
+  background: #059669;
+  animation-delay: 0.4s;
+}
+
+@keyframes confettiFloat {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  80%  { opacity: 0.6; }
+  100% { transform: translateY(-36px) rotate(540deg); opacity: 0; }
+}
+
+@keyframes progressCelebrate {
+  0%   { transform: scale(0.8); opacity: 0; }
+  60%  { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* No assignments state */
+.progress-none {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progress-none-icon {
+  font-size: 1.125rem;
+  color: #9ca3af;
+}
+
+.progress-none-label {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+/* ── Toggle Controls ── */
+
+.toggle-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.toggle-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.period-nav-btn {
+  background: #fff;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  flex-shrink: 0;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  font-family: inherit;
+}
+
+.period-nav-btn:hover {
+  background: #EEF2FF;
+  color: #6366F1;
+  border-color: #6366F1;
+}
+
+.period-nav-btn:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+.period-nav-btn .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+.period-tabs {
+  display: flex;
+  flex: 1;
+  background: #fff;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.period-tab {
+  flex: 1;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.775rem;
+  font-weight: 500;
+  color: #6b7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+  font-family: inherit;
+  min-height: 38px;
+  white-space: nowrap;
+}
+
+.period-tab:not(:last-child) {
+  border-right: 1px solid #c7d2fe;
+}
+
+.period-tab.active {
+  background: #6366F1;
+  color: #fff;
+  font-weight: 600;
+}
+
+.period-tab:hover:not(.active) {
+  background: #EEF2FF;
+  color: #6366F1;
+}
+
+.period-tab:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: -2px;
+}
+
+.period-range-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-align: center;
+  margin: 0;
+  font-style: italic;
+}
+
+/* ── List Sections ── */
+
+.list-section-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.5rem;
+}
+
+.dash-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ── Session Compact Card ── */
+
+.dash-session-card {
+  background: #fff;
+  border: 1px solid #c7d2fe;
+  border-left: 4px solid #6366F1;
+  border-radius: 10px;
+  padding: 0.625rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.dash-session-card:hover {
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+  transform: translateY(-1px);
+}
+
+/* ── Class Badge Pill (shared) ── */
+
+.dash-class-pill {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.725rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+.dash-session-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.dash-sep {
+  font-size: 0.9rem;
+  line-height: 1;
+  color: #d1d5db;
+}
+
+.dash-duration {
+  font-weight: 600;
+  color: #374151;
+}
+
+/* ── Deadline Compact Card ── */
+
+.dash-deadline-card {
+  background: #fff;
+  border: 1px solid #c7d2fe;
+  border-left: 4px solid #6366F1;
+  border-radius: 10px;
+  padding: 0.625rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.dash-deadline-card:hover {
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+  transform: translateY(-1px);
+}
+
+.dash-deadline-top {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dash-urgency-icon {
+  font-size: 0.975rem;
+  line-height: 1;
+}
+
+.dash-urgency-overdue { color: #dc2626; }
+.dash-urgency-urgent  { color: #dc2626; }
+.dash-urgency-soon    { color: #d97706; }
+
+.dash-deadline-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-due-date {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.dash-due-overdue { color: #dc2626; font-weight: 600; }
+.dash-due-urgent  { color: #dc2626; font-weight: 600; }
+.dash-due-soon    { color: #d97706; font-weight: 600; }
+
+/* ── Empty States ── */
+
+.empty-state {
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.empty-state-icon {
+  font-size: 2rem;
+  color: #9ca3af;
+}
+
+.empty-state p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.btn-empty-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1.125rem;
+  border: 1.5px solid #6366F1;
+  border-radius: 8px;
+  background: none;
+  color: #6366F1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  font-family: inherit;
+  min-height: 44px;
+  margin-top: 0.25rem;
+}
+
+.btn-empty-action:hover {
+  background: #EEF2FF;
+}
+
+.btn-empty-action:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+.btn-empty-action .material-symbols-outlined {
+  font-size: 1.125rem;
+}
+
+/* ── Loading Spinner ── */
+
+.dashboard-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #c7d2fe;
+  border-top-color: #6366F1;
+  border-radius: 50%;
+  animation: dashSpin 0.8s linear infinite;
+  margin: 4rem auto;
+}
+
+@keyframes dashSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 480px) {
+  .dashboard-page {
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  .stat-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stat-card-value {
+    font-size: 1.125rem;
+  }
+
+  .stat-card-icon {
+    font-size: 1.125rem;
+  }
+
+  .period-tab {
+    font-size: 0.7rem;
+    padding: 0.5rem 0.1rem;
+  }
+
+  .dash-class-pill {
+    max-width: 110px;
+  }
+}
+
+@media (max-width: 360px) {
+  .stat-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
