@@ -74,11 +74,11 @@ describe('Navbar', () => {
       renderNavbar()
     })
 
-    it('shows Dashboard, Sessions, Assignments, and Pomodoro links', () => {
+    it('shows Dashboard, Sessions, and Assignments links', () => {
       expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument()
       expect(screen.getByRole('link', { name: /sessions/i })).toBeInTheDocument()
       expect(screen.getByRole('link', { name: /assignments/i })).toBeInTheDocument()
-      expect(screen.getByRole('link', { name: /pomodoro/i })).toBeInTheDocument()
+      expect(screen.queryByRole('link', { name: /pomodoro/i })).not.toBeInTheDocument()
     })
 
     it('shows the Logout button', () => {

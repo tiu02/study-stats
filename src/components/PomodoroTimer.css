@@ -1,0 +1,329 @@
+/* ===== Pomodoro Timer ===== */
+
+.pomodoro-timer {
+  /* wrapper, inherits card/modal context */
+}
+
+/* Main row: ring on left, config+controls column on right */
+.pomodoro-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ---- SVG Ring ---- */
+.pomodoro-ring-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+}
+
+.pomodoro-ring-wrap svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pomodoro-ring-time {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1f2937;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* H:MM:SS — 7 chars */
+.pomodoro-ring-time.time-long {
+  font-size: 0.68rem;
+}
+
+/* HH:MM:SS — 8 chars */
+.pomodoro-ring-time.time-long-long {
+  font-size: 0.58rem;
+}
+
+/* ---- Right column ---- */
+.pomodoro-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+/* Config row (work/break minute inputs) */
+.pomodoro-config {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.pomodoro-config-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  color: #6b7280;
+  font-weight: 500;
+  cursor: default;
+}
+
+.pomodoro-config-input {
+  width: 46px;
+  padding: 0.2rem 0.25rem;
+  font-size: 0.82rem;
+  text-align: center;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  color: #1f2937;
+  background: #ffffff;
+  min-height: 28px;
+  -moz-appearance: textfield;
+}
+
+.pomodoro-config-input::-webkit-inner-spin-button,
+.pomodoro-config-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.pomodoro-config-input:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 1px;
+  border-color: #6366F1;
+}
+
+/* Phase label */
+.pomodoro-phase-label {
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: #6366F1;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+.pomodoro-phase-label.break {
+  color: #16a34a;
+}
+
+/* Controls row */
+.pomodoro-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pomodoro-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s, opacity 0.15s;
+  padding: 0;
+}
+
+.pomodoro-btn .material-symbols-outlined {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.pomodoro-btn:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+.pomodoro-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* Play / Resume */
+.pomodoro-btn-play {
+  background-color: #6366F1;
+  color: #ffffff;
+}
+
+.pomodoro-btn-play:hover:not(:disabled) {
+  background-color: #4f46e5;
+}
+
+/* Pause */
+.pomodoro-btn-pause {
+  background-color: #6366F1;
+  color: #ffffff;
+}
+
+.pomodoro-btn-pause:hover {
+  background-color: #4f46e5;
+}
+
+/* Reset */
+.pomodoro-btn-reset {
+  background-color: #e5e7eb;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.pomodoro-btn-reset:hover:not(:disabled) {
+  background-color: #d1d5db;
+  color: #111827;
+}
+
+/* ---- Status messages ---- */
+.pomodoro-msg {
+  font-size: 0.75rem;
+  margin: 0.3rem 0 0;
+  line-height: 1.4;
+}
+
+.pomodoro-warning {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.pomodoro-logging {
+  color: #6366F1;
+}
+
+.pomodoro-error {
+  color: #dc2626;
+}
+
+/* ---- Toast — slides in on work cycle complete ---- */
+.pomodoro-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  padding: 0.3rem 0.65rem;
+  background-color: #ecfdf5;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  animation: pomodoroSlideIn 0.2s ease;
+}
+
+.pomodoro-toast-icon {
+  font-size: 16px;
+}
+
+@keyframes pomodoroSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================================================
+   Vertical layout — used when rendered inside the timer modal.
+   Ring is centered and large; config+controls stack below it.
+   ================================================================ */
+
+.pomodoro-vertical .pomodoro-main {
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.pomodoro-vertical .pomodoro-ring-wrap {
+  width: 140px;
+  height: 140px;
+}
+
+.pomodoro-vertical .pomodoro-ring-time {
+  font-size: 1.5rem;
+}
+
+.pomodoro-vertical .pomodoro-ring-time.time-long {
+  font-size: 1.2rem;
+}
+
+.pomodoro-vertical .pomodoro-ring-time.time-long-long {
+  font-size: 0.95rem;
+}
+
+.pomodoro-vertical .pomodoro-right {
+  width: 100%;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.pomodoro-vertical .pomodoro-config {
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.pomodoro-vertical .pomodoro-config-label {
+  font-size: 0.85rem;
+  gap: 0.4rem;
+}
+
+.pomodoro-vertical .pomodoro-config-input {
+  width: 52px;
+  font-size: 0.9rem;
+  min-height: 32px;
+}
+
+.pomodoro-vertical .pomodoro-phase-label {
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.pomodoro-vertical .pomodoro-controls {
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.pomodoro-vertical .pomodoro-btn {
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+}
+
+.pomodoro-vertical .pomodoro-btn .material-symbols-outlined {
+  font-size: 24px;
+}
+
+.pomodoro-vertical .pomodoro-msg {
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.pomodoro-vertical .pomodoro-toast {
+  align-self: center;
+}
+
+/* ---- Mobile (card context only — vertical handles itself) ---- */
+@media (max-width: 480px) {
+  .pomodoro-main {
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .pomodoro-ring-wrap {
+    flex-shrink: 0;
+  }
+
+  .pomodoro-right {
+    min-width: 0;
+    flex: 1 1 140px;
+  }
+
+  .pomodoro-config {
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+}

@@ -247,11 +247,12 @@
   white-space: nowrap;
 }
 
-/* Action icons */
+/* Action icons — pinned to right of card top row */
 .assignment-card-actions {
   display: flex;
   gap: 0.15rem;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* Row 2: due date + urgency + logged time */
@@ -318,28 +319,87 @@
   font-size: 16px;
 }
 
-/* Pomodoro placeholder */
-.pomodoro-placeholder {
+/* Timer button — sits left of edit in the actions row */
+.assignment-timer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0 0.7rem;
+  height: 34px;
+  min-height: 34px;
+  border: none;
+  border-radius: 7px;
+ background-color: rgba(99, 102, 241, 0.1);
+  color: #6366F1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 0.15s;
+}
+
+.assignment-timer-btn .material-symbols-outlined {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.assignment-timer-btn:hover {
+  background-color: rgba(99, 102, 241, 0.18);
+}
+
+.assignment-timer-btn.active {
+  background-color: rgba(99, 102, 241, 0.22);
+}
+
+.assignment-timer-btn:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+/* Pulsing dot — shown when this card's timer is running */
+.assignment-timer-btn-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #6366F1;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: timerPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes timerPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* ===== Timer modal box ===== */
+.pomodoro-modal-box {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem 2rem 1.75rem;
+  width: 100%;
+  max-width: 340px;
+  box-sizing: border-box;
+}
+
+.pomodoro-modal-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 0.65rem;
-  padding: 0.6rem 0.85rem;
-  margin-left: 44px;
-  border: 1px dashed #c7d2fe;
-  border-radius: 8px;
-  background-color: #f8fafc;
+  margin-bottom: 1.75rem;
+  min-width: 0;
 }
 
-.pomodoro-placeholder-icon {
-  font-size: 20px;
-  color: #a5b4fc;
-}
-
-.pomodoro-placeholder-text {
-  font-size: 0.8rem;
-  color: #9ca3af;
-  font-style: italic;
+.pomodoro-modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ===== Completed section toggle ===== */
@@ -463,6 +523,27 @@
   outline-offset: 2px;
 }
 
+/* Timer conflict modal — "Stop & Start" button (indigo, not red) */
+.assignments-page .delete-modal-actions .btn-confirm-stop-start {
+  color: #ffffff;
+  background-color: #6366F1;
+  border: none;
+}
+
+.assignments-page .delete-modal-actions .btn-confirm-stop-start:hover {
+  background-color: #4f46e5;
+}
+
+.assignments-page .delete-modal-actions .btn-confirm-stop-start:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+/* Timer conflict modal icon — indigo instead of red */
+.assignments-page .timer-conflict-icon {
+  color: #6366F1;
+}
+
 .assignments-page .delete-modal-actions button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -498,9 +579,5 @@
 
   .assignment-card-actions {
     gap: 0.1rem;
-  }
-
-  .pomodoro-placeholder {
-    margin-left: 44px;
   }
 }

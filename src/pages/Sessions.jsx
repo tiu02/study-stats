@@ -237,7 +237,7 @@ export default function Sessions() {
                   </div>
                 </div>
 
-                {/* Row 2: Date + duration + status */}
+                {/* Row 2: Date + duration + status + Pomodoro badge (if auto-logged) */}
                 <div className="session-card-meta">
                   <span className="session-card-date">{formatDate(session.date)}</span>
                   <span className="session-card-meta-sep" aria-hidden="true">&bull;</span>
@@ -250,6 +250,15 @@ export default function Sessions() {
                   >
                     {STATUS_ICONS[statusKey] || 'check_circle'}
                   </span>
+                  {session.assignmentId && (
+                    <>
+                      <span className="session-card-meta-sep" aria-hidden="true">&bull;</span>
+                      <span className="session-pomodoro-badge" aria-label="Logged via Pomodoro">
+                        <span className="material-symbols-outlined session-pomodoro-icon" aria-hidden="true">timer</span>
+                        Pomodoro
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 {/* Row 3: Notes (clamped) */}

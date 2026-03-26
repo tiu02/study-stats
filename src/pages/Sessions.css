@@ -237,6 +237,22 @@
   white-space: nowrap;
 }
 
+/* Pomodoro auto-log badge — shown when session.assignmentId is set */
+.session-pomodoro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6366F1;
+  white-space: nowrap;
+}
+
+.session-pomodoro-icon {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
 /* Row 3: notes with 2-line clamp */
 .session-card-notes-wrapper {
   margin-top: 0.5rem;

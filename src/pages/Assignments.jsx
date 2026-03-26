@@ -3,12 +3,13 @@ import { useAuth } from '../context/AuthContext'
 import { useAssignments } from '../hooks/useFirestore'
 import AssignmentForm from '../components/AssignmentForm'
 import Modal from '../components/Modal'
+import PomodoroTimer from '../components/PomodoroTimer'
 import { formatDate, formatDuration, getUrgency } from '../utils/format'
 import './Assignments.css'
 
 export default function Assignments() {
   const { currentUser } = useAuth()
-  const { assignments, loading, error, add, update, remove } = useAssignments(currentUser?.uid)
+  const { assignments, loading, error, add, update, remove, refresh } = useAssignments(currentUser?.uid)
 
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingAssignment, setEditingAssignment] = useState(null)
@@ -18,6 +19,16 @@ export default function Assignments() {
   const [deleteError, setDeleteError] = useState(null)
   const [deleteSubmitting, setDeleteSubmitting] = useState(false)
   const [showCompleted, setShowCompleted] = useState(false)
+
+  // Timer modal state
+  const [timerAssignment, setTimerAssignment] = useState(null)
+  const [autoStart, setAutoStart] = useState(false)
+
+  // Single-timer enforcement
+  const [activeTimerId, setActiveTimerId] = useState(null)
+  const [pendingStartId, setPendingStartId] = useState(null)
+  // Ref map for forceStop (only the open modal's timer is in here)
+  const timerRefs = useRef({})
 
   const addBtnRef = useRef(null)
   const editTriggerRef = useRef(null)
@@ -33,14 +44,12 @@ export default function Assignments() {
   }, [assignments])
 
   /* Split into active and completed */
-  const active = useMemo(
-    () => assignments.filter((a) => !a.completed),
-    [assignments]
-  )
-  const completed = useMemo(
-    () => assignments.filter((a) => a.completed),
-    [assignments]
-  )
+  const active = useMemo(() => assignments.filter((a) => !a.completed), [assignments])
+  const completed = useMemo(() => assignments.filter((a) => a.completed), [assignments])
+
+  /* Names for the conflict modal */
+  const activeAssignment = assignments.find((a) => a.id === activeTimerId)
+  const pendingAssignment = assignments.find((a) => a.id === pendingStartId)
 
   const closeEdit = useCallback(() => {
     setEditingAssignment(null)
@@ -89,20 +98,21 @@ export default function Assignments() {
   }
 
   async function toggleComplete(assignment) {
+    // If completing an assignment whose timer is running, stop it first
+    if (!assignment.completed && assignment.id === activeTimerId) {
+      timerRefs.current[activeTimerId]?.forceStop()
+      setTimerAssignment(null)
+      setAutoStart(false)
+    }
     await update(assignment.id, { completed: !assignment.completed })
   }
 
-  /* Duplicate as template — pre-fill with today's date, clear completed */
+  /* Duplicate as template */
   function duplicateAsTemplate(assignment) {
     setFormError(null)
     setEditingAssignment(null)
+    setDuplicateData({ subject: assignment.subject, title: assignment.title, color: assignment.color })
     setShowAddModal(true)
-    /* Store template data on the add modal — handled via duplicateData state */
-    setDuplicateData({
-      subject: assignment.subject,
-      title: assignment.title,
-      color: assignment.color,
-    })
   }
 
   function openAddModal() {
@@ -116,6 +126,41 @@ export default function Assignments() {
     setFormError(null)
     setDuplicateData(null)
     setTimeout(() => addBtnRef.current?.focus())
+  }
+
+  /* Timer modal */
+  function openTimerModal(assignment) {
+    if (activeTimerId && activeTimerId !== assignment.id) {
+      // Another timer is running — show conflict modal
+      setPendingStartId(assignment.id)
+    } else {
+      setAutoStart(false)
+      setTimerAssignment(assignment)
+    }
+  }
+
+  function closeTimerModal() {
+    // forceStop cleans up the running/paused state and calls onTimerStop
+    if (timerAssignment) {
+      timerRefs.current[timerAssignment.id]?.forceStop()
+    }
+    setTimerAssignment(null)
+    setAutoStart(false)
+  }
+
+  function confirmStopAndStart() {
+    const nextAssignment = assignments.find((a) => a.id === pendingStartId)
+    // Stop the running timer (in the currently open modal)
+    timerRefs.current[activeTimerId]?.forceStop()
+    // Open the new assignment's modal and auto-start its timer
+    setActiveTimerId(pendingStartId)
+    setAutoStart(true)
+    setTimerAssignment(nextAssignment)
+    setPendingStartId(null)
+  }
+
+  function cancelTimerConflict() {
+    setPendingStartId(null)
   }
 
   if (loading) {
@@ -152,7 +197,11 @@ export default function Assignments() {
       </Modal>
 
       {/* Edit modal */}
-      <Modal open={!!editingAssignment} onClose={closeEdit} ariaLabel={`Edit: ${editingAssignment?.title || 'assignment'}`}>
+      <Modal
+        open={!!editingAssignment}
+        onClose={closeEdit}
+        ariaLabel={`Edit: ${editingAssignment?.title || 'assignment'}`}
+      >
         {editingAssignment && (
           <AssignmentForm
             initialData={editingAssignment}
@@ -190,6 +239,77 @@ export default function Assignments() {
         )}
       </Modal>
 
+      {/* Timer conflict modal */}
+      <Modal
+        open={!!pendingStartId}
+        onClose={cancelTimerConflict}
+        ariaLabel="Timer already running"
+        ariaDescribedBy="timer-conflict-desc"
+        role="alertdialog"
+        className="modal-overlay-centered"
+      >
+        {pendingStartId && (
+          <div className="delete-modal">
+            <span className="material-symbols-outlined delete-modal-icon timer-conflict-icon" aria-hidden="true">
+              timer
+            </span>
+            <h2>Timer already running</h2>
+            <p id="timer-conflict-desc">
+              A timer is running on{' '}
+              <strong>&ldquo;{activeAssignment?.title || 'another assignment'}&rdquo;</strong>.
+              Stop it and start the timer on{' '}
+              <strong>&ldquo;{pendingAssignment?.title || 'this assignment'}&rdquo;</strong>?
+            </p>
+            <div className="delete-modal-actions">
+              <button className="btn-secondary" onClick={cancelTimerConflict}>Keep running</button>
+              <button className="btn-confirm-stop-start" onClick={confirmStopAndStart}>
+                Stop &amp; Start
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Timer modal — single shared modal for all assignment timers */}
+      <Modal
+        open={!!timerAssignment}
+        onClose={closeTimerModal}
+        ariaLabel={`Timer — ${timerAssignment?.title || 'assignment'}`}
+        className="modal-overlay-centered"
+      >
+        {timerAssignment && (
+          <div className="pomodoro-modal-box">
+            <div className="pomodoro-modal-header">
+              <span
+                className="class-badge"
+                style={{ backgroundColor: timerAssignment.color || '#6366F1', color: '#ffffff' }}
+                title={timerAssignment.subject}
+              >
+                {timerAssignment.subject}
+              </span>
+              <h2 className="pomodoro-modal-title" title={timerAssignment.title}>
+                {timerAssignment.title}
+              </h2>
+            </div>
+            <PomodoroTimer
+              key={timerAssignment.id}
+              ref={(el) => {
+                if (el) timerRefs.current[timerAssignment.id] = el
+                else delete timerRefs.current[timerAssignment.id]
+              }}
+              assignment={timerAssignment}
+              uid={currentUser?.uid}
+              onSessionLogged={refresh}
+              activeTimerId={activeTimerId}
+              onTimerStart={(id) => setActiveTimerId(id)}
+              onTimerStop={() => setActiveTimerId(null)}
+              vertical
+              autoStart={autoStart}
+            />
+          </div>
+        )}
+      </Modal>
+
       {/* Empty state */}
       {assignments.length === 0 ? (
         <div className="assignments-empty">
@@ -209,12 +329,14 @@ export default function Assignments() {
                   onEdit={(e) => { editTriggerRef.current = e.currentTarget; setFormError(null); setEditingAssignment(a) }}
                   onDuplicate={() => duplicateAsTemplate(a)}
                   onDelete={(e) => { deleteTriggerRef.current = e.currentTarget; setDeleteError(null); setDeletingAssignment(a) }}
+                  isActive={activeTimerId === a.id}
+                  onTimerOpen={() => openTimerModal(a)}
                 />
               ))}
             </ul>
           )}
 
-          {/* All caught up — no active assignments but completed ones exist */}
+          {/* All caught up */}
           {active.length === 0 && completed.length > 0 && (
             <div className="assignments-empty">
               <p>All caught up!</p>
@@ -222,7 +344,7 @@ export default function Assignments() {
             </div>
           )}
 
-          {/* Completed section with show more/less toggle */}
+          {/* Completed section */}
           {completed.length > 0 && (
             <div className="completed-section">
               <button
@@ -231,10 +353,11 @@ export default function Assignments() {
                 onClick={() => setShowCompleted(!showCompleted)}
                 aria-expanded={showCompleted}
               >
-                <span className="completed-toggle-label">
-                  Completed ({completed.length})
-                </span>
-                <span className={`material-symbols-outlined completed-chevron${showCompleted ? ' open' : ''}`} aria-hidden="true">
+                <span className="completed-toggle-label">Completed ({completed.length})</span>
+                <span
+                  className={`material-symbols-outlined completed-chevron${showCompleted ? ' open' : ''}`}
+                  aria-hidden="true"
+                >
                   expand_more
                 </span>
               </button>
@@ -262,7 +385,15 @@ export default function Assignments() {
 
 /* ===== Assignment Card ===== */
 
-function AssignmentCard({ assignment, onToggleComplete, onEdit, onDuplicate, onDelete }) {
+function AssignmentCard({
+  assignment,
+  onToggleComplete,
+  onEdit,
+  onDuplicate,
+  onDelete,
+  isActive,
+  onTimerOpen,
+}) {
   const a = assignment
   const color = a.color || '#6366F1'
   const urgency = a.completed ? null : getUrgency(a.dueDate)
@@ -295,6 +426,19 @@ function AssignmentCard({ assignment, onToggleComplete, onEdit, onDuplicate, onD
           </div>
         </div>
         <div className="assignment-card-actions">
+          {!a.completed && (
+            <button
+              type="button"
+              className={`assignment-timer-btn${isActive ? ' active' : ''}`}
+              onClick={onTimerOpen}
+              aria-label={`Open timer for ${a.title}`}
+              title="Focus Timer"
+            >
+              {isActive && <span className="assignment-timer-btn-dot" aria-hidden="true" />}
+              <span className="material-symbols-outlined" aria-hidden="true">timer</span>
+              Timer
+            </button>
+          )}
           <button className="btn-icon" onClick={onEdit} aria-label={`Edit ${a.title}`} title="Edit">
             <span className="material-symbols-outlined" aria-hidden="true">edit</span>
           </button>
@@ -307,10 +451,12 @@ function AssignmentCard({ assignment, onToggleComplete, onEdit, onDuplicate, onD
         </div>
       </div>
 
-      {/* Row 2: Due date with urgency indicator */}
+      {/* Row 2: Due date + urgency + logged time + Timer button */}
       <div className="assignment-card-meta">
         {urgency && (
-          <span className={`material-symbols-outlined urgency-icon urgency-${urgency}`} aria-hidden="true">warning</span>
+          <span className={`material-symbols-outlined urgency-icon urgency-${urgency}`} aria-hidden="true">
+            warning
+          </span>
         )}
         <span className={`assignment-due-date${urgency ? ` urgency-${urgency}` : ''}`}>
           {urgency === 'overdue' && 'Overdue \u2014 '}
@@ -326,14 +472,6 @@ function AssignmentCard({ assignment, onToggleComplete, onEdit, onDuplicate, onD
           </>
         )}
       </div>
-
-      {/* Pomodoro timer placeholder — Phase 7 */}
-      {!a.completed && (
-        <div className="pomodoro-placeholder" aria-hidden="true">
-          <span className="material-symbols-outlined pomodoro-placeholder-icon">timer</span>
-          <span className="pomodoro-placeholder-text">Pomodoro timer — coming in Phase 7</span>
-        </div>
-      )}
     </li>
   )
 }

@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { DashboardIcon, SessionsIcon, AssignmentsIcon, PomodoroIcon, ProfileIcon } from './Icons'
+import { DashboardIcon, SessionsIcon, AssignmentsIcon, ProfileIcon } from './Icons'
 import './Navbar.css'
 
-const protectedPaths = ['/dashboard', '/sessions', '/assignments', '/pomodoro']
+const protectedPaths = ['/dashboard', '/sessions', '/assignments']
 
 export default function Navbar() {
   const { currentUser, logout } = useAuth()
@@ -56,7 +56,6 @@ export default function Navbar() {
               <NavLink to="/dashboard" onClick={handleNavClick}><DashboardIcon /> Dashboard</NavLink>
               <NavLink to="/sessions" onClick={handleNavClick}><SessionsIcon /> Sessions</NavLink>
               <NavLink to="/assignments" onClick={handleNavClick}><AssignmentsIcon /> Assignments</NavLink>
-              <NavLink to="/pomodoro" onClick={handleNavClick}><PomodoroIcon /> Pomodoro</NavLink>
             </div>
             <div className="navbar-right">
               <button className="navbar-logout" onClick={handleLogout}>
