@@ -19,11 +19,11 @@ service cloud.firestore {
       match /sessions/{sessionId} {
         allow read, delete: if isOwner();
         allow create: if isOwner()
-          && request.resource.data.keys().hasAll(['subject', 'duration', 'notes', 'date', 'color', 'status', 'createdAt'])
-          && request.resource.data.keys().hasOnly(['subject', 'duration', 'notes', 'date', 'color', 'status', 'createdAt'])
+          && request.resource.data.keys().hasAll(['subject', 'duration', 'notes', 'date', 'color', 'status', 'assignmentId', 'createdAt'])
+          && request.resource.data.keys().hasOnly(['subject', 'duration', 'notes', 'date', 'color', 'status', 'assignmentId', 'createdAt'])
           && request.resource.data.subject is string
           && request.resource.data.subject.size() >= 1
-          && request.resource.data.subject.size() <= 75
+          && request.resource.data.subject.size() <= 40
           && request.resource.data.duration is number
           && request.resource.data.duration > 0
           && request.resource.data.duration <= 20160
@@ -34,12 +34,13 @@ service cloud.firestore {
           && request.resource.data.color.size() <= 20
           && request.resource.data.status is string
           && request.resource.data.status in ['in-progress', 'complete', 'incomplete']
+          && (request.resource.data.assignmentId is string || request.resource.data.assignmentId == null)
           && request.resource.data.createdAt == request.time;
         allow update: if isOwner()
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['subject', 'duration', 'notes', 'date', 'color', 'status'])
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['subject', 'duration', 'notes', 'date', 'color', 'status', 'assignmentId'])
           && request.resource.data.subject is string
           && request.resource.data.subject.size() >= 1
-          && request.resource.data.subject.size() <= 75
+          && request.resource.data.subject.size() <= 40
           && request.resource.data.duration is number
           && request.resource.data.duration > 0
           && request.resource.data.duration <= 20160
@@ -49,25 +50,30 @@ service cloud.firestore {
           && request.resource.data.color is string
           && request.resource.data.color.size() <= 20
           && request.resource.data.status is string
-          && request.resource.data.status in ['in-progress', 'complete', 'incomplete'];
+          && request.resource.data.status in ['in-progress', 'complete', 'incomplete']
+          && (request.resource.data.assignmentId is string || request.resource.data.assignmentId == null);
       }
 
       // Assignments
       match /assignments/{assignmentId} {
         allow read, delete: if isOwner();
         allow create: if isOwner()
-          && request.resource.data.keys().hasAll(['title', 'subject', 'dueDate', 'completed', 'createdAt'])
-          && request.resource.data.keys().hasOnly(['title', 'subject', 'dueDate', 'completed', 'createdAt'])
+          && request.resource.data.keys().hasAll(['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged', 'createdAt'])
+          && request.resource.data.keys().hasOnly(['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged', 'createdAt'])
           && request.resource.data.title is string
           && request.resource.data.title.size() >= 1
           && request.resource.data.title.size() <= 200
           && request.resource.data.subject is string
-          && request.resource.data.subject.size() <= 200
+          && request.resource.data.subject.size() <= 40
           && request.resource.data.dueDate is timestamp
           && request.resource.data.completed is bool
+          && request.resource.data.color is string
+          && request.resource.data.color.size() <= 20
+          && request.resource.data.totalMinutesLogged is number
+          && request.resource.data.totalMinutesLogged >= 0
           && request.resource.data.createdAt == request.time;
         allow update: if isOwner()
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'subject', 'dueDate', 'completed']);
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged']);
       }
 
       // Pomodoro

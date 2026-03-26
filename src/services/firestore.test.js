@@ -107,6 +107,7 @@ describe('Firestore service', () => {
         date: data.date,
         color: '#3B82F6',
         status: 'in-progress',
+        assignmentId: null,
         createdAt: 'SERVER_TIMESTAMP',
       })
     })
@@ -118,6 +119,14 @@ describe('Firestore service', () => {
         notes: '',
         color: '#6366F1',
         status: 'complete',
+      }))
+    })
+
+    it('stores explicit assignmentId when provided', async () => {
+      await addSession(uid, { subject: 'Math', duration: 25, date: new Date(), assignmentId: 'assign-99' })
+
+      expect(mockAddDoc).toHaveBeenCalledWith('COLLECTION_REF', expect.objectContaining({
+        assignmentId: 'assign-99',
       }))
     })
   })
@@ -156,6 +165,17 @@ describe('Firestore service', () => {
       await updateSession(uid, 'session-1', { subject: 'Physics' })
       expect(mockUpdateDoc).toHaveBeenCalledWith('DOC_REF', { subject: 'Physics' })
     })
+
+    it('strips fields not in SESSION_FIELDS whitelist', async () => {
+      await updateSession(uid, 'session-1', { subject: 'Math', createdAt: 'now', id: 'abc', unknown: true })
+      expect(mockUpdateDoc).toHaveBeenCalledWith('DOC_REF', { subject: 'Math' })
+    })
+
+    it('passes all whitelisted SESSION_FIELDS through', async () => {
+      const updates = { subject: 'Bio', duration: 60, notes: 'ch4', date: new Date(), color: '#3B82F6', status: 'in-progress', assignmentId: 'a1' }
+      await updateSession(uid, 'session-1', updates)
+      expect(mockUpdateDoc).toHaveBeenCalledWith('DOC_REF', updates)
+    })
   })
 
   describe('deleteSession', () => {
@@ -177,8 +197,19 @@ describe('Firestore service', () => {
         subject: 'English',
         dueDate,
         completed: false,
+        color: '#6366F1',
+        totalMinutesLogged: 0,
         createdAt: 'SERVER_TIMESTAMP',
       })
+    })
+
+    it('stores explicit color when provided', async () => {
+      const dueDate = new Date('2026-05-01')
+      await addAssignment(uid, { title: 'Lab Report', subject: 'Chem', dueDate, color: '#8B5CF6' })
+
+      expect(mockAddDoc).toHaveBeenCalledWith('COLLECTION_REF', expect.objectContaining({
+        color: '#8B5CF6',
+      }))
     })
   })
 
@@ -211,6 +242,17 @@ describe('Firestore service', () => {
     it('calls updateDoc with the correct ref and updates', async () => {
       await updateAssignment(uid, 'assign-1', { completed: true })
       expect(mockUpdateDoc).toHaveBeenCalledWith('DOC_REF', { completed: true })
+    })
+
+    it('strips fields not in ASSIGNMENT_FIELDS whitelist', async () => {
+      await updateAssignment(uid, 'assign-1', { completed: true, createdAt: 'now', id: 'abc', unknown: true })
+      expect(mockUpdateDoc).toHaveBeenCalledWith('DOC_REF', { completed: true })
+    })
+
+    it('passes all whitelisted ASSIGNMENT_FIELDS through', async () => {
+      const updates = { title: 'Essay', subject: 'English', dueDate: new Date(), completed: false, color: '#8B5CF6', totalMinutesLogged: 50 }
+      await updateAssignment(uid, 'assign-1', updates)
+      expect(mockUpdateDoc).toHaveBeenCalledWith('DOC_REF', updates)
     })
   })
 

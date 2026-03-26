@@ -31,6 +31,7 @@ dist-ssr
 # Test coverage
 coverage/
 
-# Claude transcripts & local docs
+# Claude transcripts, notes, & plans
 transcripts/
 docs/
+plans/

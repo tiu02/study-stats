@@ -4,15 +4,15 @@ import './SessionForm.css'
 
 const today = () => format(new Date(), 'yyyy-MM-dd')
 
+/* Urgency-safe presets — no red/amber/green (reserved for urgency indicators) */
 const COLOR_PRESETS = [
   { value: '#6366F1', label: 'Indigo' },
-  { value: '#0EA5E9', label: 'Blue' },
-  { value: '#10B981', label: 'Green' },
-  { value: '#F59E0B', label: 'Amber' },
-  { value: '#EF4444', label: 'Red' },
-  { value: '#7C3AED', label: 'Purple' },
+  { value: '#2563EB', label: 'Cobalt' },
+  { value: '#06B6D4', label: 'Cyan' },
+  { value: '#A855F7', label: 'Purple' },
   { value: '#EC4899', label: 'Pink' },
-  { value: '#6B7280', label: 'Gray' },
+  { value: '#F97316', label: 'Orange' },
+  { value: '#64748B', label: 'Slate' },
 ]
 
 const STATUS_OPTIONS = [
@@ -91,8 +91,8 @@ function DurationWarningModal({ open, onCancel, onConfirm, duration, formId }) {
   )
 }
 
-export default function SessionForm({ onSubmit, onCancel, initialData, subjects, formId, formError }) {
-  const editing = Boolean(initialData)
+export default function SessionForm({ onSubmit, onCancel, initialData, classMap, formId, formError }) {
+  const editing = Boolean(initialData?.id)
   const id = formId || (editing ? 'edit' : 'add')
 
   const initHours = initialData?.duration ? Math.floor(initialData.duration / 60) : ''
@@ -124,7 +124,7 @@ export default function SessionForm({ onSubmit, onCancel, initialData, subjects,
   function validate() {
     const next = {}
     if (!subject.trim()) next.subject = 'Subject is required.'
-    else if (subject.trim().length > 75) next.subject = 'Subject must be 75 characters or less.'
+    else if (subject.trim().length > 40) next.subject = 'Subject must be 40 characters or less.'
 
     const m = Number(minutes) || 0
     if (m > 59) {
@@ -195,8 +195,12 @@ export default function SessionForm({ onSubmit, onCancel, initialData, subjects,
             id={`${id}-subject`}
             type="text"
             value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            maxLength={75}
+            onChange={(e) => {
+              const val = e.target.value
+              setSubject(val)
+              if (classMap && classMap[val.trim()]) setColor(classMap[val.trim()])
+            }}
+            maxLength={40}
             list={`${id}-subject-suggestions`}
             placeholder="e.g., Math, Biology"
             aria-required="true"
@@ -204,9 +208,9 @@ export default function SessionForm({ onSubmit, onCancel, initialData, subjects,
             aria-invalid={errors.subject ? true : undefined}
             autoComplete="off"
           />
-          {subjects && subjects.length > 0 && (
+          {classMap && Object.keys(classMap).length > 0 && (
             <datalist id={`${id}-subject-suggestions`}>
-              {subjects.map((s) => <option key={s} value={s} />)}
+              {Object.keys(classMap).sort().map((s) => <option key={s} value={s} />)}
             </datalist>
           )}
           {errors.subject && <p className="field-error" id={`${id}-subject-error`} role="alert">{errors.subject}</p>}
@@ -227,6 +231,15 @@ export default function SessionForm({ onSubmit, onCancel, initialData, subjects,
                 title={c.label}
               />
             ))}
+            <label className="color-custom" title="Custom color">
+              <input
+                type="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                aria-label="Custom color"
+              />
+              <span className="color-custom-swatch" style={{ backgroundColor: color }} />
+            </label>
           </div>
         </fieldset>
 

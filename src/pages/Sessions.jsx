@@ -1,107 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { format } from 'date-fns'
 import { useAuth } from '../context/AuthContext'
 import { useSessions } from '../hooks/useFirestore'
 import SessionForm from '../components/SessionForm'
+import Modal from '../components/Modal'
+import { formatDuration, formatDate, STATUS_LABELS } from '../utils/format'
 import './Sessions.css'
 
-function formatDuration(minutes) {
-  if (!minutes || isNaN(minutes)) return '0m'
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  if (h === 0) return `${m}m`
-  if (m === 0) return `${h}h`
-  return `${h}h ${m}m`
-}
-
-function formatDate(value) {
-  if (!value) return ''
-  const d = typeof value.toDate === 'function' ? value.toDate() : new Date(value)
-  return format(d, 'MMM d, yyyy')
-}
-
-const STATUS_LABELS = {
-  'complete': 'Complete',
-  'in-progress': 'In Progress',
-  'incomplete': 'Incomplete',
-}
-
-function hexToRgb(hex) {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-  if (!result) return null
-  return { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) }
-}
-
-function cardBackground(hex) {
-  const rgb = hexToRgb(hex || '#6366F1')
-  if (!rgb) return undefined
-  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.04)`
-}
-
-/* Modal component — shared by Add, Edit, Delete */
-function Modal({ open, onClose, ariaLabel, ariaDescribedBy, role, className, children }) {
-  const overlayRef = useRef(null)
-  const contentRef = useRef(null)
-
-  useEffect(() => {
-    if (!open) return
-
-    // Focus trap: focus the modal content on open
-    const el = contentRef.current
-    if (el) el.focus()
-
-    function handleKeyDown(e) {
-      if (e.key === 'Escape') {
-        onClose()
-        return
-      }
-      // Trap focus within modal
-      if (e.key === 'Tab' && el) {
-        const focusable = el.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        )
-        if (focusable.length === 0) return
-        const first = focusable[0]
-        const last = focusable[focusable.length - 1]
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault()
-          last.focus()
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault()
-          first.focus()
-        }
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = ''
-    }
-  }, [open, onClose])
-
-  if (!open) return null
-
-  function handleOverlayClick(e) {
-    if (e.target === overlayRef.current) onClose()
-  }
-
-  return (
-    <div className={`modal-overlay${className ? ` ${className}` : ''}`} ref={overlayRef} onClick={handleOverlayClick}>
-      <div
-        className="modal-content"
-        ref={contentRef}
-        role={role || 'dialog'}
-        aria-label={ariaLabel}
-        aria-describedby={ariaDescribedBy}
-        aria-modal="true"
-        tabIndex={-1}
-      >
-        {children}
-      </div>
-    </div>
-  )
+const STATUS_ICONS = {
+  'complete': 'check_circle',
+  'in-progress': 'pending',
+  'incomplete': 'cancel',
 }
 
 /* Notes with 3-line clamp and "Show more" toggle (R9) */
@@ -152,10 +60,11 @@ export default function Sessions() {
   const editTriggerRef = useRef(null)
   const deleteTriggerRef = useRef(null)
 
-  const uniqueSubjects = useMemo(
-    () => [...new Set(sessions.map((s) => s.subject))].sort(),
-    [sessions]
-  )
+  const classMap = useMemo(() => {
+    const map = {}
+    sessions.forEach((s) => { if (s.subject && s.color && !map[s.subject]) map[s.subject] = s.color })
+    return map
+  }, [sessions])
 
   const closeAdd = useCallback(() => {
     setShowAddModal(false)
@@ -235,7 +144,7 @@ export default function Sessions() {
         <SessionForm
           onSubmit={handleAdd}
           onCancel={closeAdd}
-          subjects={uniqueSubjects}
+          classMap={classMap}
           formId="add"
           formError={formError}
         />
@@ -248,7 +157,7 @@ export default function Sessions() {
             initialData={editingSession}
             onSubmit={handleUpdate}
             onCancel={closeEdit}
-            subjects={uniqueSubjects}
+            classMap={classMap}
             formId="edit"
             formError={formError}
           />
@@ -295,18 +204,18 @@ export default function Sessions() {
               <li
                 key={session.id}
                 className="session-card"
-                style={{
-                  borderLeftColor: color,
-                  backgroundColor: cardBackground(color),
-                }}
+                style={{ borderLeftColor: color }}
               >
-                {/* Row 1: Subject + status badge + actions */}
+                {/* Row 1: Class badge + status icon + actions */}
                 <div className="session-card-top">
                   <div className="session-card-title-group">
-                    <h2 className="session-card-subject" title={session.subject}>{session.subject}</h2>
-                    <span className={`status-badge status-${statusKey}`}>
-                      {STATUS_LABELS[statusKey] || 'Complete'}
-                    </span>
+                    <span
+                      className="class-dot"
+                      style={{ backgroundColor: color }}
+                      aria-hidden="true"
+                      title={session.subject}
+                    />
+                    <h2 className="session-card-subject">{session.subject}</h2>
                   </div>
                   <div className="session-card-actions">
                     <button
@@ -328,15 +237,23 @@ export default function Sessions() {
                   </div>
                 </div>
 
-                {/* Row 2: Date + duration */}
+                {/* Row 2: Date + duration + status */}
                 <div className="session-card-meta">
                   <span className="session-card-date">{formatDate(session.date)}</span>
                   <span className="session-card-meta-sep" aria-hidden="true">&bull;</span>
                   <span className="session-card-duration">{formatDuration(session.duration)}</span>
+                  <span className="session-card-meta-sep" aria-hidden="true">&bull;</span>
+                  <span
+                    role="img"
+                    aria-label={STATUS_LABELS[statusKey] || 'Complete'}
+                    className={`material-symbols-outlined status-icon status-icon-${statusKey}`}
+                  >
+                    {STATUS_ICONS[statusKey] || 'check_circle'}
+                  </span>
                 </div>
 
                 {/* Row 3: Notes (clamped) */}
-                {session.notes && <NotesPreview text={session.notes} />}
+                {session.notes?.trim() && <NotesPreview text={session.notes} />}
               </li>
             )
           })}

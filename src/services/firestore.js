@@ -23,7 +23,7 @@ function userDoc(uid, collectionName, docId) {
 
 // --------------- Sessions ---------------
 
-export async function addSession(uid, { subject, duration, notes, date, color, status }) {
+export async function addSession(uid, { subject, duration, notes, date, color, status, assignmentId }) {
   return addDoc(userCollection(uid, 'sessions'), {
     subject,
     duration,
@@ -31,6 +31,7 @@ export async function addSession(uid, { subject, duration, notes, date, color, s
     date,
     color: color || '#6366F1',
     status: status || 'complete',
+    assignmentId: assignmentId || null,
     createdAt: serverTimestamp(),
   })
 }
@@ -41,7 +42,7 @@ export async function getSessions(uid) {
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
 }
 
-const SESSION_FIELDS = ['subject', 'duration', 'notes', 'date', 'color', 'status']
+const SESSION_FIELDS = ['subject', 'duration', 'notes', 'date', 'color', 'status', 'assignmentId']
 
 export async function updateSession(uid, sessionId, updates) {
   const filtered = Object.fromEntries(
@@ -56,12 +57,14 @@ export async function deleteSession(uid, sessionId) {
 
 // --------------- Assignments ---------------
 
-export async function addAssignment(uid, { title, subject, dueDate }) {
+export async function addAssignment(uid, { title, subject, dueDate, color }) {
   return addDoc(userCollection(uid, 'assignments'), {
     title,
     subject,
     dueDate,
     completed: false,
+    color: color || '#6366F1',
+    totalMinutesLogged: 0,
     createdAt: serverTimestamp(),
   })
 }
@@ -72,8 +75,13 @@ export async function getAssignments(uid) {
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
 }
 
+const ASSIGNMENT_FIELDS = ['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged']
+
 export async function updateAssignment(uid, assignmentId, updates) {
-  return updateDoc(userDoc(uid, 'assignments', assignmentId), updates)
+  const filtered = Object.fromEntries(
+    Object.entries(updates).filter(([k]) => ASSIGNMENT_FIELDS.includes(k))
+  )
+  return updateDoc(userDoc(uid, 'assignments', assignmentId), filtered)
 }
 
 export async function deleteAssignment(uid, assignmentId) {

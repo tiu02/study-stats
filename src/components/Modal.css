@@ -1,0 +1,38 @@
+/* ===== Modal overlay ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 1.5rem;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  border-radius: 12px;
+  outline: none;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 1rem;
+    align-items: flex-start;
+    padding-top: 3rem;
+  }
+
+  .modal-overlay.modal-overlay-centered {
+    align-items: center;
+    padding-top: 1rem;
+  }
+
+  .modal-content {
+    max-height: calc(100vh - 4rem);
+  }
+}

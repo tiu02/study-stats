@@ -90,6 +90,7 @@
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .color-swatch {
@@ -113,6 +114,44 @@
 
 /* Focus-visible ring for keyboard users */
 .color-swatch:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 3px;
+  transform: scale(1.15);
+}
+
+/* Custom color picker — circular swatch wrapping hidden input */
+/* Higher specificity needed to override .session-form label { display: block } */
+.session-form .color-custom {
+  position: relative;
+  display: inline-flex;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.color-custom input[type="color"] {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  padding: 0;
+  border: none;
+  min-height: 0;
+}
+
+.color-custom-swatch {
+  display: block;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px dashed #9ca3af;
+  transition: transform 0.15s;
+}
+
+.color-custom:hover .color-custom-swatch {
+  transform: scale(1.15);
+}
+
+.color-custom input[type="color"]:focus-visible + .color-custom-swatch {
   outline: 2px solid #6366F1;
   outline-offset: 3px;
   transform: scale(1.15);
@@ -316,6 +355,11 @@
   }
 
   .color-swatch {
+    width: 44px;
+    height: 44px;
+  }
+
+  .color-custom-swatch {
     width: 44px;
     height: 44px;
   }
