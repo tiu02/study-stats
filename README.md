@@ -30,4 +30,14 @@ StudyStats enables students and scholars to boost productivity and study habits.
 --
  ## Setup Instructions
 
- ## Known 
+ ## Known Bugs & Limitations
+
+- Search and Filter function not implemented
+- Material Icons loaded via Google Fonts CDN requires internet connection. Icons will not render offline.
+- Pomodoro timer state is intentionally lost on page navigation, logout, or modal close (state lives in the modal component, not Firestore). A `beforeunload` warning fires when the timer is running, but navigating within the SPA (React Router) does not trigger `beforeunload`. Closing the timer modal while the timer is paused also silently resets it — forceStop is called on modal close by design.
+- `forceStart()` remains in PomodoroTimer's `useImperativeHandle` but is no longer called anywhere — `confirmStopAndStart` now uses the `autoStart` prop + modal swap instead. Safe to remove in a cleanup pass.
+
+--
+
+## What I learned
+I learned about which Claude model and level of effort i should use for which tasks. From this project, I felt like Claude Opus was more efficient at debugging and suggesting better alternatives than Sonnet. I also learned that some of the prompts became automated, like for example, how frequently I asked Claude to update the ARCHITECTURE.md and PROJECT-STATUS.md for context management, and at the later phases, I noticed it would automatically add it to its to do list while unit testing, without me prompting.
