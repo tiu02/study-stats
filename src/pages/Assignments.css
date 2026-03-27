@@ -411,6 +411,7 @@
   width: 100%;
   max-width: 340px;
   box-sizing: border-box;
+  margin: 0 auto;
 }
 
 .pomodoro-modal-header {
