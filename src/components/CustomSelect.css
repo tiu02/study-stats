@@ -10,7 +10,7 @@
   justify-content: space-between;
   width: 100%;
   padding: 0.45rem 0.5rem 0.45rem 0.6rem;
-  min-height: 38px;
+  min-height: 44px;
   font-size: 0.85rem;
   font-weight: 500;
   color: #374151;
@@ -85,9 +85,11 @@
 }
 
 .cs-option {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
   padding: 0.5rem 0.75rem;
+  min-height: 44px;
   font-size: 0.85rem;
   font-weight: 400;
   color: #374151;
@@ -138,7 +140,7 @@
 
 /* Mobile */
 @media (max-width: 640px) {
-  .session-form .cs-trigger {
+  .cs-trigger {
     font-size: 16px;
   }
 }

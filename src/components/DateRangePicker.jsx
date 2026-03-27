@@ -104,7 +104,6 @@ export default function DateRangePicker({ startDate, endDate, onChange }) {
 
   return (
     <div className="drp-wrap" ref={wrapRef}>
-      {/* drp-control keeps trigger + clear as proper sibling buttons (no nested interactive elements) */}
       <div className="drp-control">
         <button
           type="button"
@@ -116,18 +115,7 @@ export default function DateRangePicker({ startDate, endDate, onChange }) {
           <span className="material-symbols-outlined drp-trigger-icon" aria-hidden="true">calendar_today</span>
           <span className="drp-trigger-label">{formatLabel(startDate, endDate)}</span>
         </button>
-        {hasValue && (
-          <button
-            type="button"
-            className="drp-clear"
-            onClick={handleClear}
-            aria-label="Clear date range"
-          >
-            <span className="material-symbols-outlined" aria-hidden="true">close</span>
-          </button>
-        )}
       </div>
-
       {open && (
         <div className="drp-dropdown" role="dialog" aria-label="Date range calendar">
           {selecting === 'end' && (
@@ -164,7 +152,7 @@ export default function DateRangePicker({ startDate, endDate, onChange }) {
 
               return (
                 <button
-                  key={day.getDate()}
+                  key={`${year}-${month}-${day.getDate()}`}
                   type="button"
                   className={cls}
                   onClick={() => handleDayClick(day)}

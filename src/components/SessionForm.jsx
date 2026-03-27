@@ -228,6 +228,17 @@ export default function SessionForm({ onSubmit, onCancel, initialData, classMap,
         <fieldset className="color-picker">
           <legend>Color</legend>
           <div className="color-swatches">
+            <label className="color-custom" title="Custom color">
+              <input
+                type="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                aria-label="Custom color"
+              />
+              <span className="color-custom-swatch" style={{ backgroundColor: color }}>
+                <span className="material-symbols-outlined color-custom-icon" aria-hidden="true">colorize</span>
+              </span>
+            </label>
             {COLOR_PRESETS.map((c) => (
               <button
                 key={c.value}
@@ -240,17 +251,6 @@ export default function SessionForm({ onSubmit, onCancel, initialData, classMap,
                 title={c.label}
               />
             ))}
-            <label className="color-custom" title="Custom color">
-              <input
-                type="color"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-                aria-label="Custom color"
-              />
-              <span className="color-custom-swatch" style={{ backgroundColor: color }}>
-                <span className="material-symbols-outlined color-custom-icon" aria-hidden="true">colorize</span>
-              </span>
-            </label>
           </div>
         </fieldset>
 

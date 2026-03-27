@@ -5,6 +5,7 @@
   justify-content: center;
   background-color: #EEF2FF;
   padding: 8rem 1rem 1.5rem;
+  animation: fadeIn 0.25s ease;
 }
 
 @media (max-width: 640px) {
@@ -156,9 +157,12 @@
 }
 
 .auth-switch a {
+  display: inline-flex;
+  align-items: center;
   color: #6366F1;
   font-weight: 600;
   text-decoration: none;
+  min-height: 44px;
 }
 
 .auth-switch a:hover {

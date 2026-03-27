@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
+import DatePicker from './DatePicker'
 import './AssignmentForm.css'
 
 const today = () => format(new Date(), 'yyyy-MM-dd')
@@ -30,6 +31,7 @@ export default function AssignmentForm({ onSubmit, onCancel, initialData, classM
   const [title, setTitle] = useState(initialData?.title || '')
   const [dueDate, setDueDate] = useState(toDateString(initialData?.dueDate))
   const [color, setColor] = useState(initialData?.color || '#6366F1')
+  const [notes, setNotes] = useState(initialData?.notes || '')
   const [errors, setErrors] = useState({})
   const [submitting, setSubmitting] = useState(false)
 
@@ -51,6 +53,7 @@ export default function AssignmentForm({ onSubmit, onCancel, initialData, classM
     else if (title.trim().length > 200) next.title = 'Title must be 200 characters or less.'
 
     if (!dueDate) next.dueDate = 'Due date is required.'
+    if (notes.trim().length > 2000) next.notes = 'Notes must be 2,000 characters or less.'
 
     setErrors(next)
     return Object.keys(next).length === 0
@@ -66,6 +69,7 @@ export default function AssignmentForm({ onSubmit, onCancel, initialData, classM
         title: title.trim(),
         dueDate: new Date(dueDate + 'T00:00:00'),
         color,
+        notes: notes.trim(),
       })
     } finally {
       setSubmitting(false)
@@ -85,19 +89,26 @@ export default function AssignmentForm({ onSubmit, onCancel, initialData, classM
 
       <label htmlFor={`${id}-subject`}>
         Class / Subject
-        <input
-          id={`${id}-subject`}
-          type="text"
-          value={subject}
-          onChange={handleSubjectChange}
-          maxLength={40}
-          list={`${id}-subject-suggestions`}
-          placeholder="e.g., Mathematics, Biology"
-          aria-required="true"
-          aria-describedby={errors.subject ? `${id}-subject-error` : undefined}
-          aria-invalid={errors.subject ? true : undefined}
-          autoComplete="off"
-        />
+        <div className="sf-field-wrap">
+          <input
+            id={`${id}-subject`}
+            type="text"
+            value={subject}
+            onChange={handleSubjectChange}
+            maxLength={40}
+            list={`${id}-subject-suggestions`}
+            placeholder="e.g., Mathematics, Biology"
+            aria-required="true"
+            aria-describedby={errors.subject ? `${id}-subject-error` : undefined}
+            aria-invalid={errors.subject ? true : undefined}
+            autoComplete="off"
+          />
+          {subject && (
+            <button type="button" className="sf-field-clear" onClick={() => setSubject('')} aria-label="Clear subject">
+              <span className="material-symbols-outlined" aria-hidden="true">close</span>
+            </button>
+          )}
+        </div>
         {subjectNames.length > 0 && (
           <datalist id={`${id}-subject-suggestions`}>
             {subjectNames.map((s) => <option key={s} value={s} />)}
@@ -109,6 +120,17 @@ export default function AssignmentForm({ onSubmit, onCancel, initialData, classM
       <fieldset className="color-picker">
         <legend>Color</legend>
         <div className="color-swatches">
+          <label className="color-custom" title="Custom color">
+            <input
+              type="color"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              aria-label="Custom color"
+            />
+            <span className="color-custom-swatch" style={{ backgroundColor: color }}>
+              <span className="material-symbols-outlined color-custom-icon" aria-hidden="true">colorize</span>
+            </span>
+          </label>
           {COLOR_PRESETS.map((c) => (
             <button
               key={c.value}
@@ -121,48 +143,65 @@ export default function AssignmentForm({ onSubmit, onCancel, initialData, classM
               title={c.label}
             />
           ))}
-          <label className="color-custom" title="Custom color">
-            <input
-              type="color"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-              aria-label="Custom color"
-            />
-            <span className="color-custom-swatch" style={{ backgroundColor: color }}>
-              <span className="material-symbols-outlined color-custom-icon" aria-hidden="true">colorize</span>
-            </span>
-          </label>
         </div>
       </fieldset>
 
       <label htmlFor={`${id}-title`}>
         Assignment Title
-        <input
-          id={`${id}-title`}
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          maxLength={200}
-          placeholder="e.g., Chapter 5 Homework"
-          aria-required="true"
-          aria-describedby={errors.title ? `${id}-title-error` : undefined}
-          aria-invalid={errors.title ? true : undefined}
-        />
+        <div className="sf-field-wrap">
+          <input
+            id={`${id}-title`}
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={200}
+            placeholder="e.g., Chapter 5 Homework"
+            aria-required="true"
+            aria-describedby={errors.title ? `${id}-title-error` : undefined}
+            aria-invalid={errors.title ? true : undefined}
+          />
+          {title && (
+            <button type="button" className="sf-field-clear" onClick={() => setTitle('')} aria-label="Clear title">
+              <span className="material-symbols-outlined" aria-hidden="true">close</span>
+            </button>
+          )}
+        </div>
         {errors.title && <p className="field-error" id={`${id}-title-error`} role="alert">{errors.title}</p>}
       </label>
 
       <label htmlFor={`${id}-dueDate`}>
         Due Date
-        <input
+        <DatePicker
           id={`${id}-dueDate`}
-          type="date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
+          value={dueDate ? new Date(dueDate + 'T00:00:00') : null}
+          onChange={(day) => setDueDate(day ? format(day, 'yyyy-MM-dd') : '')}
+          placeholder="Select date"
           aria-required="true"
           aria-describedby={errors.dueDate ? `${id}-dueDate-error` : undefined}
           aria-invalid={errors.dueDate ? true : undefined}
         />
         {errors.dueDate && <p className="field-error" id={`${id}-dueDate-error`} role="alert">{errors.dueDate}</p>}
+      </label>
+
+      <label htmlFor={`${id}-notes`}>
+        Notes (optional)
+        <div className="sf-field-wrap">
+          <textarea
+            id={`${id}-notes`}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            maxLength={2000}
+            rows={3}
+            aria-describedby={errors.notes ? `${id}-notes-error` : undefined}
+            aria-invalid={errors.notes ? true : undefined}
+          />
+          {notes && (
+            <button type="button" className="sf-field-clear sf-field-clear-textarea" onClick={() => setNotes('')} aria-label="Clear notes">
+              <span className="material-symbols-outlined" aria-hidden="true">close</span>
+            </button>
+          )}
+        </div>
+        {errors.notes && <p className="field-error" id={`${id}-notes-error`} role="alert">{errors.notes}</p>}
       </label>
 
       {formError && <p className="form-error" role="alert">{formError}</p>}

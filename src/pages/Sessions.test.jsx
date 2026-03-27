@@ -68,6 +68,13 @@ async function openSortDropdown(user) {
   await user.click(sortBtn)
 }
 
+/** Select an option in a CustomSelect by clicking its trigger then the option */
+async function selectCustomOption(user, labelText, optionLabel) {
+  await user.click(screen.getByLabelText(labelText))
+  const listbox = screen.getByRole('listbox')
+  await user.click(within(listbox).getByText(optionLabel))
+}
+
 /* ── Tests ── */
 
 describe('Sessions – Toolbar (search, sort, filter)', () => {
@@ -178,8 +185,9 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       const user = setup()
       await openFilterDropdown(user)
 
-      const select = screen.getByLabelText('Subject')
-      const options = within(select).getAllByRole('option')
+      await user.click(screen.getByLabelText('Subject'))
+      const listbox = screen.getByRole('listbox')
+      const options = within(listbox).getAllByRole('option')
       expect(options).toHaveLength(4)
       expect(options.map(o => o.textContent)).toEqual([
         'All Subjects', 'History', 'Mathematics', 'Physics'
@@ -190,8 +198,9 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       const user = setup()
       await openFilterDropdown(user)
 
-      const select = screen.getByLabelText('Status')
-      const options = within(select).getAllByRole('option')
+      await user.click(screen.getByLabelText('Status'))
+      const listbox = screen.getByRole('listbox')
+      const options = within(listbox).getAllByRole('option')
       expect(options).toHaveLength(4)
       expect(options[0].textContent).toBe('All Statuses')
     })
@@ -234,7 +243,7 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       const user = setup()
       await openFilterDropdown(user)
 
-      await user.selectOptions(screen.getByLabelText('Subject'), 'History')
+      await selectCustomOption(user, 'Subject', 'History')
 
       expect(screen.getAllByRole('listitem')).toHaveLength(1)
     })
@@ -247,7 +256,7 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       const user = setup()
       await openFilterDropdown(user)
 
-      await user.selectOptions(screen.getByLabelText('Status'), 'complete')
+      await selectCustomOption(user, 'Status', 'Complete')
 
       // 3 complete sessions
       expect(screen.getAllByRole('listitem')).toHaveLength(3)
@@ -257,7 +266,7 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       const user = setup()
       await openFilterDropdown(user)
 
-      await user.selectOptions(screen.getByLabelText('Status'), 'in-progress')
+      await selectCustomOption(user, 'Status', 'In Progress')
 
       expect(screen.getAllByRole('listitem')).toHaveLength(1)
     })
@@ -270,8 +279,8 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       const user = setup()
       await openFilterDropdown(user)
 
-      await user.selectOptions(screen.getByLabelText('Subject'), 'Mathematics')
-      await user.selectOptions(screen.getByLabelText('Status'), 'complete')
+      await selectCustomOption(user, 'Subject', 'Mathematics')
+      await selectCustomOption(user, 'Status', 'Complete')
 
       // Only Mathematics + complete → session #1
       expect(screen.getAllByRole('listitem')).toHaveLength(1)
@@ -286,7 +295,7 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
 
       // Open filter and set status
       await openFilterDropdown(user)
-      await user.selectOptions(screen.getByLabelText('Status'), 'complete')
+      await selectCustomOption(user, 'Status', 'Complete')
 
       // Physics + complete → session #3
       expect(screen.getAllByRole('listitem')).toHaveLength(1)
@@ -300,7 +309,7 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       const user = setup()
       await openFilterDropdown(user)
 
-      await user.selectOptions(screen.getByLabelText('Subject'), 'Physics')
+      await selectCustomOption(user, 'Subject', 'Physics')
 
       expect(screen.getByText(/showing 2 of 5 sessions/i)).toBeInTheDocument()
     })
@@ -327,8 +336,8 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       const user = setup()
       await openFilterDropdown(user)
 
-      await user.selectOptions(screen.getByLabelText('Subject'), 'History')
-      await user.selectOptions(screen.getByLabelText('Status'), 'incomplete')
+      await selectCustomOption(user, 'Subject', 'History')
+      await selectCustomOption(user, 'Status', 'Incomplete')
 
       // History has only complete sessions → 0 results
       expect(screen.getByText(/no sessions match your filters/i)).toBeInTheDocument()
@@ -339,8 +348,8 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       const user = setup()
       await openFilterDropdown(user)
 
-      await user.selectOptions(screen.getByLabelText('Subject'), 'History')
-      await user.selectOptions(screen.getByLabelText('Status'), 'incomplete')
+      await selectCustomOption(user, 'Subject', 'History')
+      await selectCustomOption(user, 'Status', 'Incomplete')
 
       expect(screen.getByRole('button', { name: /clear all filters/i })).toBeInTheDocument()
     })
@@ -349,8 +358,8 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       const user = setup()
       await openFilterDropdown(user)
 
-      await user.selectOptions(screen.getByLabelText('Subject'), 'History')
-      await user.selectOptions(screen.getByLabelText('Status'), 'incomplete')
+      await selectCustomOption(user, 'Subject', 'History')
+      await selectCustomOption(user, 'Status', 'Incomplete')
 
       expect(screen.getByText(/no sessions match your filters/i)).toBeInTheDocument()
 
@@ -369,7 +378,7 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       const user = setup()
       await openFilterDropdown(user)
 
-      await user.selectOptions(screen.getByLabelText('Status'), 'complete')
+      await selectCustomOption(user, 'Status', 'Complete')
 
       expect(screen.getByRole('button', { name: /^clear$/i })).toBeInTheDocument()
     })
@@ -378,8 +387,8 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       const user = setup()
       await openFilterDropdown(user)
 
-      await user.selectOptions(screen.getByLabelText('Subject'), 'Physics')
-      await user.selectOptions(screen.getByLabelText('Status'), 'complete')
+      await selectCustomOption(user, 'Subject', 'Physics')
+      await selectCustomOption(user, 'Status', 'Complete')
 
       // Only Physics + complete → session #3
       expect(screen.getAllByRole('listitem')).toHaveLength(1)
@@ -398,8 +407,8 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       const user = setup()
       await openFilterDropdown(user)
 
-      await user.selectOptions(screen.getByLabelText('Subject'), 'Physics')
-      await user.selectOptions(screen.getByLabelText('Status'), 'complete')
+      await selectCustomOption(user, 'Subject', 'Physics')
+      await selectCustomOption(user, 'Status', 'Complete')
 
       expect(screen.getByText('2')).toBeInTheDocument()
     })
@@ -411,7 +420,7 @@ describe('Sessions – Toolbar (search, sort, filter)', () => {
       expect(filterBtn).not.toHaveClass('toolbar-icon-btn-active')
 
       await openFilterDropdown(user)
-      await user.selectOptions(screen.getByLabelText('Subject'), 'Physics')
+      await selectCustomOption(user, 'Subject', 'Physics')
 
       expect(filterBtn).toHaveClass('toolbar-icon-btn-active')
     })

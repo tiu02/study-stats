@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useAssignments } from '../hooks/useFirestore'
 import AssignmentForm from '../components/AssignmentForm'
@@ -6,6 +6,39 @@ import Modal from '../components/Modal'
 import PomodoroTimer from '../components/PomodoroTimer'
 import { formatDate, formatDuration, getUrgency } from '../utils/format'
 import './Assignments.css'
+
+/* Notes with 3-line clamp and "Show more" toggle — mirrors Sessions */
+function NotesPreview({ text }) {
+  const [expanded, setExpanded] = useState(false)
+  const textRef = useRef(null)
+  const [clamped, setClamped] = useState(false)
+
+  useEffect(() => {
+    const el = textRef.current
+    if (el) setClamped(el.scrollHeight > el.clientHeight + 1)
+  }, [text])
+
+  return (
+    <div className="assignment-card-notes-wrapper">
+      <p
+        ref={expanded ? null : textRef}
+        className={`assignment-card-notes${expanded ? '' : ' clamped'}`}
+      >
+        {text}
+      </p>
+      {(clamped || expanded) && (
+        <button
+          type="button"
+          className="btn-show-more"
+          onClick={() => setExpanded(!expanded)}
+          aria-expanded={expanded}
+        >
+          {expanded ? 'Show less' : 'Show more'}
+        </button>
+      )}
+    </div>
+  )
+}
 
 export default function Assignments() {
   const { currentUser } = useAuth()
@@ -426,19 +459,6 @@ function AssignmentCard({
           </div>
         </div>
         <div className="assignment-card-actions">
-          {!a.completed && (
-            <button
-              type="button"
-              className={`assignment-timer-btn${isActive ? ' active' : ''}`}
-              onClick={onTimerOpen}
-              aria-label={`Open timer for ${a.title}`}
-              title="Focus Timer"
-            >
-              {isActive && <span className="assignment-timer-btn-dot" aria-hidden="true" />}
-              <span className="material-symbols-outlined" aria-hidden="true">timer</span>
-              Timer
-            </button>
-          )}
           <button className="btn-icon" onClick={onEdit} aria-label={`Edit ${a.title}`} title="Edit">
             <span className="material-symbols-outlined" aria-hidden="true">edit</span>
           </button>
@@ -471,7 +491,23 @@ function AssignmentCard({
             </span>
           </>
         )}
+        {!a.completed && (
+          <button
+            type="button"
+            className={`assignment-timer-btn${isActive ? ' active' : ''}`}
+            onClick={onTimerOpen}
+            aria-label={`Open timer for ${a.title}`}
+            title="Focus Timer"
+          >
+            {isActive && <span className="assignment-timer-btn-dot" aria-hidden="true" />}
+            <span className="material-symbols-outlined" aria-hidden="true">timer</span>
+            Timer
+          </button>
+        )}
       </div>
+
+      {/* Row 3: Notes (clamped) */}
+      {a.notes?.trim() && <NotesPreview text={a.notes} />}
     </li>
   )
 }

@@ -5,6 +5,7 @@
   align-items: center;
   background-color: #EEF2FF;
   padding: 2rem 2rem 1.5rem;
+  animation: fadeIn 0.25s ease;
 }
 
 /* Header row — heading + add button */
@@ -143,14 +144,14 @@
 /* Clear button inside search wrap */
 .toolbar-search-clear {
   position: absolute;
-  right: 0.5rem;
+  right: 0;
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
   background: transparent;
@@ -271,6 +272,7 @@
   gap: 0.5rem;
   width: 100%;
   padding: 0.55rem 1rem;
+  min-height: 44px;
   font-size: 0.85rem;
   font-weight: 500;
   color: #374151;
@@ -298,8 +300,8 @@
 /* Filter dropdown */
 .toolbar-dropdown-filter {
   padding: 0.85rem 1rem;
-  min-width: 200px;
-  max-width: 280px;
+  min-width: 240px;
+  max-width: 240px;
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
@@ -322,7 +324,7 @@
 .filter-field-select {
   width: 100%;
   padding: 0.45rem 2rem 0.45rem 0.6rem;
-  min-height: 38px;
+  min-height: 44px;
   font-size: 0.85rem;
   font-weight: 500;
   border: 1px solid #d1d5db;
@@ -339,7 +341,7 @@
 .filter-date-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1.25rem;
 }
 
 .filter-field-select:focus {
@@ -356,23 +358,21 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%236366F1' d='M2 4.5l5 5 5-5-1.5-1.5L7 6.5 3.5 3 2 4.5z'/%3E%3C/svg%3E");
 }
 
-/* Clear filters button inside dropdown */
+/* Clear filters button inside dropdown — icon only */
 .filter-clear-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
-  padding: 0.45rem 0.75rem;
-  min-height: 38px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   color: #374151;
   background: #f9fafb;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.15s, color 0.15s;
-  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .filter-clear-btn:hover {
@@ -387,7 +387,8 @@
 }
 
 .filter-clear-icon {
-  font-size: 16px;
+  font-size: 20px;
+  font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Result count */
@@ -808,8 +809,8 @@
   }
 
   .toolbar-dropdown-filter {
-    min-width: 200px;
-    max-width: calc(100vw - 2rem);
+    min-width: 240px;
+    max-width: 240px;
   }
 
   .filter-field-select {

@@ -364,9 +364,8 @@ export default function Sessions() {
                         onChange={handleDateRangeChange}
                       />
                       {filtersActive && (
-                        <button type="button" className="filter-clear-btn" onClick={clearFilters}>
+                        <button type="button" className="filter-clear-btn" onClick={clearFilters} aria-label="Clear">
                           <span className="material-symbols-outlined filter-clear-icon" aria-hidden="true">restart_alt</span>
-                          Clear
                         </button>
                       )}
                     </div>

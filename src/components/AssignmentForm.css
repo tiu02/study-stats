@@ -22,7 +22,8 @@
   color: #374151;
 }
 
-.assignment-form input {
+.assignment-form input,
+.assignment-form textarea {
   display: block;
   width: 100%;
   margin-top: 0.35rem;
@@ -38,11 +39,24 @@
   font-family: inherit;
 }
 
-.assignment-form input:focus {
+.assignment-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.assignment-form input:focus,
+.assignment-form textarea:focus {
   outline: 2px solid #6366F1;
   outline-offset: 1px;
   border-color: #6366F1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* Hide browser datalist dropdown indicator */
+.assignment-form input[list]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
 }
 
 .assignment-form .field-error {
@@ -95,6 +109,23 @@
   outline: 2px solid #6366F1;
   outline-offset: 3px;
   transform: scale(1.15);
+}
+
+/* Field wrapper for inputs with inline clear buttons — mirrors SessionForm */
+.assignment-form .sf-field-wrap {
+  position: relative;
+  margin-top: 0.35rem;
+}
+
+.assignment-form .sf-field-wrap input,
+.assignment-form .sf-field-wrap textarea {
+  margin-top: 0;
+  padding-right: 2.25rem;
+  width: 100%;
+}
+
+.assignment-form .sf-field-wrap input {
+  text-overflow: ellipsis;
 }
 
 /* Custom color picker — circular swatch that hides the native input */
@@ -222,22 +253,9 @@
 
 /* ===== Mobile ===== */
 @media (max-width: 640px) {
-  .assignment-form input {
+  .assignment-form input,
+  .assignment-form textarea {
     font-size: 16px;
-  }
-
-  .color-swatch {
-    width: 44px;
-    height: 44px;
-  }
-
-  .color-swatches {
-    gap: 0.65rem;
-  }
-
-  .color-custom-swatch {
-    width: 44px;
-    height: 44px;
   }
 
   .assignment-form-actions button {
@@ -245,3 +263,5 @@
     padding: 0.75rem 1rem;
   }
 }
+
+/* Note: color-swatch 44px sizing at <=768px is in SessionForm.css (shared rules) */

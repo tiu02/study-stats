@@ -199,6 +199,7 @@ describe('Firestore service', () => {
         completed: false,
         color: '#6366F1',
         totalMinutesLogged: 0,
+        notes: '',
         createdAt: 'SERVER_TIMESTAMP',
       })
     })
@@ -250,7 +251,7 @@ describe('Firestore service', () => {
     })
 
     it('passes all whitelisted ASSIGNMENT_FIELDS through', async () => {
-      const updates = { title: 'Essay', subject: 'English', dueDate: new Date(), completed: false, color: '#8B5CF6', totalMinutesLogged: 50 }
+      const updates = { title: 'Essay', subject: 'English', dueDate: new Date(), completed: false, color: '#8B5CF6', totalMinutesLogged: 50, notes: 'Some notes' }
       await updateAssignment(uid, 'assign-1', updates)
       expect(mockUpdateDoc).toHaveBeenCalledWith('DOC_REF', updates)
     })

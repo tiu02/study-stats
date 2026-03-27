@@ -57,7 +57,7 @@ export async function deleteSession(uid, sessionId) {
 
 // --------------- Assignments ---------------
 
-export async function addAssignment(uid, { title, subject, dueDate, color }) {
+export async function addAssignment(uid, { title, subject, dueDate, color, notes }) {
   return addDoc(userCollection(uid, 'assignments'), {
     title,
     subject,
@@ -65,6 +65,7 @@ export async function addAssignment(uid, { title, subject, dueDate, color }) {
     completed: false,
     color: color || '#6366F1',
     totalMinutesLogged: 0,
+    notes: notes || '',
     createdAt: serverTimestamp(),
   })
 }
@@ -75,7 +76,7 @@ export async function getAssignments(uid) {
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
 }
 
-const ASSIGNMENT_FIELDS = ['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged']
+const ASSIGNMENT_FIELDS = ['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged', 'notes']
 
 export async function updateAssignment(uid, assignmentId, updates) {
   const filtered = Object.fromEntries(

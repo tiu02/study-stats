@@ -15,7 +15,7 @@ import {
 // --------------- Helpers ---------------
 
 function friendlyError(err) {
-  console.error('[Firestore]', err)
+  if (import.meta.env.DEV) console.error('[Firestore]', err)
   const code = err.code || ''
   if (code === 'permission-denied') return 'You do not have permission to perform this action.'
   if (code === 'not-found') return 'The requested item was not found.'

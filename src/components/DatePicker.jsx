@@ -130,7 +130,7 @@ export default function DatePicker({ value, onChange, placeholder = 'Select date
               if (isToday && !isSelected) cls += ' drp-day-today'
               return (
                 <button
-                  key={day.getDate()}
+                  key={`${year}-${month}-${day.getDate()}`}
                   type="button"
                   className={cls}
                   onClick={() => handleDayClick(day)}

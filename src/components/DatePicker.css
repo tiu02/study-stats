@@ -68,14 +68,14 @@
 /* Clear button — absolutely positioned over trigger's right padding area */
 .dp-clear {
   position: absolute;
-  right: 0.55rem;
+  right: 0;
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
   border-radius: 50%;

@@ -1,9 +1,12 @@
 /* ===== DateRangePicker ===== */
+/* drp-wrap is a flex row: trigger (drp-control) + standalone clear icon */
 .drp-wrap {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-/* Wraps trigger + clear as proper sibling buttons; positions clear absolutely */
 .drp-control {
   position: relative;
   display: inline-flex;
@@ -15,7 +18,7 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.45rem 0.75rem;
-  min-height: 40px;
+  min-height: 44px;
   font-size: 0.85rem;
   font-weight: 500;
   color: #374151;
@@ -42,7 +45,6 @@
   background-color: #EEF2FF;
   color: #6366F1;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
-  padding-right: 2rem; /* reserve space for clear button */
 }
 
 .drp-trigger-open {
@@ -57,36 +59,35 @@
 }
 
 .drp-trigger-label {
-  max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* Clear button — absolutely positioned over trigger's right padding area */
+/* Clear button — flex sibling of drp-control, matches search clear style */
 .drp-clear {
-  position: absolute;
-  right: 0.4rem;
-  top: 50%;
-  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
-  border-radius: 50%;
+  border-radius: 4px;
   background: transparent;
+  color: #9ca3af;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: color 0.15s, background-color 0.15s;
 }
 
 .drp-clear .material-symbols-outlined {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .drp-clear:hover {
-  background-color: rgba(99, 102, 241, 0.15);
+  color: #374151;
+  background-color: #f3f4f6;
 }
 
 .drp-clear:focus-visible {
@@ -130,8 +131,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
   border-radius: 6px;

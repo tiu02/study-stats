@@ -58,8 +58,8 @@ service cloud.firestore {
       match /assignments/{assignmentId} {
         allow read, delete: if isOwner();
         allow create: if isOwner()
-          && request.resource.data.keys().hasAll(['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged', 'createdAt'])
-          && request.resource.data.keys().hasOnly(['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged', 'createdAt'])
+          && request.resource.data.keys().hasAll(['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged', 'notes', 'createdAt'])
+          && request.resource.data.keys().hasOnly(['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged', 'notes', 'createdAt'])
           && request.resource.data.title is string
           && request.resource.data.title.size() >= 1
           && request.resource.data.title.size() <= 200
@@ -72,9 +72,11 @@ service cloud.firestore {
           && request.resource.data.color.size() <= 20
           && request.resource.data.totalMinutesLogged is number
           && request.resource.data.totalMinutesLogged >= 0
+          && request.resource.data.notes is string
+          && request.resource.data.notes.size() <= 2000
           && request.resource.data.createdAt == request.time;
         allow update: if isOwner()
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged'])
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'subject', 'dueDate', 'completed', 'color', 'totalMinutesLogged', 'notes'])
           && request.resource.data.title is string
           && request.resource.data.title.size() >= 1
           && request.resource.data.title.size() <= 200
@@ -86,7 +88,9 @@ service cloud.firestore {
           && request.resource.data.color is string
           && request.resource.data.color.size() <= 20
           && request.resource.data.totalMinutesLogged is number
-          && request.resource.data.totalMinutesLogged >= 0;
+          && request.resource.data.totalMinutesLogged >= 0
+          && request.resource.data.notes is string
+          && request.resource.data.notes.size() <= 2000;
       }
     }
   }

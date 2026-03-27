@@ -7,6 +7,7 @@
   background-color: #EEF2FF;
   color: #2d3748;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  animation: fadeIn 0.25s ease;
 }
 
 /* Hero section */
@@ -47,6 +48,7 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  min-height: 48px;
   transition: background-color 0.2s ease, transform 0.15s ease;
 }
 
@@ -82,11 +84,12 @@
   padding: 1.5rem;
   text-align: center;
   cursor: pointer;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .feature-card:hover {
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  transform: translateY(-2px);
 }
 
 .feature-card:focus-visible {
