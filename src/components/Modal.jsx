@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import './Modal.css'
 
-export default function Modal({ open, onClose, ariaLabel, ariaDescribedBy, role, className, children }) {
+export default function Modal({ open, onClose, ariaLabel, ariaDescribedBy, role, className, hideCloseButton, children }) {
   const overlayRef = useRef(null)
   const contentRef = useRef(null)
 
@@ -60,6 +60,11 @@ export default function Modal({ open, onClose, ariaLabel, ariaDescribedBy, role,
         aria-modal="true"
         tabIndex={-1}
       >
+        {!hideCloseButton && (
+          <button className="modal-close-btn" onClick={onClose} aria-label="Close">
+            <span className="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+        )}
         {children}
       </div>
     </div>

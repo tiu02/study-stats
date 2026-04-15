@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <div className="not-found-page">
       <div className="not-found-container">
-        <span className="not-found-icon" aria-hidden="true">&#9888;</span>
+        <span className="material-symbols-outlined not-found-icon" aria-hidden="true">warning</span>
         <h1 className="not-found-heading">404</h1>
         <p className="not-found-message">The page you're looking for doesn't exist.</p>
         <button className="not-found-button" onClick={() => navigate('/')}>

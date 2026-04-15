@@ -13,14 +13,6 @@ vi.mock('react-router-dom', async () => {
 
 vi.mock('../context/AuthContext', () => ({ useAuth: vi.fn() }))
 
-// Icons import SVGs — stub them out
-vi.mock('../components/Icons', () => ({
-  DashboardIcon: () => null,
-  SessionsIcon: () => null,
-  AssignmentsIcon: () => null,
-  PomodoroIcon: () => null,
-}))
-
 function renderLanding() {
   return render(
     <MemoryRouter>
@@ -52,18 +44,10 @@ describe('Landing', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/signup')
   })
 
-  it('shows Start Studying button when logged in', () => {
+  it('redirects to /dashboard when logged in', () => {
     useAuth.mockReturnValue({ currentUser: { uid: 'u1' } })
     renderLanding()
-    expect(screen.getByRole('button', { name: /start studying/i })).toBeInTheDocument()
-  })
-
-  it('navigates to /sessions when Start Studying is clicked', async () => {
-    const user = userEvent.setup()
-    useAuth.mockReturnValue({ currentUser: { uid: 'u1' } })
-    renderLanding()
-    await user.click(screen.getByRole('button', { name: /start studying/i }))
-    expect(mockNavigate).toHaveBeenCalledWith('/sessions')
+    expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true })
   })
 
   it('renders four feature cards', () => {
@@ -82,7 +66,7 @@ describe('Landing', () => {
   it('activates feature card navigation via Enter key', async () => {
     const user = userEvent.setup()
     renderLanding()
-    const card = screen.getByRole('link', { name: /track sessions/i })
+    const card = screen.getByRole('link', { name: /log sessions/i })
     card.focus()
     await user.keyboard('{Enter}')
     expect(mockNavigate).toHaveBeenCalledWith('/sessions')

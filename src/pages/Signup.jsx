@@ -24,7 +24,7 @@ export default function Signup() {
   const navigate = useNavigate()
 
   if (currentUser) {
-    return <Navigate to="/" />
+    return <Navigate to="/dashboard" />
   }
 
   const allRulesPassed = passwordRules.every((rule) => rule.test(password))
@@ -79,7 +79,7 @@ export default function Signup() {
 
     try {
       await signup(email, password)
-      navigate('/')
+      navigate('/dashboard')
       return
     } catch (err) {
       setError(getErrorMessage(err.code))

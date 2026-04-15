@@ -537,6 +537,7 @@
   display: flex;
   gap: 0.25rem;
   flex-shrink: 0;
+  margin-right: -0.5rem;
 }
 
 .btn-icon {
@@ -555,7 +556,7 @@
 }
 
 .btn-icon .material-symbols-outlined {
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .btn-icon:hover {

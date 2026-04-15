@@ -145,8 +145,8 @@
 /* Row 1: checkbox + info + actions */
 .assignment-card-top {
   display: flex;
-  align-items: flex-start;
-  gap: 0.65rem;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* Custom checkbox */
@@ -154,8 +154,8 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-width: 44px;
+  justify-content: flex-start;
+  min-width: 36px;
   min-height: 44px;
   cursor: pointer;
   flex-shrink: 0;
@@ -212,12 +212,11 @@
 .assignment-card-info {
   flex: 1;
   min-width: 0;
-  padding-top: 0.5rem;
 }
 
 .assignment-card-title-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.5rem;
   min-width: 0;
 }
@@ -243,11 +242,9 @@
   margin: 0;
   flex: 1;
   min-width: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Action icons — pinned to right of card top row */
@@ -256,19 +253,23 @@
   gap: 0.25rem;
   flex-shrink: 0;
   margin-left: auto;
+  margin-right: -0.5rem;
 }
 
-/* Row 2: due date + urgency + logged time + timer */
+/* Row 2+3: due date / logged + timer */
 .assignment-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-left: 40px;
+  margin-top: -0.35rem;
+}
+
+.assignment-card-meta-row {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  margin-top: 0.25rem;
-  padding-left: 44px;
-}
-
-.assignment-card-meta .assignment-timer-btn {
-  margin-left: auto;
+  margin-top: .35rem;
 }
 
 .urgency-icon {
@@ -308,9 +309,10 @@
 }
 
 .assignment-meta-sep {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #9ca3af;
   line-height: 1;
+  margin: 0.35rem;
 }
 
 .assignment-logged {
@@ -329,7 +331,7 @@
 /* Row 3: Notes — indented past checkbox, mirrors Sessions notes */
 .assignment-card-notes-wrapper {
   margin-top: 0.5rem;
-  padding-left: 44px;
+  padding-left: 40px;
 }
 
 .assignment-card-notes {
@@ -355,12 +357,12 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0 0.7rem;
+  padding: 0.2rem 0.55rem;
   height: auto;
-  min-height: 44px;
+  min-height: 32px;
   border: none;
   border-radius: 7px;
- background-color: rgba(99, 102, 241, 0.1);
+  background-color: rgba(99, 102, 241, 0.1);
   color: #6366F1;
   font-size: 0.8rem;
   font-weight: 600;
@@ -412,14 +414,19 @@
   max-width: 340px;
   box-sizing: border-box;
   margin: 0 auto;
+  position: relative;
 }
 
 .pomodoro-modal-header {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
   margin-bottom: 1.75rem;
   min-width: 0;
+  padding-right: 2.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .pomodoro-modal-title {
@@ -427,7 +434,7 @@
   font-weight: 700;
   color: #1f2937;
   margin: 0;
-  flex: 1;
+  width: 100%;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -601,12 +608,20 @@
     padding: 0.85rem 1rem;
   }
 
+  .assignment-card-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+
   .assignment-card-title {
     font-size: 0.95rem;
+    width: 100%;
   }
 
   .assignment-card-meta {
-    padding-left: 44px;
+    padding-left: 40px;
+    padding-top: 0.5rem;
   }
 
   .assignment-card-actions {

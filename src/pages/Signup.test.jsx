@@ -39,7 +39,7 @@ describe('Signup', () => {
   it('redirects to / when already logged in', () => {
     useAuth.mockReturnValue({ signup: mockSignup, currentUser: { uid: 'u1' } })
     renderSignup()
-    expect(screen.getByTestId('navigate')).toHaveAttribute('data-to', '/')
+    expect(screen.getByTestId('navigate')).toHaveAttribute('data-to', '/dashboard')
   })
 
   it('shows password hint when password field is focused and rules not met', async () => {
@@ -78,7 +78,7 @@ describe('Signup', () => {
     await user.type(screen.getByLabelText(/confirm password/i), 'Abcdef1!')
     await user.click(screen.getByRole('button', { name: /sign up/i }))
     await waitFor(() => expect(mockSignup).toHaveBeenCalledWith('test@example.com', 'Abcdef1!'))
-    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/'))
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/dashboard'))
   })
 
   it('shows error message when signup throws', async () => {

@@ -42,6 +42,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.2rem;
   cursor: pointer;
   transition: box-shadow 0.2s, transform 0.2s;
@@ -66,6 +67,7 @@
   font-size: 1.375rem;
   color: #6366F1;
   line-height: 1;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 .stat-card-value {
@@ -84,13 +86,21 @@
   line-height: 1.3;
 }
 
+.stat-card-subvalue {
+  display: none; /* shown only on mobile where hours card is tall */
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #6b7280;
+  line-height: 1;
+}
+
 /* Overdue card: red accents when count > 0 */
 .stat-card-overdue .stat-card-icon { color: #dc2626; }
 .stat-card-overdue .stat-card-value { color: #dc2626; }
 
-/* Streak card: orange accents when streak > 0 */
-.stat-card-streak .stat-card-icon { color: #f97316; }
-.stat-card-streak .stat-card-value { color: #f97316; }
+/* Streak card: indigo accents when streak > 0 */
+.stat-card-streak .stat-card-icon { color: #6366F1; }
+.stat-card-streak .stat-card-value { color: #6366F1; }
 
 /* ── Progress Bar ── */
 
@@ -145,40 +155,35 @@
   animation: progressCelebrate 0.5s ease;
 }
 
-/* CSS pseudo-element confetti particles */
-.progress-100::before,
-.progress-100::after {
-  content: '';
-  position: absolute;
-  top: -4px;
-  width: 7px;
-  height: 7px;
-  border-radius: 2px;
-  opacity: 0;
-  animation: confettiFloat 1.5s ease 0.2s forwards;
-}
-
-.progress-100::before {
-  left: 25%;
-  background: #6366F1;
-}
-
-.progress-100::after {
-  right: 25%;
-  background: #059669;
-  animation-delay: 0.4s;
-}
-
-@keyframes confettiFloat {
-  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
-  80%  { opacity: 0.6; }
-  100% { transform: translateY(-36px) rotate(540deg); opacity: 0; }
-}
-
 @keyframes progressCelebrate {
   0%   { transform: scale(0.8); opacity: 0; }
   60%  { transform: scale(1.05); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Full-page confetti overlay ── */
+.confetti-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 999;
+  overflow: hidden;
+}
+
+.confetti-particle {
+  position: fixed;
+  top: 45vh;
+  left: 50%;
+  animation: confettiBurst 3s ease-out forwards;
+}
+
+@keyframes confettiBurst {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+  70%  { opacity: 0.9; }
+  100% { transform: translate(var(--p-tx), var(--p-ty)) rotate(var(--p-rot)) scale(0.4); opacity: 0; }
 }
 
 /* No assignments state */
@@ -289,11 +294,11 @@
 }
 
 .period-range-label {
-  font-size: 0.8rem;
-  color: #6b7280;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
   text-align: center;
   margin: 0;
-  font-style: italic;
 }
 
 /* ── List Sections ── */
@@ -324,9 +329,17 @@
   padding: 0.625rem 1rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.45rem;
   flex-wrap: wrap;
+  overflow: hidden;
   transition: box-shadow 0.15s, transform 0.15s;
+  /* button reset */
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
 }
 
 .dash-session-card:hover {
@@ -334,7 +347,75 @@
   transform: translateY(-1px);
 }
 
-/* ── Class Badge Pill (shared) ── */
+.dash-session-card:focus-visible,
+.dash-deadline-card:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+/* Status icon — mirrors Sessions page */
+.dash-status-icon {
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.dash-status-complete    { color: #059669; }
+.dash-status-in-progress { color: #d97706; }
+.dash-status-incomplete  { color: #dc2626; }
+
+/* Subject with color underline — mirrors session-card-subject */
+.dash-session-subject {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #4b5563;
+  border-bottom: 2px solid #6366F1;
+  padding-bottom: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+  flex-shrink: 1;
+}
+
+/* Meta row: date · duration · pomodoro badge */
+.dash-session-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+/* Shared separator dot */
+.dash-sep {
+  font-size: 0.9rem;
+  line-height: 1;
+  color: #d1d5db;
+  flex-shrink: 0;
+}
+
+.dash-duration {
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Pomodoro badge — mirrors session-pomodoro-badge */
+.dash-pomodoro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6366F1;
+  white-space: nowrap;
+}
+
+.dash-pomodoro-icon {
+  font-size: 14px;
+}
+
+/* ── Class Badge Pill (deadline cards) ── */
 
 .dash-class-pill {
   display: inline-block;
@@ -344,32 +425,13 @@
   font-weight: 600;
   color: #fff;
   white-space: nowrap;
-  max-width: 140px;
+  max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
   flex-shrink: 0;
 }
 
-.dash-session-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.8rem;
-  color: #6b7280;
-}
-
-.dash-sep {
-  font-size: 0.9rem;
-  line-height: 1;
-  color: #d1d5db;
-}
-
-.dash-duration {
-  font-weight: 600;
-  color: #374151;
-}
-
-/* ── Deadline Compact Card ── */
+/* ── Deadline Compact Card — mirrors assignments card ── */
 
 .dash-deadline-card {
   background: #fff;
@@ -379,8 +441,15 @@
   padding: 0.625rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.25rem;
   transition: box-shadow 0.15s, transform 0.15s;
+  /* button reset */
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
 }
 
 .dash-deadline-card:hover {
@@ -388,39 +457,72 @@
   transform: translateY(-1px);
 }
 
-.dash-deadline-top {
+/* Row 1: class badge pill + title */
+.dash-deadline-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.dash-deadline-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1f2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Row 2: urgency icon + due date · timer + logged */
+.dash-deadline-meta {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
+  flex-wrap: wrap;
 }
 
 .dash-urgency-icon {
-  font-size: 0.975rem;
-  line-height: 1;
+  font-size: 16px;
+  flex-shrink: 0;
 }
 
 .dash-urgency-overdue { color: #dc2626; }
 .dash-urgency-urgent  { color: #dc2626; }
 .dash-urgency-soon    { color: #d97706; }
 
-.dash-deadline-title {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #1f2937;
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .dash-due-date {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #6b7280;
 }
 
 .dash-due-overdue { color: #dc2626; font-weight: 600; }
 .dash-due-urgent  { color: #dc2626; font-weight: 600; }
 .dash-due-soon    { color: #d97706; font-weight: 600; }
+
+/* Separator and logged time — mirrors assignment-meta-sep / assignment-logged */
+.dash-meta-sep {
+  font-size: 1rem;
+  color: #9ca3af;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.dash-logged {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: #6366F1;
+  white-space: nowrap;
+}
+
+.dash-logged-icon {
+  font-size: 14px;
+}
 
 /* ── Empty States ── */
 
@@ -496,13 +598,41 @@
 
 /* ── Responsive ── */
 
+@media (max-width: 640px) {
+  .dashboard-heading {
+    font-size: 1.5rem;
+  }
+}
+
 @media (max-width: 480px) {
   .dashboard-page {
     padding: 1.5rem 1rem 2rem;
   }
 
+  /* 3-column grid; hours card on left spans 2 rows */
   .stat-cards-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stat-card-hours {
+    grid-row: span 2;
+    justify-content: center;
+  }
+
+  .stat-card-subvalue {
+    display: block;
+  }
+
+  /* Swap Overdue (4th) and Streak (5th) so Overdue sits under Deadlines */
+  .stat-cards-grid > :nth-child(4) { order: 5; }
+  .stat-cards-grid > :nth-child(5) { order: 4; }
+
+  .stat-card-hours .stat-card-value {
+    font-size: 1.75rem;
+  }
+
+  .stat-card-hours .stat-card-icon {
+    font-size: 1.5rem;
   }
 
   .stat-card-value {
@@ -520,11 +650,5 @@
 
   .dash-class-pill {
     max-width: 110px;
-  }
-}
-
-@media (max-width: 360px) {
-  .stat-cards-grid {
-    grid-template-columns: repeat(2, 1fr);
   }
 }

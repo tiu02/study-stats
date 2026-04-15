@@ -8,12 +8,11 @@ const today = () => format(new Date(), 'yyyy-MM-dd')
 /* Urgency-safe presets — no red/amber/green (reserved for urgency indicators) */
 const COLOR_PRESETS = [
   { value: '#6366F1', label: 'Indigo' },
-  { value: '#2563EB', label: 'Cobalt' },
-  { value: '#06B6D4', label: 'Cyan' },
+  { value: '#0c52ea', label: 'Cobalt' },
+  { value: '#05bdec', label: 'Cyan' },
   { value: '#A855F7', label: 'Purple' },
-  { value: '#EC4899', label: 'Pink' },
-  { value: '#F97316', label: 'Orange' },
-  { value: '#64748B', label: 'Slate' },
+  { value: '#f552dc', label: 'Pink' },
+  { value: '#fccd11', label: 'Orange' },
 ]
 
 function toDateString(value) {

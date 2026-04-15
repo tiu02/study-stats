@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   startOfDay, endOfDay,
@@ -12,7 +12,7 @@ import {
 } from 'date-fns'
 import { useAuth } from '../context/AuthContext'
 import { useSessions, useAssignments } from '../hooks/useFirestore'
-import { formatDuration, formatDate, getUrgency } from '../utils/format'
+import { formatDuration, formatDate, getUrgency, STATUS_LABELS } from '../utils/format'
 import './Dashboard.css'
 
 // ── Helpers ──────────────────────────────────────────────
@@ -53,6 +53,25 @@ function progressColor(pct) {
   return '#dc2626'
 }
 
+const STATUS_ICONS = {
+  'complete':    'check_circle',
+  'in-progress': 'pending',
+  'incomplete':  'cancel',
+}
+
+// ── Confetti burst directions (tx = horizontal px, ty = vertical px from center) ──
+const CONFETTI_DATA = [
+  { tx: -320, ty: 280 }, { tx: 290, ty: 350 }, { tx: -180, ty: 200 },
+  { tx: 360, ty: 420 }, { tx: -90, ty: 310 }, { tx: 230, ty:  90 },
+  { tx: -300, ty: 390 }, { tx: 160, ty: 160 }, { tx: -240, ty: 330 },
+  { tx: 370, ty: 460 }, { tx: -120, ty: -40 }, { tx: 260, ty: 370 },
+  { tx: -380, ty: 220 }, { tx: 190, ty: 490 }, { tx: -150, ty: 130 },
+  { tx: 330, ty: 300 }, { tx:  -70, ty: 370 }, { tx: 280, ty:  60 },
+  { tx: -260, ty: 440 }, { tx: 110, ty: 230 },
+]
+
+const CONFETTI_COLORS = ['#6366F1','#D946EF','#06B6D4','#059669','#A855F7','#f97316']
+
 // ── Component ─────────────────────────────────────────────
 
 export default function Dashboard() {
@@ -63,6 +82,7 @@ export default function Dashboard() {
 
   const [viewMode, setViewMode] = useState('week') // 'today' | 'week' | 'month'
   const [offset, setOffset] = useState(0)          // 0 = current period
+  const [confettiActive, setConfettiActive] = useState(false)
 
   const loading = sessionsLoading || assignmentsLoading
 
@@ -211,6 +231,14 @@ export default function Dashboard() {
     return 'this month'
   }, [offset, viewMode])
 
+  useEffect(() => {
+    if (weeklyProgress?.pct === 100) {
+      setConfettiActive(true)
+      const id = setTimeout(() => setConfettiActive(false), 3500)
+      return () => clearTimeout(id)
+    }
+  }, [weeklyProgress?.pct])
+
   // ── Render ──────────────────────────────────────────────
 
   if (loading) {
@@ -231,12 +259,17 @@ export default function Dashboard() {
         {/* ── Stat Cards ── */}
         <div className="stat-cards-grid">
           <button
-            className="stat-card"
+            className="stat-card stat-card-hours"
             onClick={() => navigate('/sessions')}
             aria-label={`${formatDuration(minutesThisWeek)} studied this week. Go to Sessions.`}
           >
             <span className="stat-card-icon material-symbols-outlined" aria-hidden="true">schedule</span>
-            <span className="stat-card-value">{formatDuration(minutesThisWeek)}</span>
+            <span className="stat-card-value">
+              {Math.floor(minutesThisWeek / 60) > 0 ? `${Math.floor(minutesThisWeek / 60)}h` : `${minutesThisWeek}m`}
+            </span>
+            {Math.floor(minutesThisWeek / 60) > 0 && minutesThisWeek % 60 > 0 && (
+              <span className="stat-card-subvalue">{minutesThisWeek % 60}m</span>
+            )}
             <span className="stat-card-label">Hours This Week</span>
           </button>
 
@@ -357,46 +390,6 @@ export default function Dashboard() {
 
           <p className="period-range-label" aria-live="polite">{rangeLabel}</p>
 
-          {/* Recent Sessions */}
-          <section aria-labelledby="dash-sessions-heading">
-            <h2 id="dash-sessions-heading" className="list-section-heading">Recent Sessions</h2>
-            {filteredSessions.length === 0 ? (
-              <div className="empty-state">
-                <span className="material-symbols-outlined empty-state-icon" aria-hidden="true">menu_book</span>
-                <p>No sessions logged {periodName}.</p>
-                {offset === 0 && (
-                  <button className="btn-empty-action" onClick={() => navigate('/sessions')}>
-                    <span className="material-symbols-outlined" aria-hidden="true">add_circle</span>
-                    Log a Session
-                  </button>
-                )}
-              </div>
-            ) : (
-              <ul className="dash-list">
-                {filteredSessions.map(s => (
-                  <li
-                    key={s.id}
-                    className="dash-session-card"
-                    style={{ borderLeftColor: s.color || '#6366F1' }}
-                  >
-                    <span
-                      className="dash-class-pill"
-                      style={{ backgroundColor: s.color || '#6366F1' }}
-                      title={s.subject}
-                    >
-                      {s.subject}
-                    </span>
-                    <span className="dash-session-meta">
-                      <span className="dash-duration">{formatDuration(s.duration)}</span>
-                      <span className="dash-sep" aria-hidden="true">&middot;</span>
-                      <span className="dash-date">{formatDate(s.date)}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
           {/* Upcoming Deadlines */}
           <section aria-labelledby="dash-deadlines-heading">
             <h2 id="dash-deadlines-heading" className="list-section-heading">Upcoming Deadlines</h2>
@@ -415,39 +408,111 @@ export default function Dashboard() {
               <ul className="dash-list">
                 {filteredDeadlines.map(a => {
                   const urgency = getUrgency(a.dueDate)
+                  const color = a.color || '#6366F1'
+                  const logged = a.totalMinutesLogged || 0
                   return (
-                    <li
-                      key={a.id}
-                      className="dash-deadline-card"
-                      style={{ borderLeftColor: a.color || '#6366F1' }}
-                    >
-                      <div className="dash-deadline-top">
-                        <span
-                          className="dash-class-pill"
-                          style={{ backgroundColor: a.color || '#6366F1' }}
-                          title={a.subject}
-                        >
-                          {a.subject}
-                        </span>
-                        {urgency && (
+                    <li key={a.id}>
+                      <button
+                        className="dash-deadline-card"
+                        style={{ borderLeftColor: color }}
+                        onClick={() => navigate('/assignments')}
+                        aria-label={`${a.title}, ${a.subject}, due ${formatDate(a.dueDate)}. Go to Assignments.`}
+                      >
+                        {/* Row 1: class badge pill + title */}
+                        <div className="dash-deadline-title-row">
                           <span
-                            className={`material-symbols-outlined dash-urgency-icon dash-urgency-${urgency}`}
-                            aria-label={
-                              urgency === 'overdue'
-                                ? 'Overdue'
-                                : urgency === 'urgent'
-                                ? 'Due very soon'
-                                : 'Due soon'
-                            }
+                            className="dash-class-pill"
+                            style={{ backgroundColor: color }}
+                            title={a.subject}
                           >
-                            warning
+                            {a.subject}
                           </span>
-                        )}
-                      </div>
-                      <p className="dash-deadline-title">{a.title}</p>
-                      <span className={`dash-due-date${urgency ? ` dash-due-${urgency}` : ''}`}>
-                        Due {formatDate(a.dueDate)}
-                      </span>
+                          <span className="dash-deadline-title">{a.title}</span>
+                        </div>
+                        {/* Row 2: urgency icon + due date · timer + logged */}
+                        <div className="dash-deadline-meta">
+                          {urgency && (
+                            <span
+                              className={`material-symbols-outlined dash-urgency-icon dash-urgency-${urgency}`}
+                              aria-hidden="true"
+                            >
+                              warning
+                            </span>
+                          )}
+                          <span className={`dash-due-date${urgency ? ` dash-due-${urgency}` : ''}`}>
+                            {urgency === 'overdue' ? `Overdue: ${formatDate(a.dueDate)}` : `Due ${formatDate(a.dueDate)}`}
+                          </span>
+                          {logged > 0 && (
+                            <>
+                              <span className="dash-meta-sep" aria-hidden="true">&bull;</span>
+                              <span className="dash-logged">
+                                <span className="material-symbols-outlined dash-logged-icon" aria-hidden="true">timer</span>
+                                {formatDuration(logged)} logged
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </section>
+
+          {/* Recent Sessions */}
+          <section aria-labelledby="dash-sessions-heading">
+            <h2 id="dash-sessions-heading" className="list-section-heading">Recent Sessions</h2>
+            {filteredSessions.length === 0 ? (
+              <div className="empty-state">
+                <span className="material-symbols-outlined empty-state-icon" aria-hidden="true">menu_book</span>
+                <p>No sessions logged {periodName}.</p>
+                {offset === 0 && (
+                  <button className="btn-empty-action" onClick={() => navigate('/sessions')}>
+                    <span className="material-symbols-outlined" aria-hidden="true">add_circle</span>
+                    Log a Session
+                  </button>
+                )}
+              </div>
+            ) : (
+              <ul className="dash-list">
+                {filteredSessions.map(s => {
+                  const statusKey = s.status || 'complete'
+                  const color = s.color || '#6366F1'
+                  return (
+                    <li key={s.id}>
+                      <button
+                        className="dash-session-card"
+                        style={{ borderLeftColor: color }}
+                        onClick={() => navigate('/sessions')}
+                        aria-label={`${s.subject}, ${STATUS_LABELS[statusKey] || 'Complete'}, ${formatDuration(s.duration)}, ${formatDate(s.date)}. Go to Sessions.`}
+                      >
+                        <span
+                          role="img"
+                          aria-hidden="true"
+                          className={`material-symbols-outlined dash-status-icon dash-status-${statusKey}`}
+                        >
+                          {STATUS_ICONS[statusKey] || 'check_circle'}
+                        </span>
+                        <span className="dash-session-subject" style={{ borderBottomColor: color }}>
+                          {s.subject}
+                        </span>
+                        <span className="dash-sep" aria-hidden="true">&middot;</span>
+                        <span className="dash-session-meta">
+                          <span className="dash-date">{formatDate(s.date)}</span>
+                          <span className="dash-sep" aria-hidden="true">&middot;</span>
+                          <span className="dash-duration">{formatDuration(s.duration)}</span>
+                          {s.assignmentId && (
+                            <>
+                              <span className="dash-sep" aria-hidden="true">&middot;</span>
+                              <span className="dash-pomodoro-badge">
+                                <span className="material-symbols-outlined dash-pomodoro-icon" aria-hidden="true">timer</span>
+                                Pomodoro
+                              </span>
+                            </>
+                          )}
+                        </span>
+                      </button>
                     </li>
                   )
                 })}
@@ -456,6 +521,26 @@ export default function Dashboard() {
           </section>
         </div>
       </div>
+      {confettiActive && (
+        <div className="confetti-overlay" aria-hidden="true">
+          {CONFETTI_DATA.map((d, i) => (
+            <div
+              key={i}
+              className="confetti-particle"
+              style={{
+                '--p-tx': `${d.tx}px`,
+                '--p-ty': `${d.ty}px`,
+                '--p-rot': `${(i * 137) % 720}deg`,
+                backgroundColor: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+                animationDelay: `${(i * 0.06) % 0.6}s`,
+                width: i % 3 === 0 ? '12px' : '8px',
+                height: i % 3 === 0 ? '12px' : '8px',
+                borderRadius: i % 2 === 0 ? '2px' : '50%',
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

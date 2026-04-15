@@ -15,10 +15,10 @@ export default function Login() {
   const { login, currentUser } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const redirectTo = location.state?.from || '/'
+  const redirectTo = location.state?.from || '/dashboard'
 
   if (currentUser) {
-    return <Navigate to="/" />
+    return <Navigate to="/dashboard" />
   }
 
   function getFieldError(field) {

@@ -35,3 +35,6 @@ coverage/
 transcripts/
 docs/
 plans/
+
+# Local Netlify folder
+.netlify

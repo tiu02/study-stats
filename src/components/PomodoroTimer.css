@@ -258,12 +258,12 @@
 .pomodoro-vertical .pomodoro-right {
   width: 100%;
   align-items: center;
-  gap: 0.65rem;
+  gap: 1rem;
 }
 
 .pomodoro-vertical .pomodoro-config {
   justify-content: center;
-  gap: 1.25rem;
+  gap: 1.2rem;
 }
 
 .pomodoro-vertical .pomodoro-config-label {
@@ -284,7 +284,7 @@
 
 .pomodoro-vertical .pomodoro-controls {
   justify-content: center;
-  gap: 0.65rem;
+  gap: 1.25rem;
 }
 
 .pomodoro-vertical .pomodoro-btn {
@@ -325,7 +325,7 @@
 
   .pomodoro-right {
     min-width: 0;
-    flex: 1 1 140px;
+
   }
 
   .pomodoro-config {

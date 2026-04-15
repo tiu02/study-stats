@@ -289,7 +289,7 @@ const PomodoroTimer = forwardRef(function PomodoroTimer(
 
         {/* SVG progress ring with centered time overlay */}
         <div className="pomodoro-ring-wrap">
-          <svg viewBox="0 0 72 72" aria-hidden="true">
+          <svg viewBox="0 0 72 72" aria-hidden="true" style={{ transform: 'scaleX(-1)' }}>
             <circle cx="36" cy="36" r={RADIUS} fill="none" stroke="#e5e7eb" strokeWidth="5" />
             <circle
               cx="36" cy="36" r={RADIUS}

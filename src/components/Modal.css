@@ -17,6 +17,40 @@
   overflow-y: auto;
   border-radius: 12px;
   outline: none;
+  position: relative;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: #9ca3af;
+  cursor: pointer;
+  z-index: 1;
+  transition: color 0.15s, background-color 0.15s;
+  font-family: inherit;
+}
+
+.modal-close-btn:hover {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.modal-close-btn:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+.modal-close-btn .material-symbols-outlined {
+  font-size: 20px;
 }
 
 /* ===== Mobile ===== */

@@ -36,8 +36,10 @@
 .not-found-icon {
   display: block;
   font-size: 4rem;
+  line-height: 1;
   margin-bottom: 0.5rem;
-  color: #6366F1;
+  color: #dc2626;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
 }
 
 .not-found-heading {

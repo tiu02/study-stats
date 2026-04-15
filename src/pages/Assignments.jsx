@@ -309,9 +309,13 @@ export default function Assignments() {
         onClose={closeTimerModal}
         ariaLabel={`Timer — ${timerAssignment?.title || 'assignment'}`}
         className="modal-overlay-centered"
+        hideCloseButton
       >
         {timerAssignment && (
           <div className="pomodoro-modal-box">
+            <button className="modal-close-btn" onClick={closeTimerModal} aria-label="Close">
+              <span className="material-symbols-outlined" aria-hidden="true">close</span>
+            </button>
             <div className="pomodoro-modal-header">
               <span
                 className="class-badge"
@@ -471,38 +475,43 @@ function AssignmentCard({
         </div>
       </div>
 
-      {/* Row 2: Due date + urgency + logged time + Timer button */}
+      {/* Row 2: Due date + urgency */}
+      {/* Row 3: Logged time + Timer button */}
       <div className="assignment-card-meta">
-        {urgency && (
-          <span className={`material-symbols-outlined urgency-icon urgency-${urgency}`} aria-hidden="true">
-            warning
-          </span>
-        )}
-        <span className={`assignment-due-date${urgency ? ` urgency-${urgency}` : ''}`}>
-          {urgency === 'overdue' && 'Overdue \u2014 '}
-          Due {formatDate(a.dueDate)}
-        </span>
-        {logged > 0 && (
-          <>
-            <span className="assignment-meta-sep" aria-hidden="true">&bull;</span>
-            <span className="assignment-logged">
-              <span className="material-symbols-outlined assignment-logged-icon" aria-hidden="true">timer</span>
-              {formatDuration(logged)} logged
+        <div className="assignment-card-meta-row">
+          {urgency && (
+            <span className={`material-symbols-outlined urgency-icon urgency-${urgency}`} aria-hidden="true">
+              warning
             </span>
-          </>
-        )}
-        {!a.completed && (
-          <button
-            type="button"
-            className={`assignment-timer-btn${isActive ? ' active' : ''}`}
-            onClick={onTimerOpen}
-            aria-label={`Open timer for ${a.title}`}
-            title="Focus Timer"
-          >
-            {isActive && <span className="assignment-timer-btn-dot" aria-hidden="true" />}
-            <span className="material-symbols-outlined" aria-hidden="true">timer</span>
-            Timer
-          </button>
+          )}
+          <span className={`assignment-due-date${urgency ? ` urgency-${urgency}` : ''}`}>
+            {urgency === 'overdue' ? `Overdue: ${formatDate(a.dueDate)}` : `Due ${formatDate(a.dueDate)}`}
+          </span>
+        </div>
+        {(logged > 0 || !a.completed) && (
+          <div className="assignment-card-meta-row">
+            {!a.completed && (
+              <button
+                type="button"
+                className={`assignment-timer-btn${isActive ? ' active' : ''}`}
+                onClick={onTimerOpen}
+                aria-label={`Open timer for ${a.title}`}
+                title="Focus Timer"
+              >
+                {isActive && <span className="assignment-timer-btn-dot" aria-hidden="true" />}
+                <span className="material-symbols-outlined" aria-hidden="true">timer</span>
+                Timer
+              </button>
+            )}
+            {!a.completed && logged > 0 && (
+              <span className="assignment-meta-sep" aria-hidden="true">&bull;</span>
+            )}
+            {logged > 0 && (
+              <span className="assignment-logged">
+                {formatDuration(logged)} logged
+              </span>
+            )}
+          </div>
         )}
       </div>
 

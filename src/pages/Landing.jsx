@@ -1,10 +1,14 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { DashboardIcon, SessionsIcon, AssignmentsIcon, PomodoroIcon } from '../components/Icons'
 
 export default function Landing() {
   const { currentUser } = useAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (currentUser) navigate('/dashboard', { replace: true })
+  }, [currentUser, navigate])
 
   return (
     <div className="landing">
@@ -17,33 +21,27 @@ export default function Landing() {
           Pomodoro timer, and view weekly progress summarizing total hours
           studied, sessions completed, and due dates.
         </p>
-        {currentUser ? (
-          <button className="cta-button" onClick={() => navigate('/sessions')}>
-            Start Studying
-          </button>
-        ) : (
-          <button className="cta-button" onClick={() => navigate('/signup')}>
-            Get Started
-          </button>
-        )}
+        <button className="cta-button" onClick={() => navigate('/signup')}>
+          Get Started
+        </button>
       </header>
 
       <section className="features" aria-label="App features">
         <div className="feature-card" onClick={() => navigate('/dashboard')} onKeyDown={(e) => e.key === 'Enter' && navigate('/dashboard')} role="link" tabIndex={0}>
-          <h3><span className="feature-icon" aria-hidden="true"><DashboardIcon size={22} /></span> Weekly Progress</h3>
+          <h3><span className="material-symbols-outlined feature-icon" aria-hidden="true">grid_view</span> Weekly Progress</h3>
           <p>Review hours studied, sessions completed, and upcoming dates.</p>
         </div>
+        <div className="feature-card" onClick={() => navigate('/assignments')} onKeyDown={(e) => e.key === 'Enter' && navigate('/assignments')} role="link" tabIndex={0}>
+          <h3><span className="material-symbols-outlined feature-icon" aria-hidden="true">assignment</span> Track Assignments</h3>
+          <p>Stay on top of assignments with organized due-date tracking.</p>
+        </div>
         <div className="feature-card" onClick={() => navigate('/sessions')} onKeyDown={(e) => e.key === 'Enter' && navigate('/sessions')} role="link" tabIndex={0}>
-          <h3><span className="feature-icon" aria-hidden="true"><SessionsIcon size={22} /></span> Track Sessions</h3>
+          <h3><span className="material-symbols-outlined feature-icon" aria-hidden="true">menu_book</span> Log Sessions</h3>
           <p>Log every study session and watch your consistency grow.</p>
         </div>
         <div className="feature-card" onClick={() => navigate('/assignments')} onKeyDown={(e) => e.key === 'Enter' && navigate('/assignments')} role="link" tabIndex={0}>
-          <h3><span className="feature-icon" aria-hidden="true"><AssignmentsIcon size={22} /></span> Manage Deadlines</h3>
-          <p>Stay on top of assignments with organized due-date tracking.</p>
-        </div>
-        <div className="feature-card" onClick={() => navigate('/pomodoro')} onKeyDown={(e) => e.key === 'Enter' && navigate('/pomodoro')} role="link" tabIndex={0}>
-          <h3><span className="feature-icon" aria-hidden="true"><PomodoroIcon size={22} /></span> Pomodoro Timer</h3>
-          <p>Stay focused with built-in timed study intervals.</p>
+          <h3><span className="material-symbols-outlined feature-icon" aria-hidden="true">timer</span> Pomodoro Timer</h3>
+          <p>Stay focused with timed study intervals. Access the timer from any assignment.</p>
         </div>
       </section>
 

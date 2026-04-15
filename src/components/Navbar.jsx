@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { DashboardIcon, SessionsIcon, AssignmentsIcon, ProfileIcon } from './Icons'
 import './Navbar.css'
 
 const protectedPaths = ['/dashboard', '/sessions', '/assignments']
@@ -11,9 +10,23 @@ export default function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const profileRef = useRef(null)
+
+  useEffect(() => {
+    if (!profileOpen) return
+    function handleClickOutside(e) {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [profileOpen])
 
   async function handleLogout() {
     setMenuOpen(false)
+    setProfileOpen(false)
     try {
       await logout()
       if (!protectedPaths.includes(location.pathname)) {
@@ -53,17 +66,38 @@ export default function Navbar() {
         {currentUser ? (
           <>
             <div className="navbar-links">
-              <NavLink to="/dashboard" onClick={handleNavClick}><DashboardIcon /> Dashboard</NavLink>
-              <NavLink to="/sessions" onClick={handleNavClick}><SessionsIcon /> Sessions</NavLink>
-              <NavLink to="/assignments" onClick={handleNavClick}><AssignmentsIcon /> Assignments</NavLink>
+              <NavLink to="/dashboard" onClick={handleNavClick}>
+                <span className="material-symbols-outlined nav-link-icon" aria-hidden="true">grid_view</span>
+                Dashboard
+              </NavLink>
+              <NavLink to="/assignments" onClick={handleNavClick}>
+                <span className="material-symbols-outlined nav-link-icon" aria-hidden="true">assignment</span>
+                Assignments
+              </NavLink>
+              <NavLink to="/sessions" onClick={handleNavClick}>
+                <span className="material-symbols-outlined nav-link-icon" aria-hidden="true">menu_book</span>
+                Sessions
+              </NavLink>
             </div>
             <div className="navbar-right">
               <button className="navbar-logout" onClick={handleLogout}>
                 Log Out
               </button>
-              <span className="navbar-profile" title={currentUser.email} aria-label={currentUser.email}>
-                <ProfileIcon />
-              </span>
+              <div className="navbar-profile-wrap" ref={profileRef}>
+                <button
+                  className="navbar-profile"
+                  onClick={() => setProfileOpen(o => !o)}
+                  aria-label="Account"
+                  aria-expanded={profileOpen}
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">person</span>
+                </button>
+                {profileOpen && (
+                  <div className="navbar-profile-dropdown" role="status" aria-label="Signed in as">
+                    <span className="profile-dropdown-name">{currentUser.displayName || currentUser.email}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </>
         ) : (
