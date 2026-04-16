@@ -4,6 +4,18 @@
 - Live at https://study-stats.netlify.app/
   - (Netlify env vars configured, SPA redirect via `public/_redirects`)
 
+- **Netlify Serverless Functions**: Configured
+  - `netlify.toml` — build command `npm run build`, publish `dist`, functions directory `netlify/functions/`
+  - `netlify/functions/youtube-search.js` — proxies YouTube Data API v3 search; reads `YOUTUBE_API_KEY` from `process.env`; validates/caps query; returns `{ items: [{ videoId, title, channelTitle, thumbnail }] }`; maps 401/403/network errors to friendly responses
+  - `netlify/functions/quotes.js` — proxies type.fit quotes API server-side to avoid browser CORS restrictions; no API key required; sets `Cache-Control: public, max-age=3600`
+  - `netlify-cli` added as devDependency; `netlify:dev` script added to `package.json` for local function testing
+  - `YOUTUBE_API_KEY` must be set in `.env.local` (local) and Netlify dashboard environment variables (production)
+
+- **Study Vibe — Quote Widget**: In Progress (Phase 4)
+  - Dashboard restructured to two-column layout: full-width top (heading, stat cards, progress bar) + `dashboard-main` left column (toggle + lists) + `dashboard-sidebar` right column (sticky on desktop, stacks below lists on mobile at ≤768px)
+  - `StudyVibeQuote` component: fetches quotes via `/.netlify/functions/quotes`; 24h localStorage cache (`study_vibe_quote`); crossfade refresh (280ms); picks random quote from full array in memory on refresh (no re-fetch); 3-line clamp with Show more/less toggle (isClamped measured via scrollHeight); author + toggle on same line (author left, toggle right via `margin-left: auto`); left accent bar styling (3px indigo-to-purple gradient border); 15-quote local fallback pool when function unreachable; loading skeleton with shimmer animation
+  - `music_note_2` icon + indigo-to-purple gradient "Study Vibe" title in card header
+
 - **Firebase**: Configured
   - (SDK installed, env vars set in `.env.local` and Netlify environment variables)
 
@@ -224,6 +236,11 @@
 - Closing the timer modal while the timer is paused also silently resets it — forceStop is called on modal close by design.
 - `forceStart()` remains in PomodoroTimer's `useImperativeHandle` but is no longer called anywhere — `confirmStopAndStart` now uses the `autoStart` prop + modal swap instead. Safe to remove in a cleanup pass.
 - Remaining test coverage gaps: SessionForm, DatePicker, and DateRangePicker have no dedicated test files. All three are exercised indirectly (DateRangePicker via Sessions.test.jsx filter tests; DatePicker mocked in AssignmentForm.test.jsx).
+- `music_note_2` may not be a valid Material Symbols Outlined ligature — verify rendering in production; swap to a confirmed icon (e.g. `headphones`) if it renders as fallback text.
+- type.fit quotes API has CORS restrictions from the browser — proxied through `/.netlify/functions/quotes`. Requires `netlify dev` for local testing; `npm run dev` alone will not reach the function.
+- 15-quote local fallback pool activates silently when the Netlify function is unreachable (offline or cold start). Quotes cycle randomly so refresh always returns a different quote.
+- Quote truncation (3-line clamp + Show more) not yet verified in browser — requires `netlify dev` + long-quote localStorage test to confirm `isClamped` detection works correctly.
 
 ## Next Steps
-1. Start Phase 3: Netlify Serverless Function Setup — proxy YouTube Data API calls server-side to keep the API key out of the browser.
+1. Complete Phase 4: Study Vibe card — verify quote truncation/Show more, confirm `music_note_2` icon renders, test with `netlify dev`.
+2. Start Phase 5: YouTube Music API — add study music component to the Dashboard.

@@ -1,0 +1,218 @@
+/* ── Study Vibe — Quote Card ── */
+
+.svq-card {
+  background: #fff;
+  border: 1px solid #c7d2fe;
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.svq-card:hover {
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+  transform: translateY(-1px);
+}
+
+/* ── Header row: title group + refresh button ── */
+
+.svq-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.svq-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.svq-music-icon {
+  font-size: 1.25rem;
+  background: linear-gradient(135deg, #6366F1, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  line-height: 1;
+}
+
+.svq-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #6366F1, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.svq-refresh-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: color 0.15s, background-color 0.15s;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.svq-refresh-btn:hover:not(:disabled) {
+  color: #6366F1;
+  background: #EEF2FF;
+}
+
+.svq-refresh-btn:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+.svq-refresh-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.svq-refresh-btn .material-symbols-outlined {
+  font-size: 1.25rem;
+  font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+}
+
+@keyframes svqSpin {
+  to { transform: rotate(360deg); }
+}
+
+.svq-spinning {
+  animation: svqSpin 0.6s linear infinite;
+}
+
+/* ── Quote blockquote — left accent bar style ── */
+
+.svq-quote-wrap {
+  margin: 0;
+  padding: 0 0 0 0.875rem;
+  border-left: 3px solid;
+  border-image: linear-gradient(to bottom, #6366F1, #a855f7) 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: opacity 0.28s ease;
+}
+
+.svq-fading {
+  opacity: 0;
+}
+
+.svq-text {
+  font-size: 0.9375rem;
+  font-style: italic;
+  color: #374151;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* 3-line clamp — show more toggle appears when text overflows */
+.svq-clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Author + Show more row ── */
+
+.svq-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.svq-author {
+  font-size: 0.8rem;
+  font-style: normal;
+  font-weight: 500;
+  color: #6b7280;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Show more / Show less toggle ── */
+
+.svq-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.svq-toggle:hover {
+  color: #374151;
+}
+
+.svq-toggle:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── Error note ── */
+
+.svq-error-note {
+  font-size: 0.775rem;
+  color: #9ca3af;
+  margin: 0;
+  text-align: center;
+}
+
+/* ── Loading skeleton ── */
+
+.svq-loading {
+  pointer-events: none;
+}
+
+.svq-skeleton {
+  background: linear-gradient(
+    90deg,
+    #e5e7eb 25%,
+    #f3f4f6 50%,
+    #e5e7eb 75%
+  );
+  background-size: 200% 100%;
+  animation: svqShimmer 1.5s infinite;
+  border-radius: 4px;
+  height: 0.875rem;
+}
+
+.svq-skeleton-icon-sm { width: 1.25rem; height: 1.25rem; border-radius: 4px; }
+.svq-skeleton-title   { width: 5rem;    height: 1rem;    border-radius: 4px; }
+.svq-skeleton-btn     { width: 2rem;    height: 2rem;    border-radius: 8px; }
+
+.svq-skeleton-line  { width: 100%; }
+.svq-skeleton-mid   { width: 85%; }
+.svq-skeleton-short { width: 55%; }
+.svq-skeleton-author { width: 40%; height: 0.75rem; }
+
+@keyframes svqShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

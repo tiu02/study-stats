@@ -13,6 +13,7 @@ import {
 import { useAuth } from '../context/AuthContext'
 import { useSessions, useAssignments } from '../hooks/useFirestore'
 import { formatDuration, formatDate, getUrgency, STATUS_LABELS } from '../utils/format'
+import StudyVibeQuote from '../components/StudyVibeQuote'
 import './Dashboard.css'
 
 // ── Helpers ──────────────────────────────────────────────
@@ -253,7 +254,10 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-page">
-      <div className="dashboard-inner">
+      <div className="dashboard-layout">
+
+      {/* ── Full-width top: heading + stat cards + progress bar ── */}
+      <div className="dashboard-top">
         <h1 className="dashboard-heading">Dashboard</h1>
 
         {/* ── Stat Cards ── */}
@@ -354,6 +358,10 @@ export default function Dashboard() {
           </div>
         )}
 
+      </div>{/* end dashboard-top */}
+
+      {/* ── Two-column body: toggle+lists left, sidebar right ── */}
+      <main className="dashboard-main">
         {/* ── Toggle View ── */}
         <div className="toggle-section">
           <div className="toggle-controls">
@@ -520,6 +528,13 @@ export default function Dashboard() {
             )}
           </section>
         </div>
+      </main>
+
+      {/* ── Sidebar ── */}
+      <aside className="dashboard-sidebar" aria-label="Study Vibe">
+        <StudyVibeQuote />
+      </aside>
+
       </div>
       {confettiActive && (
         <div className="confetti-overlay" aria-hidden="true">
