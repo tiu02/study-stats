@@ -9,7 +9,7 @@
 - Testing: Vitest + React Testing Library
 - Deployment: Netlify (connected to GitHub)
 - Serverless Functions: Netlify Functions v2 (ESM `export default` format)
-- External APIs: YouTube Data API v3 (server-side via Netlify Function), type.fit Quotes API (server-side via Netlify Function)
+- External APIs: YouTube Data API v3 (server-side via Netlify Function), ZenQuotes API (server-side via Netlify Function)
 
 ## Key Files
 
@@ -73,10 +73,14 @@
 - `public/_redirects` — Netlify SPA redirect rule. Sends all routes to `index.html` so React Router handles client-side routing and 404s.
 - `vite.config.js` — Vite config with Vitest test configuration (jsdom environment, globals).
 - `netlify.toml` — Netlify build config: `command = "npm run build"`, `publish = "dist"`, `functions directory = "netlify/functions"`.
-- `netlify/functions/youtube-search.js` — Netlify Function v2. Accepts `?q=` query param; validates (empty reject, 100-char cap); calls YouTube Data API v3 search with `YOUTUBE_API_KEY` from `process.env`; returns `{ items: [{ videoId, title, channelTitle, thumbnail }] }`; maps 401→invalid key, 403→quota exceeded, network failure→502.
-- `netlify/functions/quotes.js` — Netlify Function v2. Proxies type.fit quotes API to avoid browser CORS restrictions; no API key; returns full quotes array with `Cache-Control: public, max-age=3600`.
-- `src/components/StudyVibeQuote.jsx` — Study Vibe quote widget. Fetches quotes via `/.netlify/functions/quotes`; caches selected quote in localStorage (`study_vibe_quote`, 24h TTL); stores full array in memory ref for instant refresh without re-fetch; `pickApiQuote` filters null/Type.fit authors; `pickLocalQuote` cycles 15 hardcoded fallback quotes (excludes current to guarantee variety); crossfade refresh (opacity transition 280ms); `isClamped` detection via `scrollHeight > clientHeight` in `useEffect`; 3-line CSS clamp with Show more/less toggle; author + toggle on same line (flex row, toggle `margin-left: auto`); left accent bar (3px `border-image` indigo-to-purple gradient); shimmer loading skeleton.
-- `src/components/StudyVibeQuote.css` — Quote card styles: left accent bar blockquote, gradient icon/title, refresh button, crossfade animation, 3-line clamp, shimmer skeleton keyframes.
+- `netlify/functions/youtube-search.js` — Netlify Function v2. Accepts `?q=` query param; validates (empty reject, 100-char cap); calls YouTube Data API v3 search with `YOUTUBE_API_KEY` from `process.env`; `maxResults=6` for pool-based shuffle; decodes HTML entities (`&amp;`, `&quot;`, `&#39;`, `&lt;`, `&gt;`) in title and channelTitle before returning; returns `{ items: [{ videoId, title, channelTitle, thumbnail }] }`; maps 401→invalid key, 403→quota exceeded, network failure→502.
+- `netlify/functions/quotes.js` — Netlify Function v2. Proxies ZenQuotes API (`zenquotes.io/api/quotes`) server-side to avoid CORS restrictions; no API key required; normalizes ZenQuotes `{ q, a }` format to `{ text, author }`; filters out `zenquotes.io` attribution entries; returns full normalized array with `Cache-Control: public, max-age=3600`.
+- `src/components/StudyVibe.jsx` — Wrapper component that combines quote and music into a single card. Renders `StudyVibeQuote inner` and `StudyVibeMusic inner` separated by an `<hr>` divider. Provides the shared card border, border-radius, and padding so sub-components render without their own card styling.
+- `src/components/StudyVibe.css` — Single card wrapper styles: same border/radius/padding as other dashboard cards, hover lift, `.sv-divider` thin gray `<hr>` between sections.
+- `src/components/StudyVibeQuote.jsx` — Study Vibe quote widget. Fetches quotes via `/.netlify/functions/quotes`; caches full quotes array in localStorage (`study_vibe_quotes`, 24h TTL) — picks randomly on every page load for variety; stores array in `quotesRef` for instant refresh without re-fetch; `pickApiQuote` filters empty/whitespace text; 30-quote local fallback pool; crossfade refresh (280ms); `isClamped` detection via `scrollHeight > clientHeight`; 3-line CSS clamp with Show more/less toggle; `star_shine` icon; `inner` prop: renders `.svq-inner` (no card border/padding) when nested inside `StudyVibe` wrapper, `.svq-card` when standalone.
+- `src/components/StudyVibeQuote.css` — Quote card/section styles: `.svq-card` (standalone card with border, hover), `.svq-inner` (borderless for use inside StudyVibe wrapper), left accent bar blockquote, gradient icon/title, refresh button, crossfade animation, 3-line clamp, shimmer skeleton keyframes.
+- `src/components/StudyVibeMusic.jsx` — Study music widget. 7 mood presets (Lo-fi, R&B, Jazz, Piano, Classical, Ambient, Nature) with pre-built search queries; custom search form; fetches via `/.netlify/functions/youtube-search`; pool of up to 6 results with `pickVisible()` random selection of 3 (preferring non-currently-visible items); shuffle button cycles new 3 from pool; inline YouTube iframe embed (autoplay, 16:9 fluid); localStorage cache per mood (`study_vibe_music_{key}`, 30min TTL, `Array.isArray` guard for old cache formats); no caching for custom search; loading skeleton, error/retry, empty states; `music_note_2` icon; `inner` prop mirrors `StudyVibeQuote` pattern.
+- `src/components/StudyVibeMusic.css` — Music card/section styles: `.svm-card` (standalone), `.svm-inner` (borderless), mood pill row, active pill indigo fill, search form with icon input + submit button, results list with 80×45px thumbnails, play/pause overlay icon, active result indigo left border, inline embed 16:9 fluid container, shimmer skeleton keyframes.
 
 ## Folder Structure
 
@@ -85,7 +89,7 @@ netlify/
   functions/     — Netlify serverless functions (youtube-search.js, quotes.js)
 src/
   assets/        — Static assets (images, SVGs)
-  components/    — Reusable UI components (Navbar, PrivateRoute, SessionForm, Modal, AssignmentForm, CustomSelect, DatePicker, DateRangePicker, PomodoroTimer, StudyVibeQuote)
+  components/    — Reusable UI components (Navbar, PrivateRoute, SessionForm, Modal, AssignmentForm, CustomSelect, DatePicker, DateRangePicker, PomodoroTimer, StudyVibe, StudyVibeQuote, StudyVibeMusic)
   context/       — React context providers (AuthContext)
   hooks/         — Custom React hooks
   pages/         — Route-level page components + page styles

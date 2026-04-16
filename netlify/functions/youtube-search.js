@@ -27,7 +27,7 @@ export default async (req) => {
   const params = new URLSearchParams({
     part: 'snippet',
     type: 'video',
-    maxResults: '4',
+    maxResults: '6',
     safeSearch: 'moderate',
     q: query,
     key: apiKey,
@@ -64,10 +64,17 @@ export default async (req) => {
   const data = await ytRes.json();
 
   // --- Return only the fields the frontend needs; never echo the key ---
+  const decodeEntities = (str) =>
+    str.replace(/&amp;/g, '&')
+       .replace(/&quot;/g, '"')
+       .replace(/&#39;/g, "'")
+       .replace(/&lt;/g, '<')
+       .replace(/&gt;/g, '>');
+
   const items = (data.items ?? []).map((item) => ({
     videoId: item.id.videoId,
-    title: item.snippet.title,
-    channelTitle: item.snippet.channelTitle,
+    title: decodeEntities(item.snippet.title),
+    channelTitle: decodeEntities(item.snippet.channelTitle),
     thumbnail:
       item.snippet.thumbnails?.medium?.url ??
       item.snippet.thumbnails?.default?.url ??

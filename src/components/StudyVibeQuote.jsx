@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import './StudyVibeQuote.css'
 
-const CACHE_KEY = 'study_vibe_quote'
+const CACHE_KEY = 'study_vibe_quotes'
 const CACHE_TTL = 24 * 60 * 60 * 1000 // 24 hours
 
-// Local pool — used as fallback when API is unavailable, and for instant refresh
+// Local pool — used as fallback when API is unavailable
 const LOCAL_QUOTES = [
   { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
   { text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar" },
@@ -21,6 +21,21 @@ const LOCAL_QUOTES = [
   { text: "Education is the passport to the future, for tomorrow belongs to those who prepare for it today.", author: "Malcolm X" },
   { text: "You are braver than you believe, stronger than you seem, and smarter than you think.", author: "A.A. Milne" },
   { text: "Develop a passion for learning. If you do, you will never cease to grow.", author: "Anthony J. D'Angelo" },
+  { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+  { text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+  { text: "What we know is a drop, what we don't know is an ocean.", author: "Isaac Newton" },
+  { text: "Live as if you were to die tomorrow. Learn as if you were to live forever.", author: "Mahatma Gandhi" },
+  { text: "The mind is not a vessel to be filled, but a fire to be kindled.", author: "Plutarch" },
+  { text: "Learning never exhausts the mind.", author: "Leonardo da Vinci" },
+  { text: "Tell me and I forget. Teach me and I remember. Involve me and I learn.", author: "Benjamin Franklin" },
+  { text: "The roots of education are bitter, but the fruit is sweet.", author: "Aristotle" },
+  { text: "Strive not to be a success, but rather to be of value.", author: "Albert Einstein" },
+  { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+  { text: "The only person who is educated is the one who has learned how to learn and change.", author: "Carl Rogers" },
+  { text: "Knowing is not enough; we must apply. Willing is not enough; we must do.", author: "Johann Wolfgang von Goethe" },
+  { text: "I have no special talents. I am only passionately curious.", author: "Albert Einstein" },
+  { text: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", author: "Brian Herbert" },
+  { text: "Try not to become a man of success. Rather become a man of value.", author: "Albert Einstein" },
 ]
 
 function pickLocalQuote(excludeText = null) {
@@ -31,36 +46,35 @@ function pickLocalQuote(excludeText = null) {
 }
 
 function pickApiQuote(quotes, excludeText = null) {
-  const valid = quotes.filter(
-    q => q.text && q.text.trim() && q.author !== 'Type.fit'
-  )
+  const valid = quotes.filter(q => q.text?.trim())
   const pool = excludeText ? valid.filter(q => q.text !== excludeText) : valid
   if (!pool.length) return pickLocalQuote(excludeText)
   const pick = pool[Math.floor(Math.random() * pool.length)]
   return { text: pick.text.trim(), author: pick.author || null }
 }
 
-function getCachedQuote() {
+function getCachedQuotes() {
   try {
     const raw = localStorage.getItem(CACHE_KEY)
     if (!raw) return null
-    const { quote, timestamp } = JSON.parse(raw)
+    const { quotes, timestamp } = JSON.parse(raw)
+    if (!quotes || !Array.isArray(quotes)) return null
     if (Date.now() - timestamp > CACHE_TTL) return null
-    return quote
+    return quotes
   } catch {
     return null
   }
 }
 
-function setCachedQuote(quote) {
+function setCachedQuotes(quotes) {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ quote, timestamp: Date.now() }))
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ quotes, timestamp: Date.now() }))
   } catch {
     // localStorage blocked or full
   }
 }
 
-export default function StudyVibeQuote() {
+export default function StudyVibeQuote({ inner = false }) {
   const [quote, setQuote] = useState(null)   // null = loading
   const [refreshError, setRefreshError] = useState(false)
   const [expanded, setExpanded] = useState(false)
@@ -79,9 +93,10 @@ export default function StudyVibeQuote() {
 
   // ── Initial load ──
   useEffect(() => {
-    const cached = getCachedQuote()
+    const cached = getCachedQuotes()
     if (cached) {
-      setQuote(cached)
+      quotesRef.current = cached
+      setQuote(pickApiQuote(cached))
       return
     }
 
@@ -91,14 +106,11 @@ export default function StudyVibeQuote() {
         if (!res.ok) throw new Error('fetch failed')
         const data = await res.json()
         quotesRef.current = data
-        const picked = pickApiQuote(data)
-        setQuote(picked)
-        setCachedQuote(picked)
+        setCachedQuotes(data)
+        setQuote(pickApiQuote(data))
       } catch {
         // API unavailable — use local pool silently
-        const picked = pickLocalQuote()
-        setQuote(picked)
-        setCachedQuote(picked)
+        setQuote(pickLocalQuote())
       }
     }
     doLoad()
@@ -121,16 +133,13 @@ export default function StudyVibeQuote() {
             if (!res.ok) throw new Error('fetch failed')
             quotes = await res.json()
             quotesRef.current = quotes
+            setCachedQuotes(quotes)
           }
-          const picked = pickApiQuote(quotes, currentText)
-          setQuote(picked)
-          setCachedQuote(picked)
+          setQuote(pickApiQuote(quotes, currentText))
           setRefreshError(false)
         } catch {
           // API unavailable — cycle local pool so refresh always gives a new quote
-          const picked = pickLocalQuote(currentText)
-          setQuote(picked)
-          setCachedQuote(picked)
+          setQuote(pickLocalQuote(currentText))
           setRefreshError(true)
         } finally {
           setFading(false)
@@ -140,10 +149,12 @@ export default function StudyVibeQuote() {
     }, 280)
   }
 
+  const cls = inner ? 'svq-inner' : 'svq-card'
+
   // ── Loading skeleton ──
   if (quote === null) {
     return (
-      <div className="svq-card svq-loading" aria-busy="true" aria-label="Loading quote">
+      <div className={`${cls} svq-loading`} aria-busy="true" aria-label="Loading quote">
         <div className="svq-header">
           <div className="svq-title-group">
             <div className="svq-skeleton svq-skeleton-icon-sm" />
@@ -160,12 +171,12 @@ export default function StudyVibeQuote() {
   }
 
   return (
-    <div className="svq-card">
+    <div className={cls}>
       {/* Card header: heading + refresh button */}
       <div className="svq-header">
         <div className="svq-title-group">
           <span className="material-symbols-outlined svq-music-icon" aria-hidden="true">
-            music_note_2
+            star_shine
           </span>
           <span className="svq-card-title">Study Vibe</span>
         </div>

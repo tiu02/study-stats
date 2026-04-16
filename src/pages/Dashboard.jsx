@@ -13,7 +13,7 @@ import {
 import { useAuth } from '../context/AuthContext'
 import { useSessions, useAssignments } from '../hooks/useFirestore'
 import { formatDuration, formatDate, getUrgency, STATUS_LABELS } from '../utils/format'
-import StudyVibeQuote from '../components/StudyVibeQuote'
+import StudyVibe from '../components/StudyVibe'
 import './Dashboard.css'
 
 // ── Helpers ──────────────────────────────────────────────
@@ -532,7 +532,7 @@ export default function Dashboard() {
 
       {/* ── Sidebar ── */}
       <aside className="dashboard-sidebar" aria-label="Study Vibe">
-        <StudyVibeQuote />
+        <StudyVibe />
       </aside>
 
       </div>

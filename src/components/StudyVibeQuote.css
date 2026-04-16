@@ -16,6 +16,13 @@
   transform: translateY(-1px);
 }
 
+/* Inner mode — no card border, used when nested inside StudyVibe wrapper */
+.svq-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
 /* ── Header row: title group + refresh button ── */
 
 .svq-header {

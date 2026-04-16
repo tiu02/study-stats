@@ -7,14 +7,17 @@
 - **Netlify Serverless Functions**: Configured
   - `netlify.toml` — build command `npm run build`, publish `dist`, functions directory `netlify/functions/`
   - `netlify/functions/youtube-search.js` — proxies YouTube Data API v3 search; reads `YOUTUBE_API_KEY` from `process.env`; validates/caps query; returns `{ items: [{ videoId, title, channelTitle, thumbnail }] }`; maps 401/403/network errors to friendly responses
-  - `netlify/functions/quotes.js` — proxies type.fit quotes API server-side to avoid browser CORS restrictions; no API key required; sets `Cache-Control: public, max-age=3600`
+  - `netlify/functions/quotes.js` — proxies ZenQuotes API (`zenquotes.io/api/quotes`) server-side; no API key required; normalizes `{ q, a }` → `{ text, author }`; filters `zenquotes.io` attribution entries; sets `Cache-Control: public, max-age=3600`
   - `netlify-cli` added as devDependency; `netlify:dev` script added to `package.json` for local function testing
   - `YOUTUBE_API_KEY` must be set in `.env.local` (local) and Netlify dashboard environment variables (production)
 
-- **Study Vibe — Quote Widget**: In Progress (Phase 4)
-  - Dashboard restructured to two-column layout: full-width top (heading, stat cards, progress bar) + `dashboard-main` left column (toggle + lists) + `dashboard-sidebar` right column (sticky on desktop, stacks below lists on mobile at ≤768px)
-  - `StudyVibeQuote` component: fetches quotes via `/.netlify/functions/quotes`; 24h localStorage cache (`study_vibe_quote`); crossfade refresh (280ms); picks random quote from full array in memory on refresh (no re-fetch); 3-line clamp with Show more/less toggle (isClamped measured via scrollHeight); author + toggle on same line (author left, toggle right via `margin-left: auto`); left accent bar styling (3px indigo-to-purple gradient border); 15-quote local fallback pool when function unreachable; loading skeleton with shimmer animation
-  - `music_note_2` icon + indigo-to-purple gradient "Study Vibe" title in card header
+- **Study Vibe Feature**: Complete (Phases 4–5)
+  - Dashboard sidebar holds a single `StudyVibe` card combining quote and music sections with a divider
+  - `StudyVibe` wrapper component provides one shared card border/padding; sub-components use `inner` prop to suppress their own card styling
+  - `StudyVibeQuote`: fetches from ZenQuotes via `/.netlify/functions/quotes`; caches full quotes array in localStorage (`study_vibe_quotes`, 24h TTL); picks randomly on every page load; 30-quote local fallback pool; `star_shine` icon + "Study Vibe" title; crossfade refresh (280ms); 3-line clamp with Show more/less toggle
+  - `StudyVibeMusic`: 7 mood presets (Lo-fi, R&B, Jazz, Piano, Classical, Ambient, Nature); custom search; fetches via `/.netlify/functions/youtube-search`; pool of 6, shows 3 random results; shuffle picks new 3 preferring non-visible; inline YouTube iframe embed (autoplay, 16:9 fluid); 30min localStorage cache per mood; `music_note_2` icon + "Music" title
+  - `youtube-search` function: `maxResults=6`, HTML entity decoding on title/channelTitle
+  - `quotes` function: switched from type.fit (defunct — returned only 5 quotes) to ZenQuotes (returns 50 random quotes per call)
 
 - **Firebase**: Configured
   - (SDK installed, env vars set in `.env.local` and Netlify environment variables)
@@ -236,11 +239,11 @@
 - Closing the timer modal while the timer is paused also silently resets it — forceStop is called on modal close by design.
 - `forceStart()` remains in PomodoroTimer's `useImperativeHandle` but is no longer called anywhere — `confirmStopAndStart` now uses the `autoStart` prop + modal swap instead. Safe to remove in a cleanup pass.
 - Remaining test coverage gaps: SessionForm, DatePicker, and DateRangePicker have no dedicated test files. All three are exercised indirectly (DateRangePicker via Sessions.test.jsx filter tests; DatePicker mocked in AssignmentForm.test.jsx).
-- `music_note_2` may not be a valid Material Symbols Outlined ligature — verify rendering in production; swap to a confirmed icon (e.g. `headphones`) if it renders as fallback text.
-- type.fit quotes API has CORS restrictions from the browser — proxied through `/.netlify/functions/quotes`. Requires `netlify dev` for local testing; `npm run dev` alone will not reach the function.
-- 15-quote local fallback pool activates silently when the Netlify function is unreachable (offline or cold start). Quotes cycle randomly so refresh always returns a different quote.
-- Quote truncation (3-line clamp + Show more) not yet verified in browser — requires `netlify dev` + long-quote localStorage test to confirm `isClamped` detection works correctly.
+- `music_note_2` and `star_shine` may not be valid Material Symbols Outlined ligatures — verify rendering in production; if either renders as fallback text, swap to confirmed icons (`music_note` and `auto_awesome` respectively).
+- ZenQuotes API reliability unknown — if it returns an error, the 30-quote local fallback pool activates silently. Quotes cycle randomly so refresh always returns a different quote.
+- Netlify Functions require `netlify dev` for local testing; `npm run dev` (Vite only) cannot reach serverless functions and will fall back to LOCAL_QUOTES for quotes, and show an error for music search.
+- localStorage mood cache keys are tied to mood `key` values — renaming a mood key (e.g. `hiphop` → `rnb`) leaves a stale orphaned key in localStorage. Old keys expire after 30 min TTL or can be cleared manually.
+- Quote truncation (3-line clamp + Show more) not yet verified in browser with long quotes.
 
 ## Next Steps
-1. Complete Phase 4: Study Vibe card — verify quote truncation/Show more, confirm `music_note_2` icon renders, test with `netlify dev`.
-2. Start Phase 5: YouTube Music API — add study music component to the Dashboard.
+1. Start Phase 6: Testing — add tests for `StudyVibeQuote` and `StudyVibeMusic` components; verify all 296 existing tests still pass.
