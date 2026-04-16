@@ -11,11 +11,11 @@
   - `netlify-cli` added as devDependency; `netlify:dev` script added to `package.json` for local function testing
   - `YOUTUBE_API_KEY` must be set in `.env.local` (local) and Netlify dashboard environment variables (production)
 
-- **Study Vibe Feature**: Complete (Phases 4–5)
+- **Study Vibe Feature**: Complete (Phases 4–6)
   - Dashboard sidebar holds a single `StudyVibe` card combining quote and music sections with a divider
   - `StudyVibe` wrapper component provides one shared card border/padding; sub-components use `inner` prop to suppress their own card styling
-  - `StudyVibeQuote`: fetches from ZenQuotes via `/.netlify/functions/quotes`; caches full quotes array in localStorage (`study_vibe_quotes`, 24h TTL); picks randomly on every page load; 30-quote local fallback pool; `star_shine` icon + "Study Vibe" title; crossfade refresh (280ms); 3-line clamp with Show more/less toggle
-  - `StudyVibeMusic`: 7 mood presets (Lo-fi, R&B, Jazz, Piano, Classical, Ambient, Nature); custom search; fetches via `/.netlify/functions/youtube-search`; pool of 6, shows 3 random results; shuffle picks new 3 preferring non-visible; inline YouTube iframe embed (autoplay, 16:9 fluid); 30min localStorage cache per mood; `music_note_2` icon + "Music" title
+  - `StudyVibeQuote`: fetches from ZenQuotes via `/.netlify/functions/quotes`; caches full quotes array in localStorage (`study_vibe_quotes`, 24h TTL); picks randomly on every page load; 30-quote local fallback pool; `star_shine` icon + "Study Vibe" title; crossfade refresh (280ms); 3-line clamp with Show more/less toggle; `role="status"` on offline error note
+  - `StudyVibeMusic`: 7 mood presets (Lo-fi, R&B, Jazz, Piano, Classical, Ambient, Nature); custom search; fetches via `/.netlify/functions/youtube-search`; pool of 6 deduplicated results, shows 3 random; shuffle button always rendered (`visibility:hidden` when inactive — no layout shift); inline YouTube iframe embed with `enablejsapi=1`; pause/resume via postMessage (`pauseVideo`/`playVideo` commands), `videoPaused` state tracks player state, `key={activeVideo}` forces remount on new video selection; play/pause overlay icon centered (2rem, `play_circle`/`pause_circle` FILL 1, dark scrim on hover); mood pills `flex:1` stretch edge-to-edge, 32px height, 4+3 grid layout on mobile (≤600px); 30min localStorage cache per mood; `handleRetry` passes mood cacheKey so successful retries populate cache; empty thumbnail guard; `music_note_2` icon + "Music" title
   - `youtube-search` function: `maxResults=6`, HTML entity decoding on title/channelTitle
   - `quotes` function: switched from type.fit (defunct — returned only 5 quotes) to ZenQuotes (returns 50 random quotes per call)
 
@@ -34,20 +34,22 @@
   - Phase 12A redirect fixes: after login redirects to return-path or `/dashboard` (not `/`); after signup redirects to `/dashboard`; already-logged-in users visiting `/login` or `/signup` redirect to `/dashboard`
 
 - **Testing**: Working
-  - (Vitest + React Testing Library — 296 tests passing across 16 test files: PrivateRoute, Login, Signup, Navbar, Firestore service, Firestore hooks, Modal component, format utilities, PomodoroTimer, Sessions, Assignments, CustomSelect, AssignmentForm, Landing, NotFound, Dashboard).
+  - (Vitest + React Testing Library — 315 tests passing across 18 test files: PrivateRoute, Login, Signup, Navbar, Firestore service, Firestore hooks, Modal component, format utilities, PomodoroTimer, Sessions, Assignments, CustomSelect, AssignmentForm, Landing, NotFound, Dashboard, StudyVibeQuote, StudyVibeMusic).
   - Global Firebase SDK mock in test setup prevents heavy module loading.
   - React Router v7 Navigate mocked in PrivateRoute/Signup tests to avoid jsdom OOM.
   - vi.useFakeTimers() + vi.setSystemTime() used in format tests to pin "now" for deterministic getUrgency assertions.
   - vi.useFakeTimers() + vi.advanceTimersByTime() used in PomodoroTimer tests for tick progression and phase transitions
   - Date.now() faked via Vitest fake timers for timestamp-based elapsed calculations.
-  - Navbar test updated to assert Pomodoro link is absent (removed in Phase 7).
+  - Navbar test updated to assert Pomodoro link is absent (removed in Phase 7); profile button assertion updated to `aria-label="Account"` with email visible in dropdown on click.
   - Sessions filter tests use vi.useFakeTimers() + userEvent.setup({ advanceTimers }) for debounce testing.
   - CustomSelect interaction tested via selectCustomOption helper (click trigger → click option by label) because user.selectOptions() only works on native selects
   - filter-clear restart_alt button uses aria-label="Clear" to match /^clear$/i test assertion.
-  - AssignmentForm tests mock DatePicker as a simple button that fires onChange.
+  - AssignmentForm tests mock DatePicker as a simple button that fires onChange; Cobalt preset hex corrected to `#0c52ea` in classMap test.
   - Assignments tests mock AssignmentForm and PomodoroTimer (forwardRef async factory) to isolate page-level state.
   - Landing tests no longer mock Icons (Icons.jsx deleted; Landing uses Material Symbols inline); stale `vi.mock('../components/Icons')` block removed from Landing.test.jsx.
   - Phase 12A: Signup.test.jsx updated — redirect assertions changed from `/` to `/dashboard`; stale "Start Studying" button tests in Landing.test.jsx replaced with accurate `useEffect` redirect test.
+  - StudyVibeQuote tests use real timers with `waitFor({ timeout: 2000 })` for refresh tests — fake timers deadlock with RTL's `waitFor` (which uses `setTimeout` internally).
+  - StudyVibeMusic tests use `within(moodGroup)` scoping to target mood pill buttons; `global.fetch` mocked per-test for Netlify function simulation.
   
 - **Cloud Database**: Working 
   - Firestore database created
@@ -98,6 +100,7 @@
   - aria-pressed on color swatches
   - 44px min touch targets on all interactive elements including icon buttons/color swatches/show-more toggle
   - noValidate on session form suppresses browser tooltip validation
+  - Phase 6: `role="status"` on Study Vibe offline error note; 44px touch targets applied to Study Vibe refresh button, shuffle button, mood pills, and search clear button; iOS auto-zoom prevention (16px font-size on mobile) for music search input
 
 - **CSS Styling**: Polished 
   - Vite boilerplate removed
@@ -148,6 +151,7 @@
   - Dashboard stat cards: `justify-content:center` added to base `.stat-card` so all cards vertically center their content (previously only hours card had this on mobile)
   - Dashboard mobile stat grid: 3-column layout at ≤480px — Hours card on left spans 2 rows via `grid-row:span 2`; Sessions/Deadlines fill top-right; Streak/Overdue fill bottom-right (CSS `nth-child` order swap keeps DOM order correct for desktop)
   - Hours stat card: split display on mobile — large `Xh` value + secondary `.stat-card-subvalue` for remaining minutes; subvalue hidden on desktop to keep all 5 cards structurally identical for vertical alignment
+  - Phase 6 Study Vibe polish: shuffle button always rendered with `visibility:hidden` when inactive (eliminates header height shift); mood pills `flex:1` stretch edge-to-edge, reduced to 32px height, 4+3 CSS grid layout at ≤600px; play/pause overlay centered on thumbnail (2rem, `play_circle`/`pause_circle` FILL 1, `::after` dark scrim on hover)
 
 - **Study Session Tracker**: Working 
   - full CRUD with Firestore
@@ -234,8 +238,8 @@
 
 # Known Issues
 - Material Icons loaded via Google Fonts CDN — requires internet connection. Icons will not render offline.
-- Pomodoro timer state is intentionally lost on page navigation, logout, or modal close (state lives in the modal component, not Firestore). 
-- A `beforeunload` warning fires when the timer is running, but navigating within the SPA (React Router) does not trigger `beforeunload`. 
+- Pomodoro timer state is intentionally lost on page navigation, logout, or modal close (state lives in the modal component, not Firestore).
+- A `beforeunload` warning fires when the timer is running, but navigating within the SPA (React Router) does not trigger `beforeunload`.
 - Closing the timer modal while the timer is paused also silently resets it — forceStop is called on modal close by design.
 - `forceStart()` remains in PomodoroTimer's `useImperativeHandle` but is no longer called anywhere — `confirmStopAndStart` now uses the `autoStart` prop + modal swap instead. Safe to remove in a cleanup pass.
 - Remaining test coverage gaps: SessionForm, DatePicker, and DateRangePicker have no dedicated test files. All three are exercised indirectly (DateRangePicker via Sessions.test.jsx filter tests; DatePicker mocked in AssignmentForm.test.jsx).
@@ -243,7 +247,7 @@
 - ZenQuotes API reliability unknown — if it returns an error, the 30-quote local fallback pool activates silently. Quotes cycle randomly so refresh always returns a different quote.
 - Netlify Functions require `netlify dev` for local testing; `npm run dev` (Vite only) cannot reach serverless functions and will fall back to LOCAL_QUOTES for quotes, and show an error for music search.
 - localStorage mood cache keys are tied to mood `key` values — renaming a mood key (e.g. `hiphop` → `rnb`) leaves a stale orphaned key in localStorage. Old keys expire after 30 min TTL or can be cleared manually.
-- Quote truncation (3-line clamp + Show more) not yet verified in browser with long quotes.
+- `videoPaused` state in `StudyVibeMusic` tracks whether the YouTube embed is paused, but can desync from actual player state if YouTube auto-pauses internally (ad, connectivity drop, user interacts within the iframe). Fixing this requires the full YouTube IFrame API `onStateChange` event listener, which is not implemented.
 
 ## Next Steps
-1. Start Phase 6: Testing — add tests for `StudyVibeQuote` and `StudyVibeMusic` components; verify all 296 existing tests still pass.
+1. Start Phase 7: Deploy & Verify

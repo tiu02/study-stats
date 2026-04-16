@@ -85,8 +85,14 @@ describe('Navbar', () => {
       expect(screen.getByRole('button', { name: /log out/i })).toBeInTheDocument()
     })
 
-    it('displays the profile icon with the user email', () => {
-      expect(screen.getByLabelText('student@example.com')).toBeInTheDocument()
+    it('renders the profile button labeled "Account" and shows email in dropdown when opened', async () => {
+      const user = userEvent.setup()
+      // Profile button uses aria-label="Account" (email is shown in dropdown, not on the button)
+      const profileBtn = screen.getByRole('button', { name: /^account$/i })
+      expect(profileBtn).toBeInTheDocument()
+      // Click to open dropdown and verify email is visible
+      await user.click(profileBtn)
+      expect(screen.getByText('student@example.com')).toBeInTheDocument()
     })
 
     it('does not show Log In or Sign Up links', () => {

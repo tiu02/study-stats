@@ -46,7 +46,9 @@ export default function StudyVibeMusic({ inner = false }) {
   const [loading, setLoading]             = useState(false)
   const [error, setError]                 = useState(null)
   const [activeVideo, setActiveVideo]     = useState(null)
+  const [videoPaused, setVideoPaused]     = useState(false)
   const searchInputRef = useRef(null)
+  const embedRef       = useRef(null)
 
   const canShuffle = pool.length > 3
   const hasResults = activeMood !== null || activeSearch !== null
@@ -69,6 +71,7 @@ export default function StudyVibeMusic({ inner = false }) {
         setPool(cached)
         setVisibleResults(pickVisible(cached))
         setActiveVideo(null)
+        setVideoPaused(false)
         return
       }
     }
@@ -78,6 +81,7 @@ export default function StudyVibeMusic({ inner = false }) {
     setPool([])
     setVisibleResults([])
     setActiveVideo(null)
+    setVideoPaused(false)
 
     try {
       const res = await fetch(
@@ -88,7 +92,12 @@ export default function StudyVibeMusic({ inner = false }) {
         throw new Error(data.error || `Request failed (${res.status})`)
       }
       const data = await res.json()
-      const items = data.items || []
+      const seen = new Set()
+      const items = (data.items || []).filter(i => {
+        if (seen.has(i.videoId)) return false
+        seen.add(i.videoId)
+        return true
+      })
       setPool(items)
       setVisibleResults(pickVisible(items))
       if (cacheKey) setCachedPool(cacheKey, items)
@@ -108,6 +117,7 @@ export default function StudyVibeMusic({ inner = false }) {
       setPool([])
       setVisibleResults([])
       setActiveVideo(null)
+      setVideoPaused(false)
       setError(null)
       return
     }
@@ -137,6 +147,7 @@ export default function StudyVibeMusic({ inner = false }) {
     setPool([])
     setVisibleResults([])
     setActiveVideo(null)
+    setVideoPaused(false)
     setError(null)
     searchInputRef.current?.focus()
   }
@@ -146,19 +157,32 @@ export default function StudyVibeMusic({ inner = false }) {
   function handleShuffle() {
     setVisibleResults(prev => pickVisible(pool, prev))
     setActiveVideo(null)
+    setVideoPaused(false)
   }
 
   function handleRetry() {
     if (activeMood) {
       const mood = MOODS.find(m => m.key === activeMood)
-      if (mood) fetchResults(null, mood.query) // bypass cache on retry
+      if (mood) fetchResults(mood.key, mood.query)
     } else if (activeSearch) {
       fetchResults(null, activeSearch)
     }
   }
 
   function handleVideoSelect(videoId) {
-    setActiveVideo(prev => (prev === videoId ? null : videoId))
+    if (activeVideo === videoId) {
+      // Same video — toggle pause/resume via postMessage
+      const cmd = videoPaused ? 'playVideo' : 'pauseVideo'
+      embedRef.current?.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func: cmd, args: [] }),
+        '*'
+      )
+      setVideoPaused(p => !p)
+    } else {
+      // Different video — remount iframe with autoplay
+      setActiveVideo(videoId)
+      setVideoPaused(false)
+    }
   }
 
   // ── Render ──────────────────────────────────────────────
@@ -174,16 +198,16 @@ export default function StudyVibeMusic({ inner = false }) {
           </span>
           <span className="svm-card-title">Music</span>
         </div>
-        {hasResults && canShuffle && !loading && !error && (
-          <button
-            className="svm-shuffle-btn"
-            onClick={handleShuffle}
-            aria-label="Shuffle results"
-            title="Shuffle results"
-          >
-            <span className="material-symbols-outlined" aria-hidden="true">shuffle</span>
-          </button>
-        )}
+        <button
+          className={`svm-shuffle-btn${hasResults && canShuffle && !loading && !error ? '' : ' svm-shuffle-hidden'}`}
+          onClick={handleShuffle}
+          aria-label="Shuffle results"
+          title="Shuffle results"
+          tabIndex={hasResults && canShuffle && !loading && !error ? 0 : -1}
+          aria-hidden={!(hasResults && canShuffle && !loading && !error)}
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">shuffle</span>
+        </button>
       </div>
 
       {/* ── Mood pills ── */}
@@ -273,12 +297,14 @@ export default function StudyVibeMusic({ inner = false }) {
 
           {!loading && !error && (
             <>
-              {/* Inline embed — shown when a video is selected */}
+              {/* Inline embed — stays mounted while a video is active (pause via postMessage) */}
               {activeVideo && (
                 <div className="svm-embed-wrap">
                   <iframe
+                    key={activeVideo}
+                    ref={embedRef}
                     className="svm-embed"
-                    src={`https://www.youtube.com/embed/${activeVideo}?autoplay=1`}
+                    src={`https://www.youtube.com/embed/${activeVideo}?autoplay=1&enablejsapi=1`}
                     title="Study music player"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
@@ -294,21 +320,29 @@ export default function StudyVibeMusic({ inner = false }) {
                       <button
                         className={`svm-result-card${activeVideo === item.videoId ? ' svm-result-active' : ''}`}
                         onClick={() => handleVideoSelect(item.videoId)}
-                        aria-pressed={activeVideo === item.videoId}
-                        aria-label={`${activeVideo === item.videoId ? 'Stop' : 'Play'}: ${item.title} by ${item.channelTitle}`}
+                        aria-pressed={activeVideo === item.videoId && !videoPaused}
+                        aria-label={
+                          activeVideo === item.videoId
+                            ? videoPaused
+                              ? `Resume: ${item.title} by ${item.channelTitle}`
+                              : `Pause: ${item.title} by ${item.channelTitle}`
+                            : `Play: ${item.title} by ${item.channelTitle}`
+                        }
                       >
                         <div className="svm-thumb-wrap">
-                          <img
-                            className="svm-thumb"
-                            src={item.thumbnail}
-                            alt=""
-                            loading="lazy"
-                          />
+                          {item.thumbnail && (
+                            <img
+                              className="svm-thumb"
+                              src={item.thumbnail}
+                              alt=""
+                              loading="lazy"
+                            />
+                          )}
                           <span
                             className="svm-thumb-overlay material-symbols-outlined"
                             aria-hidden="true"
                           >
-                            {activeVideo === item.videoId ? 'pause' : 'play_arrow'}
+                            {activeVideo === item.videoId && !videoPaused ? 'pause_circle' : 'play_circle'}
                           </span>
                         </div>
                         <div className="svm-result-text">

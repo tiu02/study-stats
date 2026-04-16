@@ -1,9 +1,5 @@
 /* ===== Pomodoro Timer ===== */
 
-.pomodoro-timer {
-  /* wrapper, inherits card/modal context */
-}
-
 /* Main row: ring on left, config+controls column on right */
 .pomodoro-main {
   display: flex;
@@ -87,6 +83,7 @@
   background: #ffffff;
   min-height: 44px;
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .pomodoro-config-input::-webkit-inner-spin-button,

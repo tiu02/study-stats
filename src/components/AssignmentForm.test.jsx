@@ -103,7 +103,7 @@ describe('AssignmentForm — add mode', () => {
 
   it('auto-selects color from classMap when known subject is typed', async () => {
     const user = userEvent.setup()
-    renderForm({ classMap: { Biology: '#2563EB' } })
+    renderForm({ classMap: { Biology: '#0c52ea' } }) // #0c52ea is the actual Cobalt preset value
     const subjectInput = screen.getByLabelText(/class \/ subject/i)
     await user.type(subjectInput, 'Biology')
     // The Indigo swatch should NOT be selected (aria-pressed=false) and Cobalt should be (aria-pressed=true)

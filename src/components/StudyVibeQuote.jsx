@@ -226,7 +226,7 @@ export default function StudyVibeQuote({ inner = false }) {
       </div>
 
       {refreshError && (
-        <p className="svq-error-note">Showing offline quote</p>
+        <p className="svq-error-note" role="status">Showing offline quote</p>
       )}
     </div>
   )
