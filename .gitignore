@@ -38,3 +38,7 @@ plans/
 
 # Local Netlify folder
 .netlify
+
+# Claude Code
+.claude
+.mcp.json

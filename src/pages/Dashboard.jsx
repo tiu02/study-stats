@@ -217,12 +217,8 @@ export default function Dashboard() {
   )
 
   function handleTabClick(mode) {
-    if (mode === viewMode) {
-      setOffset(0) // clicking active tab resets to current period
-    } else {
-      setViewMode(mode)
-      setOffset(0)
-    }
+    if (mode !== viewMode) setViewMode(mode)
+    setOffset(0)
   }
 
   const periodName = useMemo(() => {
@@ -233,11 +229,11 @@ export default function Dashboard() {
   }, [offset, viewMode])
 
   useEffect(() => {
-    if (weeklyProgress?.pct === 100) {
-      setConfettiActive(true)
-      const id = setTimeout(() => setConfettiActive(false), 3500)
-      return () => clearTimeout(id)
-    }
+    if (weeklyProgress?.pct !== 100) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    setConfettiActive(true)
+    const id = setTimeout(() => setConfettiActive(false), 3500)
+    return () => clearTimeout(id)
   }, [weeklyProgress?.pct])
 
   // ── Render ──────────────────────────────────────────────
@@ -496,7 +492,6 @@ export default function Dashboard() {
                         aria-label={`${s.subject}, ${STATUS_LABELS[statusKey] || 'Complete'}, ${formatDuration(s.duration)}, ${formatDate(s.date)}. Go to Sessions.`}
                       >
                         <span
-                          role="img"
                           aria-hidden="true"
                           className={`material-symbols-outlined dash-status-icon dash-status-${statusKey}`}
                         >

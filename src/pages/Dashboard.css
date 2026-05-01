@@ -111,6 +111,7 @@
   font-weight: 700;
   color: #1f2937;
   line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 
 .stat-card-label {

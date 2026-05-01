@@ -93,6 +93,17 @@ export default function Signup() {
 
   return (
     <div className="auth-page">
+      <div className="auth-split">
+        <div className="auth-brand" aria-hidden="true">
+          <p className="auth-brand-name">StudyStats</p>
+          <p className="auth-brand-tagline">Plan sessions, track deadlines, study smarter.</p>
+          <ul className="auth-brand-features">
+            <li><span className="material-symbols-outlined">grid_view</span> Weekly progress dashboard</li>
+            <li><span className="material-symbols-outlined">assignment</span> Assignment deadline tracker</li>
+            <li><span className="material-symbols-outlined">menu_book</span> Study session logging</li>
+            <li><span className="material-symbols-outlined">timer</span> Pomodoro timer</li>
+          </ul>
+        </div>
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <h2>Sign Up</h2>
         {error && <p className="auth-error" role="alert">{error}</p>}
@@ -139,12 +150,13 @@ export default function Signup() {
         </label>
         {confirmError && <p className="field-error" id="signup-confirm-error">{confirmError}</p>}
         <button type="submit" disabled={loading}>
-          {loading ? 'Creating account...' : 'Sign Up'}
+          {loading ? 'Creating account\u2026' : 'Sign Up'}
         </button>
         <p className="auth-switch">
           Already have an account? <Link to="/login">Log in</Link>
         </p>
       </form>
+      </div>
     </div>
   )
 }

@@ -13,17 +13,40 @@ export default function Landing() {
   return (
     <div className="landing">
       <header className="hero">
-        <h1 className="app-name">StudyStats</h1>
-        <p className="tagline">Plan sessions, track deadlines, study smarter</p>
-        <p className="description">
-          StudyStats enables students and scholars to boost productivity and
-          study habits. Users can track study sessions, manage deadlines, use a
-          Pomodoro timer, and view weekly progress summarizing total hours
-          studied, sessions completed, and due dates.
-        </p>
-        <button className="cta-button" onClick={() => navigate('/signup')}>
-          Get Started
-        </button>
+        <div className="hero-content">
+          <h1 className="app-name">StudyStats</h1>
+          <p className="tagline">Plan sessions, track deadlines, study smarter</p>
+          <p className="description">
+            Track study sessions, manage deadlines, use a Pomodoro timer, and
+            view weekly progress — all synced to the cloud in real time.
+          </p>
+          <button className="cta-button" onClick={() => navigate('/signup')}>
+            Get Started
+          </button>
+        </div>
+
+        <div className="hero-preview" aria-hidden="true">
+          <div className="hero-stat-preview">
+            <span className="material-symbols-outlined hero-stat-icon">schedule</span>
+            <span className="hero-stat-value">14h</span>
+            <span className="hero-stat-label">Hours This Week</span>
+          </div>
+          <div className="hero-stat-preview">
+            <span className="material-symbols-outlined hero-stat-icon">menu_book</span>
+            <span className="hero-stat-value">9</span>
+            <span className="hero-stat-label">Sessions</span>
+          </div>
+          <div className="hero-stat-preview">
+            <span className="material-symbols-outlined hero-stat-icon">assignment</span>
+            <span className="hero-stat-value">3</span>
+            <span className="hero-stat-label">Upcoming</span>
+          </div>
+          <div className="hero-stat-preview hero-stat-streak">
+            <span className="material-symbols-outlined hero-stat-icon">local_fire_department</span>
+            <span className="hero-stat-value">5</span>
+            <span className="hero-stat-label">Day Streak</span>
+          </div>
+        </div>
       </header>
 
       <section className="features" aria-label="App features">

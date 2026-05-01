@@ -1,4 +1,4 @@
-## Transcript Highlights
+## Transcript Highlights - Week 8: Midterm
 
 ### 1. Color preset fixes (Session 5, mid)
 Claude suggested color presets for the assignments and session cards, which I overturned since they were not distinctive enough from each other (indigo, blue, purple too close in values), as well as removing its suggestion of using red, green, and yellow for color presets. While testing it visually on browser, RGY was too visually overwhelming, especially considering the confusion with it closely overlapping with the urgency and status color indicators (complete green, caution amber, error red).
@@ -14,3 +14,7 @@ During debugging an issue of multiple sessions the same day defaulting to midnig
 
 ### 5. Highlight (Session, stage)
 
+#
+## Transcript Highlights - Week 12: External APIs
+
+### 1. Color preset fixes (Session 5, mid)

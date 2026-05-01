@@ -102,7 +102,23 @@
   - noValidate on session form suppresses browser tooltip validation
   - Phase 6: `role="status"` on Study Vibe offline error note; 44px touch targets applied to Study Vibe refresh button, shuffle button, mood pills, and search clear button; iOS auto-zoom prevention (16px font-size on mobile) for music search input
 
-- **CSS Styling**: Polished 
+- **Portfolio Polish (Week 15 — Phase 1)**: In progress — see `plans/finalPortfolio/folioPolish.md`
+  - README.md: demo credentials (`test@example.com` / `Password.123`), Netlify deploy badge, 315 tests badge, GitHub badge added.
+  - `src/index.css`: `color-scheme: light` added to body; global `prefers-reduced-motion` override; `touch-action: manipulation` on all interactive elements.
+  - `src/pages/Dashboard.jsx`: confetti `useEffect` guarded with `prefers-reduced-motion` check + simplified; `handleTabClick` simplified; removed contradictory `role="img"` from `aria-hidden` status icon.
+  - `src/pages/Auth.css`: `input:focus` changed to `input:focus-visible` (keyboard-only focus ring).
+  - `index.html`: `rel="preconnect"` hints added for `fonts.googleapis.com` and `fonts.gstatic.com`.
+  - `src/pages/Dashboard.css`: `font-variant-numeric: tabular-nums` added to `.stat-card-value`.
+  - `src/pages/Login.jsx` + `Signup.jsx`: loading text ellipsis changed from `'...'` to `'\u2026'`.
+  - `/taste` audit (Task 5): spacing/transitions/anti-slop passed; flagged center-bias on all pages.
+  - Layout diversification (Task 5A):
+    - `src/pages/Landing.jsx` + `src/App.css`: hero refactored to split-screen — content left, decorative stat preview cards right (Hours, Sessions, Upcoming, Streak); feature cards left-aligned; mobile collapses to single column with preview hidden.
+    - `src/pages/Login.jsx` + `Signup.jsx` + `src/pages/Auth.css`: two-panel split layout — indigo brand panel left (app name, tagline, feature list), form right; mobile collapses to centered 400px card.
+    - `src/pages/Sessions.css`: header, toolbar, card list, result count widened from 640px to 900px.
+    - `src/pages/Assignments.css`: header, card list, completed section, error banner widened from 640px to 900px.
+
+
+- **CSS Styling**: Polished
   - Vite boilerplate removed
   - sticky navbar
   - SVG outline icons
@@ -234,7 +250,7 @@
   - Firestore Timestamps handled via `.toDate()` check. 
   - 30 tests in Sessions.test.jsx covering search debounce, sort (newest/oldest/subject), filter controls render, subject/status filters, AND logic, result count, empty states, clear button, filter count badge, and Timestamp handling.)
 
----
+--
 
 # Known Issues
 - Material Icons loaded via Google Fonts CDN — requires internet connection. Icons will not render offline.
@@ -249,5 +265,7 @@
 - localStorage mood cache keys are tied to mood `key` values — renaming a mood key (e.g. `hiphop` → `rnb`) leaves a stale orphaned key in localStorage. Old keys expire after 30 min TTL or can be cleared manually.
 - `videoPaused` state in `StudyVibeMusic` tracks whether the YouTube embed is paused, but can desync from actual player state if YouTube auto-pauses internally (ad, connectivity drop, user interacts within the iframe). Fixing this requires the full YouTube IFrame API `onStateChange` event listener, which is not implemented.
 
+--
+
 ## Next Steps
-1. N/A. Ready for Deployment.
+1. Start Task 6: Vercel audit (`/vercel-react-best-practices` + `/vercel-composition-patterns`).

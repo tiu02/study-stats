@@ -58,7 +58,7 @@
 /* Header row */
 .assignments-header {
   width: 100%;
-  max-width: 640px;
+  max-width: 900px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -82,7 +82,7 @@
   font-size: 0.875rem;
   margin-bottom: 1rem;
   width: 100%;
-  max-width: 640px;
+  max-width: 900px;
   box-sizing: border-box;
 }
 
@@ -104,7 +104,7 @@
 /* ===== Card list ===== */
 .assignments-list {
   width: 100%;
-  max-width: 640px;
+  max-width: 900px;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -444,7 +444,7 @@
 /* ===== Completed section toggle ===== */
 .completed-section {
   width: 100%;
-  max-width: 640px;
+  max-width: 900px;
   margin-top: 1.5rem;
 }
 

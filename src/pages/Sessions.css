@@ -11,7 +11,7 @@
 /* Header row — heading + add button */
 .sessions-header {
   width: 100%;
-  max-width: 640px;
+  max-width: 900px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -65,7 +65,7 @@
   font-size: 0.875rem;
   margin-bottom: 1rem;
   width: 100%;
-  max-width: 640px;
+  max-width: 900px;
   box-sizing: border-box;
 }
 
@@ -87,7 +87,7 @@
 /* ===== Toolbar: search left, sort + filter right ===== */
 .sessions-toolbar {
   width: 100%;
-  max-width: 640px;
+  max-width: 900px;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -398,7 +398,7 @@
   margin: -0.5rem 0 1.25rem;
   font-weight: 500;
   width: 100%;
-  max-width: 640px;
+  max-width: 900px;
 }
 
 /* Filtered empty state — distinct from new-user empty */
@@ -459,7 +459,7 @@
 /* ===== Session card list ===== */
 .sessions-list {
   width: 100%;
-  max-width: 640px;
+  max-width: 900px;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
