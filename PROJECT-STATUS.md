@@ -116,6 +116,14 @@
     - `src/pages/Login.jsx` + `Signup.jsx` + `src/pages/Auth.css`: two-panel split layout — indigo brand panel left (app name, tagline, feature list), form right; mobile collapses to centered 400px card.
     - `src/pages/Sessions.css`: header, toolbar, card list, result count widened from 640px to 900px.
     - `src/pages/Assignments.css`: header, card list, completed section, error banner widened from 640px to 900px.
+  - `/vercel-react-best-practices` audit (Task 6 part 1) — 5 fixes applied:
+    - Confetti particles now keyed by `confetti-${i}` (stable ID, not array index).
+    - `NotesPreview` extracted to `src/components/NotesPreview.jsx` (shared by Sessions and Assignments — eliminates duplicate 30-line component; accepts `wrapperClassName`/`textClassName` props for page-specific CSS class names).
+    - `AssignmentCard` extracted to `src/components/AssignmentCard.jsx` and wrapped with `React.memo()` (default shallow comparison — prevents re-renders when parent modal state changes and card data is unchanged).
+    - Dashboard deadline/session card JSX extracted to `src/components/DashboardDeadlineCard.jsx` and `src/components/DashboardSessionCard.jsx` (each handles its own `useNavigate`, self-contained render).
+    - `SORT_OPTIONS` array moved to module-level constant in `Sessions.jsx` (avoids re-creating array on every render).
+    - `window.matchMedia?.()` optional chaining guard added to confetti `useEffect` in `Dashboard.jsx` (fixes pre-existing test failure in jsdom where `matchMedia` is not defined).
+    - All 315 tests passing after fixes.
 
 
 - **CSS Styling**: Polished
@@ -268,4 +276,4 @@
 --
 
 ## Next Steps
-1. Start Task 6: Vercel audit (`/vercel-react-best-practices` + `/vercel-composition-patterns`).
+1. N/A

@@ -147,17 +147,11 @@ This runs Vite + both serverless functions. Music search requires `YOUTUBE_API_K
 ### Deployment
 The app is deployed on Netlify with the same `VITE_` environment variables plus `YOUTUBE_API_KEY` configured in the Netlify dashboard under **Site configuration → Environment variables**. A `public/_redirects` file handles SPA routing so React Router manages all client-side routes.
 
-## Known Bugs & Limitations
+## Known Limitations
 - Material Icons loaded via Google Fonts CDN — requires internet connection. Icons will not render offline.
 - Pomodoro timer state is intentionally lost on page navigation, logout, or modal close (state lives in the modal component, not Firestore).
-- A `beforeunload` warning fires when the timer is running, but navigating within the SPA (React Router) does not trigger `beforeunload`.
-- Closing the timer modal while the timer is paused also silently resets it — forceStop is called on modal close by design.
-- `forceStart()` remains in PomodoroTimer's `useImperativeHandle` but is no longer called anywhere — `confirmStopAndStart` now uses the `autoStart` prop + modal swap instead. Safe to remove in a cleanup pass.
-- Remaining test coverage gaps: SessionForm, DatePicker, and DateRangePicker have no dedicated test files. All three are exercised indirectly (DateRangePicker via Sessions.test.jsx filter tests; DatePicker mocked in AssignmentForm.test.jsx).
-- `music_note_2` and `star_shine` may not be valid Material Symbols Outlined ligatures — verify rendering in production; if either renders as fallback text, swap to confirmed icons (`music_note` and `auto_awesome` respectively).
-- ZenQuotes API reliability unknown — if it returns an error, the 30-quote local fallback pool activates silently. Quotes cycle randomly so refresh always returns a different quote.
-- localStorage mood cache keys are tied to mood `key` values — renaming a mood key (e.g. `hiphop` → `rnb`) leaves a stale orphaned key in localStorage. Old keys expire after 30 min TTL or can be cleared manually.
-- `videoPaused` state in `StudyVibeMusic` tracks whether the YouTube embed is paused, but can desync from actual player state if YouTube auto-pauses internally (ad, connectivity drop, user interacts within the iframe). Fixing this requires the full YouTube IFrame API `onStateChange` event listener, which is not implemented.
+- SPA navigation (React Router) does not trigger `beforeunload`, so the timer warning only fires on full page unloads (tab close, hard refresh).
+- ZenQuotes API may occasionally be unavailable — a 30-quote local fallback pool activates silently when this happens.
 
 ## Week 8 What I learned 
 I learned about which Claude model and level of effort I should use for which tasks. From this project, I felt like Claude Opus was more efficient at debugging and suggesting better alternatives than Sonnet. I also learned that some of the prompts became automated, like for example, how frequently I asked Claude to update the ARCHITECTURE.md and PROJECT-STATUS.md for context management, and at the later phases, I noticed it would automatically add it to its to do list while unit testing, without me prompting.

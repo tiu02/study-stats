@@ -5,47 +5,15 @@ import SessionForm from '../components/SessionForm'
 import Modal from '../components/Modal'
 import DateRangePicker from '../components/DateRangePicker'
 import CustomSelect from '../components/CustomSelect'
-import { formatDuration, formatDate, STATUS_LABELS } from '../utils/format'
+import NotesPreview from '../components/NotesPreview'
+import { formatDuration, formatDate, STATUS_LABELS, STATUS_ICONS } from '../utils/format'
 import './Sessions.css'
 
-const STATUS_ICONS = {
-  'complete': 'check_circle',
-  'in-progress': 'pending',
-  'incomplete': 'cancel',
-}
-
-/* Notes with 3-line clamp and "Show more" toggle (R9) */
-function NotesPreview({ text }) {
-  const [expanded, setExpanded] = useState(false)
-  const textRef = useRef(null)
-  const [clamped, setClamped] = useState(false)
-
-  useEffect(() => {
-    const el = textRef.current
-    if (el) setClamped(el.scrollHeight > el.clientHeight + 1)
-  }, [text])
-
-  return (
-    <div className="session-card-notes-wrapper">
-      <p
-        ref={expanded ? null : textRef}
-        className={`session-card-notes${expanded ? '' : ' clamped'}`}
-      >
-        {text}
-      </p>
-      {(clamped || expanded) && (
-        <button
-          type="button"
-          className="btn-show-more"
-          onClick={() => setExpanded(!expanded)}
-          aria-expanded={expanded}
-        >
-          {expanded ? 'Show less' : 'Show more'}
-        </button>
-      )}
-    </div>
-  )
-}
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest first' },
+  { value: 'oldest', label: 'Oldest first' },
+  { value: 'subject', label: 'Subject A\u2013Z' },
+]
 
 export default function Sessions() {
   const { currentUser } = useAuth()
@@ -285,11 +253,7 @@ export default function Sessions() {
 
               {sortOpen && (
                 <div className="toolbar-dropdown toolbar-dropdown-sort" role="listbox" aria-label="Sort options">
-                  {[
-                    { value: 'newest', label: 'Newest first' },
-                    { value: 'oldest', label: 'Oldest first' },
-                    { value: 'subject', label: 'Subject A\u2013Z' },
-                  ].map((opt) => (
+                  {SORT_OPTIONS.map((opt) => (
                     <button
                       key={opt.value}
                       type="button"
@@ -509,7 +473,13 @@ export default function Sessions() {
                 </div>
 
                 {/* Row 3: Notes (clamped) */}
-                {session.notes?.trim() && <NotesPreview text={session.notes} />}
+                {session.notes?.trim() && (
+                  <NotesPreview
+                    text={session.notes}
+                    wrapperClassName="session-card-notes-wrapper"
+                    textClassName="session-card-notes"
+                  />
+                )}
               </li>
             )
           })}

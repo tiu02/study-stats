@@ -21,6 +21,18 @@ export const STATUS_LABELS = {
   'incomplete': 'Incomplete',
 }
 
+export const STATUS_ICONS = {
+  'complete': 'check_circle',
+  'in-progress': 'pending',
+  'incomplete': 'cancel',
+}
+
+export function formatDueLabel(urgency, dueDate) {
+  return urgency === 'overdue'
+    ? `Overdue: ${formatDate(dueDate)}`
+    : `Due ${formatDate(dueDate)}`
+}
+
 /**
  * Returns urgency level for an assignment due date.
  * 'overdue' = past due, 'urgent' = ≤2 days, 'soon' = ≤5 days, null = no urgency.

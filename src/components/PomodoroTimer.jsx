@@ -86,14 +86,6 @@ const PomodoroTimer = forwardRef(function PomodoroTimer(
       setLogError(null)
       onTimerStopRef.current?.()
     },
-    forceStart() {
-      if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
-        Notification.requestPermission()
-      }
-      startedAtRef.current = Date.now()
-      setStatus('running')
-      onTimerStartRef.current?.(assignmentRef.current?.id)
-    },
   }), [])
 
   // ---- Phase-complete handler — reads all values from refs, never stale ----

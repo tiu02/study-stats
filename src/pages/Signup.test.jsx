@@ -82,7 +82,7 @@ describe('Signup', () => {
   })
 
   it('shows error message when signup throws', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     mockSignup.mockRejectedValue({ code: 'auth/email-already-in-use' })
     renderSignup()
     await user.type(screen.getByLabelText(/email/i), 'test@example.com')
@@ -93,7 +93,7 @@ describe('Signup', () => {
   })
 
   it('disables submit button while loading', async () => {
-    const user = userEvent.setup()
+    const user = userEvent.setup({ delay: null })
     let resolve
     mockSignup.mockReturnValue(new Promise((res) => { resolve = res }))
     renderSignup()

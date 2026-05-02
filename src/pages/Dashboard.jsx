@@ -12,8 +12,10 @@ import {
 } from 'date-fns'
 import { useAuth } from '../context/AuthContext'
 import { useSessions, useAssignments } from '../hooks/useFirestore'
-import { formatDuration, formatDate, getUrgency, STATUS_LABELS } from '../utils/format'
+import { formatDuration } from '../utils/format'
 import StudyVibe from '../components/StudyVibe'
+import DashboardDeadlineCard from '../components/DashboardDeadlineCard'
+import DashboardSessionCard from '../components/DashboardSessionCard'
 import './Dashboard.css'
 
 // ── Helpers ──────────────────────────────────────────────
@@ -54,12 +56,6 @@ function progressColor(pct) {
   return '#dc2626'
 }
 
-const STATUS_ICONS = {
-  'complete':    'check_circle',
-  'in-progress': 'pending',
-  'incomplete':  'cancel',
-}
-
 // ── Confetti burst directions (tx = horizontal px, ty = vertical px from center) ──
 const CONFETTI_DATA = [
   { tx: -320, ty: 280 }, { tx: 290, ty: 350 }, { tx: -180, ty: 200 },
@@ -73,7 +69,7 @@ const CONFETTI_DATA = [
 
 const CONFETTI_COLORS = ['#6366F1','#D946EF','#06B6D4','#059669','#A855F7','#f97316']
 
-// ── Component ─────────────────────────────────────────────
+// ── Component ──────────────────────────────────────────────
 
 export default function Dashboard() {
   const { currentUser } = useAuth()
@@ -230,7 +226,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (weeklyProgress?.pct !== 100) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
     setConfettiActive(true)
     const id = setTimeout(() => setConfettiActive(false), 3500)
     return () => clearTimeout(id)
@@ -410,56 +406,9 @@ export default function Dashboard() {
               </div>
             ) : (
               <ul className="dash-list">
-                {filteredDeadlines.map(a => {
-                  const urgency = getUrgency(a.dueDate)
-                  const color = a.color || '#6366F1'
-                  const logged = a.totalMinutesLogged || 0
-                  return (
-                    <li key={a.id}>
-                      <button
-                        className="dash-deadline-card"
-                        style={{ borderLeftColor: color }}
-                        onClick={() => navigate('/assignments')}
-                        aria-label={`${a.title}, ${a.subject}, due ${formatDate(a.dueDate)}. Go to Assignments.`}
-                      >
-                        {/* Row 1: class badge pill + title */}
-                        <div className="dash-deadline-title-row">
-                          <span
-                            className="dash-class-pill"
-                            style={{ backgroundColor: color }}
-                            title={a.subject}
-                          >
-                            {a.subject}
-                          </span>
-                          <span className="dash-deadline-title">{a.title}</span>
-                        </div>
-                        {/* Row 2: urgency icon + due date · timer + logged */}
-                        <div className="dash-deadline-meta">
-                          {urgency && (
-                            <span
-                              className={`material-symbols-outlined dash-urgency-icon dash-urgency-${urgency}`}
-                              aria-hidden="true"
-                            >
-                              warning
-                            </span>
-                          )}
-                          <span className={`dash-due-date${urgency ? ` dash-due-${urgency}` : ''}`}>
-                            {urgency === 'overdue' ? `Overdue: ${formatDate(a.dueDate)}` : `Due ${formatDate(a.dueDate)}`}
-                          </span>
-                          {logged > 0 && (
-                            <>
-                              <span className="dash-meta-sep" aria-hidden="true">&bull;</span>
-                              <span className="dash-logged">
-                                <span className="material-symbols-outlined dash-logged-icon" aria-hidden="true">timer</span>
-                                {formatDuration(logged)} logged
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </button>
-                    </li>
-                  )
-                })}
+                {filteredDeadlines.map(a => (
+                  <DashboardDeadlineCard key={a.id} assignment={a} />
+                ))}
               </ul>
             )}
           </section>
@@ -480,45 +429,9 @@ export default function Dashboard() {
               </div>
             ) : (
               <ul className="dash-list">
-                {filteredSessions.map(s => {
-                  const statusKey = s.status || 'complete'
-                  const color = s.color || '#6366F1'
-                  return (
-                    <li key={s.id}>
-                      <button
-                        className="dash-session-card"
-                        style={{ borderLeftColor: color }}
-                        onClick={() => navigate('/sessions')}
-                        aria-label={`${s.subject}, ${STATUS_LABELS[statusKey] || 'Complete'}, ${formatDuration(s.duration)}, ${formatDate(s.date)}. Go to Sessions.`}
-                      >
-                        <span
-                          aria-hidden="true"
-                          className={`material-symbols-outlined dash-status-icon dash-status-${statusKey}`}
-                        >
-                          {STATUS_ICONS[statusKey] || 'check_circle'}
-                        </span>
-                        <span className="dash-session-subject" style={{ borderBottomColor: color }}>
-                          {s.subject}
-                        </span>
-                        <span className="dash-sep" aria-hidden="true">&middot;</span>
-                        <span className="dash-session-meta">
-                          <span className="dash-date">{formatDate(s.date)}</span>
-                          <span className="dash-sep" aria-hidden="true">&middot;</span>
-                          <span className="dash-duration">{formatDuration(s.duration)}</span>
-                          {s.assignmentId && (
-                            <>
-                              <span className="dash-sep" aria-hidden="true">&middot;</span>
-                              <span className="dash-pomodoro-badge">
-                                <span className="material-symbols-outlined dash-pomodoro-icon" aria-hidden="true">timer</span>
-                                Pomodoro
-                              </span>
-                            </>
-                          )}
-                        </span>
-                      </button>
-                    </li>
-                  )
-                })}
+                {filteredSessions.map(s => (
+                  <DashboardSessionCard key={s.id} session={s} />
+                ))}
               </ul>
             )}
           </section>
@@ -535,7 +448,7 @@ export default function Dashboard() {
         <div className="confetti-overlay" aria-hidden="true">
           {CONFETTI_DATA.map((d, i) => (
             <div
-              key={i}
+              key={`confetti-${i}`}
               className="confetti-particle"
               style={{
                 '--p-tx': `${d.tx}px`,

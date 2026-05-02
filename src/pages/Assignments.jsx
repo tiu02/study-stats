@@ -1,44 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useAssignments } from '../hooks/useFirestore'
 import AssignmentForm from '../components/AssignmentForm'
+import AssignmentCard from '../components/AssignmentCard'
 import Modal from '../components/Modal'
 import PomodoroTimer from '../components/PomodoroTimer'
-import { formatDate, formatDuration, getUrgency } from '../utils/format'
 import './Assignments.css'
-
-/* Notes with 3-line clamp and "Show more" toggle — mirrors Sessions */
-function NotesPreview({ text }) {
-  const [expanded, setExpanded] = useState(false)
-  const textRef = useRef(null)
-  const [clamped, setClamped] = useState(false)
-
-  useEffect(() => {
-    const el = textRef.current
-    if (el) setClamped(el.scrollHeight > el.clientHeight + 1)
-  }, [text])
-
-  return (
-    <div className="assignment-card-notes-wrapper">
-      <p
-        ref={expanded ? null : textRef}
-        className={`assignment-card-notes${expanded ? '' : ' clamped'}`}
-      >
-        {text}
-      </p>
-      {(clamped || expanded) && (
-        <button
-          type="button"
-          className="btn-show-more"
-          onClick={() => setExpanded(!expanded)}
-          aria-expanded={expanded}
-        >
-          {expanded ? 'Show less' : 'Show more'}
-        </button>
-      )}
-    </div>
-  )
-}
 
 export default function Assignments() {
   const { currentUser } = useAuth()
@@ -417,106 +384,5 @@ export default function Assignments() {
         </>
       )}
     </div>
-  )
-}
-
-/* ===== Assignment Card ===== */
-
-function AssignmentCard({
-  assignment,
-  onToggleComplete,
-  onEdit,
-  onDuplicate,
-  onDelete,
-  isActive,
-  onTimerOpen,
-}) {
-  const a = assignment
-  const color = a.color || '#6366F1'
-  const urgency = a.completed ? null : getUrgency(a.dueDate)
-  const logged = a.totalMinutesLogged || 0
-
-  return (
-    <li className={`assignment-card${a.completed ? ' completed' : ''}`} style={{ borderLeftColor: color }}>
-      {/* Row 1: Checkbox + class pill + title + actions */}
-      <div className="assignment-card-top">
-        <label className="assignment-checkbox-label">
-          <input
-            type="checkbox"
-            checked={a.completed}
-            onChange={onToggleComplete}
-            aria-label={`Mark "${a.title}" as ${a.completed ? 'incomplete' : 'complete'}`}
-            className="assignment-checkbox"
-          />
-          <span className="assignment-checkbox-custom" />
-        </label>
-        <div className="assignment-card-info">
-          <div className="assignment-card-title-row">
-            <span
-              className="class-badge"
-              style={{ backgroundColor: color, color: '#ffffff' }}
-              title={a.subject}
-            >
-              {a.subject}
-            </span>
-            <h2 className="assignment-card-title" title={a.title}>{a.title}</h2>
-          </div>
-        </div>
-        <div className="assignment-card-actions">
-          <button className="btn-icon" onClick={onEdit} aria-label={`Edit ${a.title}`} title="Edit">
-            <span className="material-symbols-outlined" aria-hidden="true">edit</span>
-          </button>
-          <button className="btn-icon" onClick={onDuplicate} aria-label={`Duplicate ${a.title}`} title="Duplicate as template">
-            <span className="material-symbols-outlined" aria-hidden="true">content_copy</span>
-          </button>
-          <button className="btn-icon btn-icon-delete" onClick={onDelete} aria-label={`Delete ${a.title}`} title="Delete">
-            <span className="material-symbols-outlined" aria-hidden="true">delete</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Row 2: Due date + urgency */}
-      {/* Row 3: Logged time + Timer button */}
-      <div className="assignment-card-meta">
-        <div className="assignment-card-meta-row">
-          {urgency && (
-            <span className={`material-symbols-outlined urgency-icon urgency-${urgency}`} aria-hidden="true">
-              warning
-            </span>
-          )}
-          <span className={`assignment-due-date${urgency ? ` urgency-${urgency}` : ''}`}>
-            {urgency === 'overdue' ? `Overdue: ${formatDate(a.dueDate)}` : `Due ${formatDate(a.dueDate)}`}
-          </span>
-        </div>
-        {(logged > 0 || !a.completed) && (
-          <div className="assignment-card-meta-row">
-            {!a.completed && (
-              <button
-                type="button"
-                className={`assignment-timer-btn${isActive ? ' active' : ''}`}
-                onClick={onTimerOpen}
-                aria-label={`Open timer for ${a.title}`}
-                title="Focus Timer"
-              >
-                {isActive && <span className="assignment-timer-btn-dot" aria-hidden="true" />}
-                <span className="material-symbols-outlined" aria-hidden="true">timer</span>
-                Timer
-              </button>
-            )}
-            {!a.completed && logged > 0 && (
-              <span className="assignment-meta-sep" aria-hidden="true">&bull;</span>
-            )}
-            {logged > 0 && (
-              <span className="assignment-logged">
-                {formatDuration(logged)} logged
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Row 3: Notes (clamped) */}
-      {a.notes?.trim() && <NotesPreview text={a.notes} />}
-    </li>
   )
 }
